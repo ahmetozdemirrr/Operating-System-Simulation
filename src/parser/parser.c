@@ -320,79 +320,19 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index)
 }
 
 /**
- * @brief Removes comment lines (starting with '#') from an assembly file.
- *
- * Reads the input file, skips lines starting with '#', and writes the remaining
- * lines to a temporary file, then replaces the original file.
- *
- * @param filename Path to the assembly file.
- */
-static void 
-remove_comment(const char * filename)
-{
-    FILE * file = fopen(filename, "r");
-
-    if (file == NULL) {
-        fprintf(stderr, "ERROR: Could not open file: %s\n", filename);
-        return;
-    }
-    /* create a temp file for new version */
-    char temp_filename[] = "tempXXXXXX";
-    int temp_fd = mkstemp(temp_filename);
-    
-    if (temp_fd == -1) {
-        fprintf(stderr, "ERROR: Could not create temporary file\n");
-        fclose(file);
-        return;
-    }
-    FILE * temp_file = fdopen(temp_fd, "w");
-
-    if (temp_file == NULL) {
-        fprintf(stderr, "ERROR: Could not open temporary file\n");
-        fclose(file);
-        close(temp_fd);
-        return;
-    }
-    char * line_buffer = (char *)malloc(sizeof(char) * ASM_LINE_BUFFER_SIZE);
-
-    if (line_buffer == NULL) {
-        fprintf(stderr, "ERROR: Memory allocation failed at \"remove_comment\"\n");
-        fclose(file);
-        fclose(temp_file);
-        remove(temp_filename);
-        return;
-    }
-
-    while (fgets(line_buffer, ASM_LINE_BUFFER_SIZE, file) != NULL) {
-        char * clean_line = trim_whitespace(line_buffer);
-
-        if (strlen(clean_line) > 0 && clean_line[0] != '#') {
-            fprintf(temp_file, "%s\n", clean_line);
-        }
-    }
-    fclose(file);
-    fclose(temp_file);
-    free(line_buffer);
-
-    if (rename(temp_filename, filename) != 0) {
-        fprintf(stderr, "ERROR: Could not replace file %s\n", filename);
-        remove(temp_filename);
-        return;
-    }
-}
-
-/**
  * @brief Loads an assembly program from a file into memory using a DFA-based parser.
  *
- * This function reads an assembly file, removes comments, and parses its contents
- * into instructions and data using a DFA. The DFA starts in INITIAL_CONTEXT and
- * transitions to INSTRUCTION_CONTEXT or DATA_CONTEXT based on the file content.
- * Data lines are limited to 255, while instruction lines have no limit.
+ * This function reads an assembly file and parses its contents into instructions 
+ * and data using a DFA. The DFA starts in INITIAL_CONTEXT and transitions to 
+ * INSTRUCTION_CONTEXT or DATA_CONTEXT based on the file content. Data lines are 
+ * limited to 255, while instruction lines have no limit. Comments and empty lines 
+ * are skipped without modifying the original file.
  *
  * @param filename Path to the assembly file.
  * @param mem Pointer to the Memory structure where the program will be loaded.
  *
- * @return 0 on success, -1 on failure (e.g., file errors, parsing failures, or data line limits exceeded).
+ * @return 0 on success, -1 on failure (e.g., file errors, parsing failures, or 
+ * data line limits exceeded).
  */
 int
 load_program_from_file(const char * filename, Memory * mem)
@@ -401,7 +341,6 @@ load_program_from_file(const char * filename, Memory * mem)
         fprintf(stderr, "ERROR: NULL filename or memory pointer\n");
         return -1;
     }
-    remove_comment(filename);
 
     FILE * file = fopen(filename, "r");
     if (file == NULL) {
@@ -426,7 +365,7 @@ load_program_from_file(const char * filename, Memory * mem)
         line_number++;
 
         char * clean_line = trim_whitespace(line_buffer);
-        if (strlen(clean_line) == 0) {
+        if (strlen(clean_line) == 0 || clean_line[0] == '#') {
             continue;
         }
 
