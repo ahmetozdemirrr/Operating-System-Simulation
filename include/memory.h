@@ -21,7 +21,7 @@ typedef struct
 }
 Memory;
 
-void mem_init(Memory * mem, int size);
+void mem_init(Memory * mem);
 void mem_free(Memory * mem);
 void mem_write(Memory * mem, long int address, long int value, CPU_mode mode);
 long int mem_read(Memory * mem, long int address, CPU_mode mode);

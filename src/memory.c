@@ -15,7 +15,7 @@
  * @param size Requested size of the memory (currently ignored, uses MEM_SIZE).
  */
 void 
-mem_init(Memory * mem, int size)
+mem_init(Memory * mem)
 {
 	mem->size = MEM_SIZE;
 	memset(mem->data, 0, MEM_SIZE * sizeof(long int));

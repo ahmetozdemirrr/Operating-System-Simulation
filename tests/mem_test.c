@@ -23,7 +23,7 @@ int main(void)
 
     // 1. mem_init tests
     printf("\n--- mem_init Tests ---\n");
-    mem_init(&test_memory, MEM_SIZE);
+    mem_init(&test_memory);
     test_status = (test_memory.is_initialized == true &&
                    test_memory.size == MEM_SIZE &&
                    test_memory.data[REG_SP] == (long int)MEM_SIZE - 1 &&

@@ -2,30 +2,168 @@
 
 #include <parser.h>
 
-int 
-load_program_from_file(const char * filename, Memory * mem)
+/**
+ * @brief Trims leading and trailing whitespace from a string in-place.
+ *
+ * This function removes leading and trailing whitespace characters (as defined by
+ * isspace) from the input string by modifying it in-place. It adjusts the string by
+ * shifting the content to skip leading whitespace and null-terminating after the last
+ * non-whitespace character. The function is static, so it is only visible within this
+ * translation unit. If the input is NULL, NULL is returned.
+ *
+ * @param str Pointer to the null-terminated string to trim.
+ * @return Pointer to the trimmed string (adjusted for leading whitespace), or NULL if 
+ * input is NULL.
+ */
+static char * 
+trim_whitespace(char * str)
 {
+    if (str == NULL) {
+        return NULL;
+    }
+    int iter_begin = 0;
 
+    while (isspace(str[iter_begin])) {
+        iter_begin++;
+    }
+    int iter_end = strlen(str) - 1;
+
+    while (iter_end >= iter_begin && isspace(str[iter_end])) {
+        iter_end--;
+    }
+    
+    str[iter_end + 1] = '\0';
+    return str + iter_begin;
 }
 
+/**
+ * @brief Parses a data definition line from the assembly file and writes it to memory.
+ *
+ * This function processes a line from the data section of the assembly file, expecting
+ * a format of "<address> <value>", where <address> is the memory location and <value>
+ * is the data to be stored. The line is assumed to be pre-cleaned by remove_comment
+ * and trim_whitespace.
+ *
+ * @param line Pointer to the null-terminated string containing the data line.
+ * @param mem Pointer to the Memory structure where the data will be written.
+ *
+ * @return 0 on success, -1 on failure (e.g., NULL pointers, invalid address/value,
+ *         memory allocation failure, or extra tokens).
+ *
+ * @note The function allocates memory for a copy of the input line using strdup,
+ *       which must be freed before returning. Invalid numeric inputs are detected
+ *       using strtol with endptr. Extra tokens beyond <address> <value> result in
+ *       an error.
+ */
 static int 
 parse_data_line(const char * line, Memory * mem)
 {
+    if (line == NULL || mem == NULL) {
+        fprintf(stderr, "ERROR: NULL line or memory pointer\n");
+        return -1;
+    }
 
+    /* 1. address */
+    char * copy_line = strdup(line);
+    if (copy_line == NULL) {
+        fprintf(stderr, "ERROR: Memory allocation failed at \"parse_data_line\"\n");
+        return -1;
+    }
+
+    /* find the # character and cut the comment */
+    char * comment_start = strchr(copy_line, '#');
+    if (comment_start != NULL) {
+        *comment_start = '\0'; /* prtotect the before # part, remain is comment */
+        trim_whitespace(copy_line);
+    }
+
+    char * token = strtok(copy_line, " \t");
+    if (token == NULL) {
+        fprintf(stderr, "ERROR: Missing address for data definition\n");
+        free(copy_line);
+        return -1;
+    }
+
+    char * endptr;
+    long int address = strtol(token, &endptr, 10);
+    if (endptr == token || *endptr != '\0') {
+        fprintf(stderr, "ERROR: Invalid address: %s\n", token);
+        free(copy_line);
+        return -1;
+    }
+
+    /* 2. value */
+    token = strtok(NULL, " \t");
+    if (token == NULL) {
+        fprintf(stderr, "ERROR: Missing value for data definition\n");
+        free(copy_line);
+        return -1;
+    }
+
+    long int value = strtol(token, &endptr, 10);
+    if (endptr == token || *endptr != '\0') {
+        fprintf(stderr, "ERROR: Invalid value: %s\n", token);
+        free(copy_line);
+        return -1;
+    }
+
+    /* 3. checking extra token */
+    token = strtok(NULL, " \t");
+    if (token != NULL) {
+        fprintf(stderr, "ERROR: Unexpected extra tokens: %s\n", token);
+        free(copy_line);
+        return -1;
+    }
+    /* write to mem */
+    mem_write(mem, address, value, KERNEL);
+    free(copy_line);
+
+    return 0;
 }
 
+/**
+ * @brief Parses an instruction line from the assembly file and writes it to memory.
+ *
+ * This function processes a line from the instruction section of the assembly file,
+ * expecting a format of "<index> <MNEMONIC> [OPERAND1] [OPERAND2]", where <index> is
+ * the logical instruction index, <MNEMONIC> is the operation code (e.g., SET, SYSCALL),
+ * and [OPERAND1] [OPERAND2] are optional operands. The line is assumed to be pre-cleaned
+ * by remove_comment and trim_whitespace. The instruction is written to the memory
+ * starting at INSTRUCTION_AREA_START with an offset based on curr_insr_index.
+ *
+ * @param line Pointer to the null-terminated string containing the instruction line.
+ * @param mem Pointer to the Memory structure where the instruction will be written.
+ * @param curr_insr_index The logical index of the current instruction (0, 1, 2, ...),
+ *                        used to calculate the memory offset.
+ *
+ * @return 0 on success, -1 on failure (e.g., NULL pointers, invalid index/mnemonic/operands,
+ *         memory allocation failure, or mismatched index).
+ *
+ * @note The function allocates memory for a copy of the input line using strdup,
+ *       which must be freed before returning. The index is validated against
+ *       curr_insr_index (warning if mismatched). SYSCALL instructions require a
+ *       sub-instruction (e.g., PRN, HLT). Operand count is validated based on the
+ *       mnemonic using the Opcode enum.
+ */
 static int 
 parse_insr_line(const char * line, Memory * mem, int curr_insr_index)
 {
-	if (line == NULL || mem == NULL) {
-		fprintf(stderr, "ERROR: NULL line or memory pointer\n");
+    if (line == NULL || mem == NULL) {
+        fprintf(stderr, "ERROR: NULL line or memory pointer\n");
         return -1;
-	}
-	char * copy_line = strdup(line);
-	
-	if (copy_line == NULL) {
-        fprintf(stderr, "ERROR: Memory allocation failed\n");
+    }
+    char * copy_line = strdup(line);
+    
+    if (copy_line == NULL) {
+        fprintf(stderr, "ERROR: Memory allocation failed at \"parse_insr_line\"\n");
         return -1;
+    }
+
+    /* find the # character and cut the comment */
+    char * comment_start = strchr(copy_line, '#');
+    if (comment_start != NULL) {
+        *comment_start = '\0'; /* prtotect the before # part, remain is comment */
+        trim_whitespace(copy_line);
     }
 
     char * token = strtok(copy_line, " \t");
@@ -35,7 +173,13 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index)
         return -1;
     }
     /* 1 - index of instruction */
-    long int instruction_label_val = strtol(token, NULL, 10);
+    char * endptr;
+    long int instruction_label_val = strtol(token, &endptr, 10);
+    if (endptr == token || *endptr != '\0') {
+        fprintf(stderr, "ERROR: Invalid instruction index: %s\n", token);
+        free(copy_line);
+        return -1;
+    }
 
     if (instruction_label_val != curr_insr_index) {
         fprintf(stderr, "WARNING: Instruction index %ld does not match expected %d\n",
@@ -176,46 +320,6 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index)
 }
 
 /**
- * @brief Trims leading and trailing whitespace from a string in-place.
- *
- * This function removes leading and trailing whitespace characters (as defined by
- * isspace) from the input string by modifying it in-place. It adjusts the string by
- * shifting the content to skip leading whitespace and null-terminating after the last
- * non-whitespace character. The function is static, so it is only visible within this
- * translation unit. If the input is NULL, NULL is returned.
- *
- * @param str Pointer to the null-terminated string to trim.
- * @return Pointer to the trimmed string (adjusted for leading whitespace), or NULL if 
- * input is NULL.
- */
-static char * 
-trim_whitespace(char * str)
-{
-	if (str == NULL) {
-		return NULL;
-	}
-	int iter_begin = 0;
-
-	while (isspace(str[iter_begin])) {
-		iter_begin++;
-	}
-	int iter_end = strlen(str) - 1;
-
-	while (iter_end >= iter_begin && isspace(str[iter_end])) {
-		iter_end--;
-	}
-	
-	if (iter_end >= iter_begin) {
-        str[iter_end + 1] = '\0';
-    } 
-
-    else {
-        str[iter_begin] = '\0';
-    }
-	return str + iter_begin;
-}
-
-/**
  * @brief Removes comment lines (starting with '#') from an assembly file.
  *
  * Reads the input file, skips lines starting with '#', and writes the remaining
@@ -226,17 +330,17 @@ trim_whitespace(char * str)
 static void 
 remove_comment(const char * filename)
 {
-	FILE * file = fopen(filename, "r");
+    FILE * file = fopen(filename, "r");
 
-	if (file == NULL) {
-		fprintf(stderr, "ERROR: Could not open file: %s\n", filename);
-		return;
-	}
-	/* create a temp file for new version */
-	char temp_filename[] = "tempXXXXXX";
-	int temp_fd = mkstemp(temp_filename);
-	
-	if (temp_fd == -1) {
+    if (file == NULL) {
+        fprintf(stderr, "ERROR: Could not open file: %s\n", filename);
+        return;
+    }
+    /* create a temp file for new version */
+    char temp_filename[] = "tempXXXXXX";
+    int temp_fd = mkstemp(temp_filename);
+    
+    if (temp_fd == -1) {
         fprintf(stderr, "ERROR: Could not create temporary file\n");
         fclose(file);
         return;
@@ -249,27 +353,24 @@ remove_comment(const char * filename)
         close(temp_fd);
         return;
     }
-	char * line_buffer = (char *)malloc(sizeof(char) * ASM_LINE_BUFFER_SIZE);
+    char * line_buffer = (char *)malloc(sizeof(char) * ASM_LINE_BUFFER_SIZE);
 
-	if (line_buffer == NULL) {
-        fprintf(stderr, "ERROR: Memory allocation failed\n");
+    if (line_buffer == NULL) {
+        fprintf(stderr, "ERROR: Memory allocation failed at \"remove_comment\"\n");
         fclose(file);
         fclose(temp_file);
         remove(temp_filename);
         return;
     }
 
-	while (fgets(line_buffer, ASM_LINE_BUFFER_SIZE, file) != NULL) {
-		char * original_buffer = line_buffer;
-		char * clean_line = trim_whitespace(line_buffer);
+    while (fgets(line_buffer, ASM_LINE_BUFFER_SIZE, file) != NULL) {
+        char * clean_line = trim_whitespace(line_buffer);
 
-		if (strlen(clean_line) > 0 && clean_line[0] != '#') {
+        if (strlen(clean_line) > 0 && clean_line[0] != '#') {
             fprintf(temp_file, "%s\n", clean_line);
         }
-        /* for free, we keep the original address of buffer to avoid "invalid pointer" */
-        line_buffer = original_buffer;
-	}
-	fclose(file);
+    }
+    fclose(file);
     fclose(temp_file);
     free(line_buffer);
 
@@ -278,4 +379,127 @@ remove_comment(const char * filename)
         remove(temp_filename);
         return;
     }
+}
+
+/**
+ * @brief Loads an assembly program from a file into memory using a DFA-based parser.
+ *
+ * This function reads an assembly file, removes comments, and parses its contents
+ * into instructions and data using a DFA. The DFA starts in INITIAL_CONTEXT and
+ * transitions to INSTRUCTION_CONTEXT or DATA_CONTEXT based on the file content.
+ * Data lines are limited to 255, while instruction lines have no limit.
+ *
+ * @param filename Path to the assembly file.
+ * @param mem Pointer to the Memory structure where the program will be loaded.
+ *
+ * @return 0 on success, -1 on failure (e.g., file errors, parsing failures, or data line limits exceeded).
+ */
+int
+load_program_from_file(const char * filename, Memory * mem)
+{
+    if (filename == NULL || mem == NULL) {
+        fprintf(stderr, "ERROR: NULL filename or memory pointer\n");
+        return -1;
+    }
+    remove_comment(filename);
+
+    FILE * file = fopen(filename, "r");
+    if (file == NULL) {
+        fprintf(stderr, "ERROR: Could not open file: %s\n", filename);
+        return -1;
+    }
+
+    char * line_buffer = (char *)malloc(sizeof(char) * ASM_LINE_BUFFER_SIZE);
+    if (line_buffer == NULL) {
+        fprintf(stderr, "ERROR: Memory allocation failed at \"load_program_from_file\"\n");
+        fclose(file);
+        return -1;
+    }
+
+    Parser_State state = INITIAL_CONTEXT;
+    int curr_insr_index = 0;
+    int data_count = 0;
+    int line_number = 0;
+
+    while (fgets(line_buffer, ASM_LINE_BUFFER_SIZE, file) != NULL) 
+    {
+        line_number++;
+
+        char * clean_line = trim_whitespace(line_buffer);
+        if (strlen(clean_line) == 0) {
+            continue;
+        }
+
+        switch (state) 
+        {
+            case INITIAL_CONTEXT:
+                if (strcmp(clean_line, "Begin Data Section") == 0) {
+                    state = DATA_CONTEXT;
+                } 
+                else if (strcmp(clean_line, "Begin Instruction Section") == 0) {
+                    state = INSTRUCTION_CONTEXT;
+                } 
+                else {
+                    fprintf(stderr, "ERROR at line %d: Invalid initial line: %s\n", line_number, clean_line);
+                    state = ERROR_CONTEXT;
+                }
+                break;
+
+            case INSTRUCTION_CONTEXT:
+                if (strcmp(clean_line, "End Instruction Section") == 0) {
+                    state = INITIAL_CONTEXT;
+                } 
+                else if (strcmp(clean_line, "Begin Data Section") == 0 || 
+                         strcmp(clean_line, "End Data Section") == 0) {
+                    fprintf(stderr, "ERROR at line %d: Unexpected section marker %s before End Instruction Section\n", line_number, clean_line);
+                    state = ERROR_CONTEXT;
+                }
+                else if (parse_insr_line(clean_line, mem, curr_insr_index) != 0) {
+                    fprintf(stderr, "ERROR at line %d: Failed to parse instruction line: %s\n", line_number, clean_line);
+                    free(line_buffer);
+                    fclose(file);
+                    return -1;
+                }
+                else {
+                    curr_insr_index++;
+                }
+                break;
+
+            case DATA_CONTEXT:
+                if (strcmp(clean_line, "End Data Section") == 0) {
+                    state = INITIAL_CONTEXT;
+                } 
+                else if (strcmp(clean_line, "Begin Instruction Section") == 0 || 
+                         strcmp(clean_line, "End Instruction Section") == 0) {
+                    fprintf(stderr, "ERROR at line %d: Unexpected section marker %s before End Data Section\n", line_number, clean_line);
+                    state = ERROR_CONTEXT;
+                }
+                else if (parse_data_line(clean_line, mem) != 0) {
+                    fprintf(stderr, "ERROR at line %d: Failed to parse data line: %s\n", line_number, clean_line);
+                    free(line_buffer);
+                    fclose(file);
+                    return -1;
+                }
+                else {
+                    data_count++;
+                    
+                    if (data_count > MAX_DATA_LINES) {
+                        fprintf(stderr, "ERROR at line %d: Maximum data lines (%d) exceeded\n", line_number, MAX_DATA_LINES);
+                        free(line_buffer);
+                        fclose(file);
+                        return -1;
+                    }
+                }
+                break;
+
+            case ERROR_CONTEXT:
+                fprintf(stderr, "ERROR: Parsing stopped due to previous errors at line %d\n", line_number);
+                free(line_buffer);
+                fclose(file);
+                return -1;
+        }
+    }
+    free(line_buffer);
+    fclose(file);
+    return 0;
 }

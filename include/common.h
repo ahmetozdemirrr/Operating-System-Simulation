@@ -3,6 +3,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,6 +23,7 @@
 #define MAX_OPERANDS 2
 #define MAX_MNEMONIC_LENGTH 16
 #define ASM_LINE_BUFFER_SIZE 64
+#define INSTRUCTION_AREA_START 200
 
 typedef enum
 {
