@@ -17,9 +17,11 @@
 void 
 mem_init(Memory * mem)
 {
+    if (mem == NULL) {
+        fprintf(stderr, "ERROR: Memory is not a valid pointer (mem_init)\n");
+    }
 	mem->size = MEM_SIZE;
 	memset(mem->data, 0, MEM_SIZE * sizeof(long int));
-	mem->data[REG_SP] = MEM_SIZE - 1;
 	mem->is_initialized = true;
 }
 
@@ -35,6 +37,9 @@ mem_init(Memory * mem)
 void 
 mem_free(Memory * mem)
 {
+    if (mem == NULL) {
+        fprintf(stderr, "ERROR: Memory not initialized, cannot free...\n");
+    }
 	mem->is_initialized = false;
 }
 

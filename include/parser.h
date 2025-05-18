@@ -28,8 +28,6 @@ typedef enum
 }
 Parser_State;
 
-#define MAX_DATA_LINES 255
-
 int load_program_from_file(const char * filename, Memory * mem);
 
 #endif /* PARSER_H */

@@ -41,65 +41,69 @@ int main(void)
     else {
         printf("INFO: load_program_from_file completed successfully.\n");
 
-        printf("\nMemory Dump (Data Section):\n");
-        mem_dump(&test_memory, 0, 10);
-        mem_dump(&test_memory, 48, 10);
+        printf("\nMemory Dump (OS Data Section, 20-29):\n");
+        mem_dump(&test_memory, OS_DATA_START_ADDR, 10);
 
-        printf("\nMemory Dump (Instruction Section - INSTRUCTION_AREA_START assumption):\n");
-        mem_dump(&test_memory, INSTRUCTION_AREA_START, 15);
+        printf("\nMemory Dump (Thread 1 Data Section, 1000-1059):\n");
+        mem_dump(&test_memory, THREAD_DATA_START(1), 60);
 
-        // --- Specific Value Checks ---
+        printf("\nMemory Dump (Thread 1 Instruction Section, 1256-1270):\n");
+        mem_dump(&test_memory, THREAD_INSTR_START(1), 15);
+
+        // --- Specific Value Checks for OS ---
         bool data_check_pc = (mem_read(&test_memory, REG_PC, KERNEL) == 0);
-        print_test_result("Data Section: REG_PC value (0)", data_check_pc);
+        print_test_result("OS Data Section: REG_PC value (0)", data_check_pc);
         if (!data_check_pc) overall_test_status = false;
 
-        bool data_check_sp = (mem_read(&test_memory, REG_SP, KERNEL) == (long int)MEM_SIZE - 1); // as in test_parser.asm
-        print_test_result("Data Section: REG_SP value (MEM_SIZE-1)", data_check_sp);
+        bool data_check_sp = (mem_read(&test_memory, REG_SP, KERNEL) == (long int)MEM_SIZE - 1);
+        print_test_result("OS Data Section: REG_SP value (MEM_SIZE-1)", data_check_sp);
         if (!data_check_sp) overall_test_status = false;
-        
-        bool data_check_50 = (mem_read(&test_memory, 50, KERNEL) == 100);
-        print_test_result("Data Section: Address 50 value (100)", data_check_50);
-        if (!data_check_50) overall_test_status = false;
 
-        bool data_check_51 = (mem_read(&test_memory, 51, KERNEL) == 200);
-        print_test_result("Data Section: Address 51 value (200)", data_check_51);
-        if (!data_check_51) overall_test_status = false;
+        // --- Specific Value Checks for Thread 1 ---
+        bool data_check_1050 = (mem_read(&test_memory, 1000 + 50, KERNEL) == 100);
+        print_test_result("Thread 1 Data Section: Address 1050 value (100)", data_check_1050);
+        if (!data_check_1050) overall_test_status = false;
 
-        bool data_check_52 = (mem_read(&test_memory, 52, KERNEL) == -5);
-        print_test_result("Data Section: Address 52 value (-5)", data_check_52);
-        if (!data_check_52) overall_test_status = false;
+        bool data_check_1051 = (mem_read(&test_memory, 1000 + 51, KERNEL) == 200);
+        print_test_result("Thread 1 Data Section: Address 1051 value (200)", data_check_1051);
+        if (!data_check_1051) overall_test_status = false;
 
-        long int instr_base = INSTRUCTION_AREA_START;
-        long int instr_size = 1 + MAX_OPERANDS;
+        bool data_check_1052 = (mem_read(&test_memory, 1000 + 52, KERNEL) == -5);
+        print_test_result("Thread 1 Data Section: Address 1052 value (-5)", data_check_1052);
+        if (!data_check_1052) overall_test_status = false;
 
-        // Command 0: CPY 50 600
+        long int instr_base = THREAD_INSTR_START(1); // 1256 for Thread 1
+        long int instr_size = INSTR_SIZE; // 1 opcode + 2 operands = 3
+
+        // Command 0: CPY 50 600 (Thread 1 relative addresses: 1050 to 1600)
         bool instr0_op = (mem_read(&test_memory, instr_base + 0 * instr_size, KERNEL) == (long int)OPCODE_CPY);
         bool instr0_p1 = (mem_read(&test_memory, instr_base + 0 * instr_size + 1, KERNEL) == 50);
         bool instr0_p2 = (mem_read(&test_memory, instr_base + 0 * instr_size + 2, KERNEL) == 600);
-        print_test_result("Command 0: CPY 50 600", instr0_op && instr0_p1 && instr0_p2);
+        print_test_result("Thread 1 Command 0: CPY 50 600", instr0_op && instr0_p1 && instr0_p2);
         if (!(instr0_op && instr0_p1 && instr0_p2)) overall_test_status = false;
 
-        // Command 1: ADDI 600 51
+        // Command 1: ADDI 600 51 (Thread 1 relative addresses: 1600 and 1051)
         bool instr1_op = (mem_read(&test_memory, instr_base + 1 * instr_size, KERNEL) == (long int)OPCODE_ADDI);
         bool instr1_p1 = (mem_read(&test_memory, instr_base + 1 * instr_size + 1, KERNEL) == 600);
         bool instr1_p2 = (mem_read(&test_memory, instr_base + 1 * instr_size + 2, KERNEL) == 51);
-        print_test_result("Command 1: ADDI 600 51", instr1_op && instr1_p1 && instr1_p2);
+        print_test_result("Thread 1 Command 1: ADDI 600 51", instr1_op && instr1_p1 && instr1_p2);
         if (!(instr1_op && instr1_p1 && instr1_p2)) overall_test_status = false;
 
-        // Command 2: SYSCALL PRN 600
+        // Command 2: SYSCALL PRN 600 (Thread 1 relative address: 1600)
         bool instr2_op = (mem_read(&test_memory, instr_base + 2 * instr_size, KERNEL) == (long int)OPCODE_SYSCALL_PRN);
         bool instr2_p1 = (mem_read(&test_memory, instr_base + 2 * instr_size + 1, KERNEL) == 600);
         bool instr2_p2 = (mem_read(&test_memory, instr_base + 2 * instr_size + 2, KERNEL) == 0);
-        print_test_result("Command 2: SYSCALL PRN 600", instr2_op && instr2_p1 && instr2_p2);
+        print_test_result("Thread 1 Command 2: SYSCALL PRN 600", instr2_op && instr2_p1 && instr2_p2);
         if (!(instr2_op && instr2_p1 && instr2_p2)) overall_test_status = false;
 
         // Command 3: HLT
         bool instr3_op = (mem_read(&test_memory, instr_base + 3 * instr_size, KERNEL) == (long int)OPCODE_HLT);
         bool instr3_p1 = (mem_read(&test_memory, instr_base + 3 * instr_size + 1, KERNEL) == 0);
         bool instr3_p2 = (mem_read(&test_memory, instr_base + 3 * instr_size + 2, KERNEL) == 0);
-        print_test_result("Command 3: HLT", instr3_op && instr3_p1 && instr3_p2);
+        print_test_result("Thread 1 Command 3: HLT", instr3_op && instr3_p1 && instr3_p2);
         if (!(instr3_op && instr3_p1 && instr3_p2)) overall_test_status = false;
     }
+
     printf("\nParser Module Tests Completed.\n");
     if (overall_test_status) {
         printf("ALL PARSER TESTS PASSED!\n");

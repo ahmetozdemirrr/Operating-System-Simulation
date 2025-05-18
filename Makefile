@@ -44,17 +44,17 @@ $(PARSER_TEST_TARGET): $(PARSER_OBJS)
 # rule for creating .o files in obj from .c files in src directory
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
-	@echo "Derlendi: $< -> $@"
+	@echo "Compiled: $< -> $@"
 
 # rule for creating .o files in obj from .c files in src/parser directory
 $(OBJ_DIR)/%.o: $(SRC_DIR)/parser/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
-	@echo "Derlendi: $< -> $@"
+	@echo "Compiled: $< -> $@"
 
 # rule for creating .o files in obj from .c files in tests directory
 $(OBJ_DIR)/%.o: $(TEST_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
-	@echo "Derlendi: $< -> $@"
+	@echo "Compiled: $< -> $@"
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
