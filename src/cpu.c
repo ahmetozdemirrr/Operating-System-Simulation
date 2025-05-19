@@ -36,28 +36,53 @@ check_cpu(const CPU * cpu, const char * caller)
 }
 
 static void
-check_address(const CPU * cpu, const long int relative_address, const char * context)
+check_data_address(const CPU * cpu, const long int relative_address, const char * context)
 {
-	if (relative_address < 0 || relative_address >= ENTITY_DATA_SIZE) {
+	long int max_data_size = ENTITY_DATA_SIZE;
+
+    if (cpu->curr_thread_id == OS_ID) {
+        max_data_size = OS_DATA_END_ADDR - OS_DATA_START_ADDR + 1;
+    }
+
+	if (relative_address < 0 || relative_address >= max_data_size) {
 		fprintf(stderr,
 				"FATAL ERROR: Entity %d (mode %d) %s: Relative source address %ld is out of bounds (0-%d).\n",
 				cpu->curr_thread_id,
 				cpu->mode,
 				context,
 				relative_address,
-				ENTITY_DATA_SIZE - 1);
-		exit(EXIT_FAILURE);;
+				max_data_size - 1);
+		exit(EXIT_FAILURE);
 	}
+}
+
+static void
+check_instruction_address(const CPU * cpu, const long int relative_address, const char * context)
+{
+	long int max_instr_size = ENTITY_INSTR_SIZE;
+
+    if (cpu->curr_thread_id == OS_ID) {
+        max_instr_size = OS_BLOCK_END_ADDR - OS_INSTRUCTION_START_ADDR + 1;
+    }
+    if (relative_address < 0 || relative_address >= max_instr_size) {
+        fprintf(stderr,
+                "FATAL ERROR: Entity %d (mode %d) %s: Relative instruction address %ld is out of bounds (0-%ld).\n",
+                cpu->curr_thread_id,
+                cpu->mode,
+                context,
+                relative_address,
+                max_instr_size - 1);
+        exit(EXIT_FAILURE);
+    }
 }
 
 static void
 exec_set(CPU * cpu, long int value, long int relative_address)
 {
 	check_cpu(cpu, __func__);
-	check_address(cpu, relative_address, "SET");
+	check_data_address(cpu, relative_address, "SET");
 
 	long int absolute_addr = cpu->curr_data_base_for_active_entity + relative_address;
-
 	mem_write(cpu->mem, absolute_addr, value, cpu->mode);
 }
 
@@ -65,8 +90,8 @@ static void
 exec_cpy(CPU * cpu, long int relative_src_address, long int relative_dest_address)
 {
 	check_cpu(cpu, __func__);
-	check_address(cpu, relative_src_address,  "CPY");
-	check_address(cpu, relative_dest_address, "CPY");
+	check_data_address(cpu, relative_src_address,  "CPY");
+	check_data_address(cpu, relative_dest_address, "CPY");
 
 	long int absolute_src_address  = cpu->curr_data_base_for_active_entity +  relative_src_address;
 	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
@@ -78,8 +103,8 @@ static void
 exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_address)
 {
 	check_cpu(cpu, __func__);
-	check_address(cpu, relative_address_of_ptr, "CPYI");
-	check_address(cpu, relative_dest_address,   "CPYI");
+	check_data_address(cpu, relative_address_of_ptr, "CPYI");
+	check_data_address(cpu, relative_dest_address,   "CPYI");
 
 	long int pointer_absolute_address  = cpu->curr_data_base_for_active_entity + relative_address_of_ptr;
 	long int absolute_dest_address     = cpu->curr_data_base_for_active_entity + relative_dest_address;
@@ -93,7 +118,7 @@ exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_ad
 				pointer_absolute_address,
 				indirect_src_absolute_address,
 				MEM_SIZE - 1);
-		exit(EXIT_FAILURE);;
+		exit(EXIT_FAILURE);
 	}
 	mem_write(cpu->mem, absolute_dest_address, mem_read(cpu->mem, indirect_src_absolute_address, cpu->mode), cpu->mode);
 }
@@ -102,7 +127,7 @@ static void
 exec_add(CPU * cpu, long int relative_dest_address, long int value_to_add)
 {
 	check_cpu(cpu, __func__);
-	check_address(cpu, relative_dest_address, "ADD");
+	check_data_address(cpu, relative_dest_address, "ADD");
 
 	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
 	long int dest_value = mem_read(cpu->mem, absolute_dest_address, cpu->mode);
@@ -123,8 +148,8 @@ static void
 exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_address)
 {
 	check_cpu(cpu, __func__);
-	check_address(cpu, relative_dest_address, "ADDI");
-	check_address(cpu, relative_src_address,  "ADDI");
+	check_data_address(cpu, relative_dest_address, "ADDI");
+	check_data_address(cpu, relative_src_address,  "ADDI");
 	
 	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
 	long int absolute_src_address  = cpu->curr_data_base_for_active_entity + relative_src_address;
@@ -148,8 +173,8 @@ static void
 exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_address)
 {
 	check_cpu(cpu, __func__);
-	check_address(cpu, relative_dest_address, "SUBI");
-	check_address(cpu, relative_src_address,  "SUBI");
+	check_data_address(cpu, relative_dest_address, "SUBI");
+	check_data_address(cpu, relative_src_address,  "SUBI");
 	
 	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
 	long int absolute_src_address  = cpu->curr_data_base_for_active_entity + relative_src_address;
@@ -170,21 +195,64 @@ exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_addre
 }
 
 static void
-exec_jif()
+exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_pc_address)
 {
+	check_cpu(cpu, __func__);
+	check_data_address(cpu, relative_condition_address, "JIF");
+	check_instruction_address(cpu, relative_new_pc_address, "JIF");
 
+	long int absolute_condition_address = cpu->curr_data_base_for_active_entity + relative_condition_address;
+	long int condition_value = mem_read(cpu->mem, absolute_condition_address, cpu->mode);
+
+	if (condition_value <= 0) {
+		/* Each instruction takes INSTR_SIZE (3) bytes, so multiply relative_new_pc_address by INSTR_SIZE */
+		long int absolute_instruction_address = cpu->curr_instruction_base_for_active_entity + (relative_new_pc_address * INSTR_SIZE);
+		mem_write(cpu->mem, REG_PC, absolute_instruction_address, cpu->mode);
+	}
 }
 
 static void
-exec_push()
+exec_push(CPU * cpu, long int relative_element_address)
 {
+	check_cpu(cpu, __func__);
+	check_data_address(cpu, relative_element_address, "PUSH");
 
+	long int absolute_element_address = cpu->curr_data_base_for_active_entity + relative_element_address;
+	long int element_value = mem_read(cpu->mem, absolute_element_address, cpu->mode);
+
+	long int target_address = mem_read(cpu->mem, REG_SP, cpu->mode);
+
+	if (target_address == 0 || target_address > THREAD_BLOCK_END(cpu->curr_thread_id)) {
+        target_address = THREAD_BLOCK_END(cpu->curr_thread_id);
+        mem_write(cpu->mem, REG_SP, target_address, cpu->mode);
+    }
+
+    if (target_address - 1 < 0) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in PUSH for entity %d\n", cpu->curr_thread_id);
+        exit(EXIT_FAILURE);
+    }
+	mem_write(cpu->mem, target_address, element_value, cpu->mode);
+	mem_write(cpu->mem, REG_SP, target_address - 1, cpu->mode);
 }
 
 static void
-exec_pop()
+exec_pop(CPU * cpu, long int relative_dest_address)
 {
+	check_cpu(cpu, __func__);
+	check_data_address(cpu, relative_dest_address, "POP");
 
+	long int element_adress = mem_read(cpu->mem, REG_SP, cpu->mode);
+
+	if (element_address >= THREAD_BLOCK_END(cpu->curr_thread_id)) {
+        fprintf(stderr, "FATAL ERROR: Stack underflow in POP for entity %d\n", cpu->curr_thread_id);
+        exit(EXIT_FAILURE);
+    }
+	long int element = mem_read(cpu->mem, element_adress, cpu->mode);
+
+	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
+
+	mem_write(cpu->mem, absolute_dest_address, element, cpu->mode);
+	mem_write(cpu->mem, REG_SP, element_adress + 1, cpu->mode);
 }
 
 static void
@@ -334,11 +402,11 @@ cpu_execute_instruction(CPU * cpu)
 			break;
 
 		case OPCODE_CALL:
-			exec_call(cpu, operand_1);
+			exec_call(cpu, operand_1, &next_pc_address);
 			break;
 
 		case OPCODE_RET:
-			exec_ret(cpu);
+			exec_ret(cpu, &next_pc_address);
 			break;
 
 		case OPCODE_HLT:
