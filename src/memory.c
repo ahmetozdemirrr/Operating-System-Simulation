@@ -17,9 +17,9 @@
 void 
 mem_init(Memory * mem)
 {
-    if (mem == NULL) {
-        fprintf(stderr, "ERROR: Memory is not a valid pointer (mem_init)\n");
-    }
+	if (mem == NULL) {
+		fprintf(stderr, "ERROR: Memory is not a valid pointer (mem_init)\n");
+	}
 	mem->size = MEM_SIZE;
 	memset(mem->data, 0, MEM_SIZE * sizeof(long int));
 	mem->is_initialized = true;
@@ -37,9 +37,9 @@ mem_init(Memory * mem)
 void 
 mem_free(Memory * mem)
 {
-    if (mem == NULL) {
-        fprintf(stderr, "ERROR: Memory not initialized, cannot free...\n");
-    }
+	if (mem == NULL) {
+		fprintf(stderr, "ERROR: Memory not initialized, cannot free...\n");
+	}
 	mem->is_initialized = false;
 }
 
@@ -71,7 +71,7 @@ mem_read(Memory * mem, long int address, CPU_mode curr_mode)
 
 	if (address < 1000 && curr_mode == USER) {
 		fprintf(stderr, "ERROR: User Mode Protection Violation! Address %ld (range 0-999) is not accessible for reading.\n", address);
-        exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 	return mem->data[address];
 }
@@ -104,7 +104,7 @@ mem_write(Memory * mem, long int address, long int value, CPU_mode curr_mode)
 
 	if (address < 1000 && curr_mode == USER) {
 		fprintf(stderr, "ERROR: User Mode Protection Violation! Address %ld (range 0-999) is not accessible for writing.\n", address);
-        exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 	mem->data[address] = value;
 }
@@ -125,56 +125,56 @@ mem_write(Memory * mem, long int address, long int value, CPU_mode curr_mode)
 void 
 mem_dump(const Memory * mem, int start_addr, int count)
 {
-    if (mem == NULL) {
-        fprintf(stderr, "ERROR (mem_dump): Invalid memory pointer (NULL)!\n");
-        return;
-    }
+	if (mem == NULL) {
+		fprintf(stderr, "ERROR (mem_dump): Invalid memory pointer (NULL)!\n");
+		return;
+	}
 
-    if (!mem->is_initialized) {
-        fprintf(stderr, "WARNING (mem_dump): Memory not initialized. Dump might be inaccurate.\n");
-    }
+	if (!mem->is_initialized) {
+		fprintf(stderr, "WARNING (mem_dump): Memory not initialized. Dump might be inaccurate.\n");
+	}
 
-    if (start_addr < 0) {
-        fprintf(stderr, "WARNING (mem_dump): Start address (%d) cannot be negative. Setting to 0.\n", start_addr);
-        start_addr = 0;
-    }
+	if (start_addr < 0) {
+		fprintf(stderr, "WARNING (mem_dump): Start address (%d) cannot be negative. Setting to 0.\n", start_addr);
+		start_addr = 0;
+	}
 
-    if (start_addr >= mem->size) {
-        fprintf(stderr, "WARNING (mem_dump): Start address (%d) exceeds memory size (%d). Cannot dump.\n", start_addr, mem->size);
-        return;
-    }
+	if (start_addr >= mem->size) {
+		fprintf(stderr, "WARNING (mem_dump): Start address (%d) exceeds memory size (%d). Cannot dump.\n", start_addr, mem->size);
+		return;
+	}
 
-    if (count <= 0) {
-        fprintf(stderr, "WARNING (mem_dump): Element count for dump (%d) must be positive. Not dumping.\n", count);
-        return;
-    }
+	if (count <= 0) {
+		fprintf(stderr, "WARNING (mem_dump): Element count for dump (%d) must be positive. Not dumping.\n", count);
+		return;
+	}
 
-    if (start_addr + count > mem->size) {
-        fprintf(stderr, "WARNING (mem_dump): Requested dump range exceeds memory limits. "
-                        "Dumping only the valid portion.\n");
-        count = mem->size - start_addr;
-    }
-    fprintf(stderr, "\n--- Memory Dump (Starting from Address %d, %d elements) ---\n", start_addr, count);
+	if (start_addr + count > mem->size) {
+		fprintf(stderr, "WARNING (mem_dump): Requested dump range exceeds memory limits. "
+						"Dumping only the valid portion.\n");
+		count = mem->size - start_addr;
+	}
+	fprintf(stderr, "\n--- Memory Dump (Starting from Address %d, %d elements) ---\n", start_addr, count);
 
-    int values_per_line = 8;
-    
-    for (int i = 0; i < count; ++i) 
-    {
-        int current_addr = start_addr + i;
+	int values_per_line = 8;
 
-        if (i % values_per_line == 0) {
-            if (i > 0) {
-                fprintf(stderr, "\n");
-            }
-            fprintf(stderr, "[%05d]: ", current_addr);
-        }
-        fprintf(stderr, "%11ld ", mem->data[current_addr]);
+	for (int i = 0; i < count; ++i)
+	{
+		int current_addr = start_addr + i;
 
-        if      (current_addr == REG_PC) fprintf(stderr, "(PC) ");
-        else if (current_addr == REG_SP) fprintf(stderr, "(SP) ");
-        else if (current_addr == REG_SYSCALL_RESULT) fprintf(stderr, "(SYS_RES) ");
-        else if (current_addr == REG_INSTR_COUNT) fprintf(stderr, "(INSTR_CNT) ");
-        else if (current_addr >= REG_RESERVED_START && current_addr <= REG_RESERVED_END) fprintf(stderr, "(RES) ");
-    }
-    fprintf(stderr, "\n--- End of Memory Dump ---\n\n");
+		if (i % values_per_line == 0) {
+			if (i > 0) {
+				fprintf(stderr, "\n");
+			}
+			fprintf(stderr, "[%05d]: ", current_addr);
+		}
+		fprintf(stderr, "%11ld ", mem->data[current_addr]);
+
+		if      (current_addr == REG_PC) fprintf(stderr, "(PC) ");
+		else if (current_addr == REG_SP) fprintf(stderr, "(SP) ");
+		else if (current_addr == REG_SYSCALL_RESULT) fprintf(stderr, "(SYS_RES) ");
+		else if (current_addr == REG_INSTR_COUNT) fprintf(stderr, "(INSTR_CNT) ");
+		else if (current_addr >= REG_RESERVED_START && current_addr <= REG_RESERVED_END) fprintf(stderr, "(RES) ");
+	}
+	fprintf(stderr, "\n--- End of Memory Dump ---\n\n");
 }

@@ -1,0 +1,27 @@
+# EditorConfig helps maintain consistent coding styles across different editors and IDEs
+# See http://editorconfig.org for more details
+
+# Top-most EditorConfig file
+root = true
+
+# Default settings for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Settings for C files (*.c, *.h)
+[*.{c,h}]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+# Settings for other common file types (optional, adjust as needed)
+[*.{Makefile}]
+indent_style = tab
+indent_size = 4
+
+# Ignore binary files
+[*.{png,jpg,jpeg,gif,ico,bin,exe,o,so,a}]
+editorconfig-ignore = true

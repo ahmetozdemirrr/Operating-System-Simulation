@@ -14,14 +14,14 @@ check_cpu(const CPU * cpu, const char * caller)
 	if (cpu->mem == NULL) {
 		fprintf(stderr, "FATAL ERROR: CPU's Memory pointer is NULL, from %s\n", caller);
 		exit(EXIT_FAILURE);
-	}	
+	}
 
 	if (!cpu->mem->is_initialized) {
 		fprintf(stderr, "FATAL ERROR: Memory (via CPU) is not initialized, from %s\n", caller);
 		exit(EXIT_FAILURE);
 	}
 
-	if (cpu->mode != USER && cpu.mode != KERNEL) {
+	if (cpu->mode != USER && cpu->mode != KERNEL) {
 		fprintf(stderr, "FATAL ERROR: Invalid CPU mode (%d), from %s\n", cpu->mode, caller);
 		exit(EXIT_FAILURE);
 	}
@@ -29,25 +29,25 @@ check_cpu(const CPU * cpu, const char * caller)
 	if (cpu->curr_thread_id < OS_ID || cpu->curr_thread_id >= MAX_PROGRAM_ENTITIES) {
 		fprintf(stderr, 
 				"FATAL ERROR: Invalid thread id (%d), from %s. Valid range: %d-%d\n",
-                cpu->curr_thread_id, caller, OS_ID, MAX_PROGRAM_ENTITIES -1);
+				cpu->curr_thread_id, caller,
+				OS_ID, MAX_PROGRAM_ENTITIES -1);
 		exit(EXIT_FAILURE);
 	}
 }
 
-static bool
-check_address(const CPU * cpu, const long int address, const char * context)
+static void
+check_address(const CPU * cpu, const long int relative_address, const char * context)
 {
-	if (address < 0 || address >= ENTITY_DATA_SIZE) {
-        fprintf(stderr, 
-        		"FATAL ERROR: Entity %d (mode %d) %s: Relative source address %ld is out of bounds (0-%d).\n",
-                cpu->curr_thread_id, 
-                cpu->mode, 
-                context,
-                address,
-                ENTITY_DATA_SIZE - 1);
-        return false;
-    }
-    return true;
+	if (relative_address < 0 || relative_address >= ENTITY_DATA_SIZE) {
+		fprintf(stderr,
+				"FATAL ERROR: Entity %d (mode %d) %s: Relative source address %ld is out of bounds (0-%d).\n",
+				cpu->curr_thread_id,
+				cpu->mode,
+				context,
+				relative_address,
+				ENTITY_DATA_SIZE - 1);
+		exit(EXIT_FAILURE);;
+	}
 }
 
 static void
@@ -67,7 +67,7 @@ exec_cpy(CPU * cpu, long int relative_src_address, long int relative_dest_addres
 	check_cpu(cpu, __func__);
 	check_address(cpu, relative_src_address,  "CPY");
 	check_address(cpu, relative_dest_address, "CPY");
-	
+
 	long int absolute_src_address  = cpu->curr_data_base_for_active_entity +  relative_src_address;
 	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
 
@@ -87,30 +87,36 @@ exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_ad
 	long int indirect_src_absolute_address = mem_read(cpu->mem, pointer_absolute_address, cpu->mode);
 	
 	if (indirect_src_absolute_address < 0 || indirect_src_absolute_address >= MEM_SIZE) {
-        fprintf(stderr, "ERROR: Entity %d CPYI: Indirect source address %ld (read from %ld) is out of MEMORY bounds (0-%d)\n",
-                cpu->curr_thread_id, 
-                cpu->mode, 
-                indirect_src_absolute_address, 
-                pointer_absolute_address, 
-                MEM_SIZE - 1);
-        cpu->is_halted = true;
-        return;
-    }
-	mem_write(cpu->mem, absolute_des_addr, mem_read(cpu->mem, indirect_src_absolute_address, cpu->mode), cpu->mode);
+		fprintf(stderr,
+				"ERROR: Entity %d CPYI: Indirect source address %ld (read from %ld) is out of MEMORY bounds (0-%d)\n",
+				cpu->curr_thread_id,
+				pointer_absolute_address,
+				indirect_src_absolute_address,
+				MEM_SIZE - 1);
+		exit(EXIT_FAILURE);;
+	}
+	mem_write(cpu->mem, absolute_dest_address, mem_read(cpu->mem, indirect_src_absolute_address, cpu->mode), cpu->mode);
 }
 
 static void
-exec_add(CPU * cpu, long int relative_dest_address, long int value)
+exec_add(CPU * cpu, long int relative_dest_address, long int value_to_add)
 {
 	check_cpu(cpu, __func__);
 	check_address(cpu, relative_dest_address, "ADD");
-	
-	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
 
-	mem_write(cpu->mem, 
-			  absolute_dest_address, 
-			  value + mem_read(cpu->mem, absolute_dest_address, cpu->mode),
-			  cpu->mode);
+	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
+	long int dest_value = mem_read(cpu->mem, absolute_dest_address, cpu->mode);
+
+	/* Overflow check */
+	if ((value_to_add > 0 && dest_value > LONG_MAX - value_to_add) ||
+		(value_to_add < 0 && dest_value < LONG_MIN - value_to_add)) {
+		fprintf(stderr,
+				"ERROR: Overflow in ADD operation for entity %d at address %ld\n",
+				cpu->curr_thread_id,
+				absolute_dest_address);
+		exit(EXIT_FAILURE);
+	}
+	mem_write(cpu->mem, absolute_dest_address, value_to_add + dest_value, cpu->mode);
 }
 
 static void
@@ -123,10 +129,19 @@ exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_addre
 	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
 	long int absolute_src_address  = cpu->curr_data_base_for_active_entity + relative_src_address;
 
-	mem_write(cpu->mem, 
-			  absolute_dest_address, 
-			  mem_read(cpu->mem, absolute_src_address, cpu->mode) + mem_read(cpu->mem, absolute_dest_address, cpu->mode),
-			  cpu->mode);
+	long int src_value  = mem_read(cpu->mem, absolute_src_address,  cpu->mode);
+	long int dest_value = mem_read(cpu->mem, absolute_dest_address, cpu->mode);
+
+	/* Overflow check */
+	if ((src_value > 0 && dest_value > LONG_MAX - src_value) ||
+		(src_value < 0 && dest_value < LONG_MIN - src_value)) {
+		fprintf(stderr,
+				"ERROR: Overflow in ADDI operation for entity %d at address %ld\n",
+				cpu->curr_thread_id,
+				absolute_dest_address);
+		exit(EXIT_FAILURE);
+	}
+	mem_write(cpu->mem, absolute_dest_address, src_value + dest_value, cpu->mode);
 }
 
 static void
@@ -139,10 +154,19 @@ exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_addre
 	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
 	long int absolute_src_address  = cpu->curr_data_base_for_active_entity + relative_src_address;
 
-	mem_write(cpu->mem,
-			  absolute_dest_address,
-			  mem_read(cpu->mem, absolute_src_address, cpu->mode) - mem_read(cpu->mem, absolute_dest_address, cpu->mode)
-			  cpu->mode);
+	long int src_value  = mem_read(cpu->mem, absolute_src_address,  cpu->mode);
+	long int dest_value = mem_read(cpu->mem, absolute_dest_address, cpu->mode);
+
+	/* Overflow check */
+	if ((dest_value > 0 && src_value < LONG_MIN + dest_value) ||
+		(dest_value < 0 && src_value > LONG_MAX + dest_value)) {
+		fprintf(stderr,
+				"ERROR: Overflow in SUBI operation for entity %d at address %ld\n",
+				cpu->curr_thread_id,
+				absolute_dest_address);
+		exit(EXIT_FAILURE);
+	}
+	mem_write(cpu->mem, absolute_dest_address, src_value - dest_value, cpu->mode);
 }
 
 static void
@@ -231,7 +255,7 @@ cpu_init(CPU * cpu, Memory * mem)
 void 
 cpu_execute_instruction(CPU * cpu)
 {
-	if (cpu->is_halted)	{
+	if (cpu->is_halted) {
 		return;
 	}
 	check_cpu(cpu, __func__);
@@ -248,10 +272,12 @@ cpu_execute_instruction(CPU * cpu)
 	/*********************** FETCHING PART ***********************/
 	long int current_pc_address = mem_read(cpu->mem, REG_PC, cpu->mode);
 	if (current_pc_address < 0 || current_pc_address + INSTR_SIZE > MEM_SIZE) {
-         fprintf(stderr, "FATAL ERROR: Program Counter (REG_PC: %ld) is out of valid memory bounds or too close to end.\n", current_pc_value);
-         cpu->is_halted = true;
-         return;
-    }
+		 fprintf(stderr,
+				"FATAL ERROR: Program Counter (REG_PC: %ld) is out of valid memory bounds or too close to end.\n",
+				current_pc_address);
+		 cpu->is_halted = true;
+		 return;
+	}
 	/*********************** FETCHING PART ***********************/
 
 	/*********************** DECODE PART ***********************/
@@ -259,7 +285,7 @@ cpu_execute_instruction(CPU * cpu)
 	long int operand_1_addr = current_pc_address + 1;
 	long int operand_2_addr = current_pc_address + 2;
 
-	long int opcode_num = mem_read(cpu->mem, opcode_addr,    cpu->mode);
+	long int opcode_numeric = mem_read(cpu->mem, opcode_addr,    cpu->mode);
 	Opcode opcode = (Opcode)opcode_numeric;
 	long int operand_1  = mem_read(cpu->mem, operand_1_addr, cpu->mode);
 	long int operand_2  = mem_read(cpu->mem, operand_2_addr, cpu->mode);
@@ -271,74 +297,74 @@ cpu_execute_instruction(CPU * cpu)
 	/*********************** EXECUTE PART ***********************/
 	switch (opcode)
 	{
-	    case OPCODE_SET:
-	    	exec_set(cpu, operand_1, operand_2);
-	    	break;
+		case OPCODE_SET:
+			exec_set(cpu, operand_1, operand_2);
+			break;
 
-	    case OPCODE_CPY:
-	    	exec_cpy(cpu, operand_1, operand_2);
-	    	break;
+		case OPCODE_CPY:
+			exec_cpy(cpu, operand_1, operand_2);
+			break;
 
-	    case OPCODE_CPYI:
-	    	exec_cpyi(cpu, operand_1, operand_2);
-	    	break;
+		case OPCODE_CPYI:
+			exec_cpyi(cpu, operand_1, operand_2);
+			break;
 
-	    case OPCODE_ADD:
-	    	exec_add(cpu, operand_1, operand_2);
-	    	break;
+		case OPCODE_ADD:
+			exec_add(cpu, operand_1, operand_2);
+			break;
 
-	    case OPCODE_ADDI:
-	    	exec_addi(cpu, operand_1, operand_2);
-	    	break;
+		case OPCODE_ADDI:
+			exec_addi(cpu, operand_1, operand_2);
+			break;
 
-	    case OPCODE_SUBI:
-	    	exec_subi(cpu, operand_1, operand_2);
-	    	break;
+		case OPCODE_SUBI:
+			exec_subi(cpu, operand_1, operand_2);
+			break;
 
-	    case OPCODE_JIF:
-	    	exec_jif(cpu, operand_1, operand_2);
-	    	break;
+		case OPCODE_JIF:
+			exec_jif(cpu, operand_1, operand_2);
+			break;
 
-	    case OPCODE_PUSH:
-	    	exec_push(cpu, operand_1);
-	    	break;
+		case OPCODE_PUSH:
+			exec_push(cpu, operand_1);
+			break;
 
-	    case OPCODE_POP:
-	    	exec_pop(cpu, operand_1);
-	    	break;
+		case OPCODE_POP:
+			exec_pop(cpu, operand_1);
+			break;
 
-	    case OPCODE_CALL:
-	    	exec_call(cpu, operand_1);
-	    	break;
+		case OPCODE_CALL:
+			exec_call(cpu, operand_1);
+			break;
 
-	    case OPCODE_RET:
-	    	exec_ret(cpu);
-	    	break;
+		case OPCODE_RET:
+			exec_ret(cpu);
+			break;
 
-	    case OPCODE_HLT:
-	    	exec_hlt(cpu);
-	    	break;
+		case OPCODE_HLT:
+			exec_hlt(cpu);
+			break;
 
-	    case OPCODE_USER:
-	    	exec_user(cpu);
-	    	break;
+		case OPCODE_USER:
+			exec_user(cpu);
+			break;
 
-	    case OPCODE_SYSCALL_PRN:
-	    	exec_syscall_prn(cpu, operand_1);
-	    	break;
+		case OPCODE_SYSCALL_PRN:
+			exec_syscall_prn(cpu, operand_1);
+			break;
 
-	    case OPCODE_SYSCALL_HLT:
-	    	exec_syscall_hlt(cpu);
-	    	break;
+		case OPCODE_SYSCALL_HLT:
+			exec_syscall_hlt(cpu);
+			break;
 
-	    case OPCODE_SYSCALL_YIELD:
-	    	exec_syscall_yield(cpu);
-	    	break;
+		case OPCODE_SYSCALL_YIELD:
+			exec_syscall_yield(cpu);
+			break;
 
-	    case OPCODE_UNKNOWN:
-	    	fprintf(stderr, "FATAL ERROR: Invalid opcode reading from memory! %ld\n", opcode);
-	    	cpu->is_halted = true;
-	    	exit(EXIT_FAILURE);
+		case OPCODE_UNKNOWN:
+			fprintf(stderr, "FATAL ERROR: Invalid opcode reading from memory! %ld\n", opcode);
+			cpu->is_halted = true;
+			exit(EXIT_FAILURE);
 	}
 	/*********************** EXECUTE PART ***********************/
 
@@ -346,7 +372,7 @@ cpu_execute_instruction(CPU * cpu)
 		mem_write(cpu->mem, REG_PC, next_pc_address, KERNEL);
 	}
 	long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL);
-    mem_write(cpu->mem, REG_INSTR_COUNT, mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL) + 1, KERNEL);
+	mem_write(cpu->mem, REG_INSTR_COUNT, mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL) + 1, KERNEL);
 }
 
 bool 
