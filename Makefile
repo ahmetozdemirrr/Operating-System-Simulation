@@ -19,6 +19,11 @@ PARSER_C_FILES = $(TEST_DIR)/parser_test.c $(SRC_DIR)/parser/parser.c $(SRC_DIR)
 PARSER_OBJS = $(OBJ_DIR)/parser_test.o $(OBJ_DIR)/parser.o $(OBJ_DIR)/memory.o
 PARSER_TEST_TARGET = $(BIN_DIR)/parser_test_runner
 
+# --- cpu test files ---
+CPU_C_FILES = $(TEST_DIR)/cpu_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
+CPU_OBJS = $(OBJ_DIR)/cpu_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
+CPU_TEST_TARGET = $(BIN_DIR)/cpu_test_runner
+
 # === TARGETS ===
 default: memtest parsetest
 
@@ -32,11 +37,20 @@ parsetest: $(PARSER_TEST_TARGET)
 	./$(PARSER_TEST_TARGET)
 	@echo "Parser Test is Complete."
 
+cputest: $(CPU_TEST_TARGET)
+	@echo "Running CPU Test..."
+	./$(CPU_TEST_TARGET)
+	@echo "CPU Test is Complete."
+
 $(MEM_TEST_TARGET): $(MEM_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(PARSER_TEST_TARGET): $(PARSER_OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(CPU_TEST_TARGET): $(CPU_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
@@ -66,4 +80,4 @@ clean:
 	rm -rf $(BIN_DIR)
 	@echo "Cleaning is complete."
 
-.PHONY: all default memtest parsetest clean
+.PHONY: all default memtest parsetest cputest clean

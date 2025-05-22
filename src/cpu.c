@@ -46,7 +46,7 @@ check_data_address(const CPU * cpu, const long int relative_address, const char 
 
 	if (relative_address < 0 || relative_address >= max_data_size) {
 		fprintf(stderr,
-				"FATAL ERROR: Entity %d (mode %d) %s: Relative source address %ld is out of bounds (0-%d).\n",
+				"FATAL ERROR: Entity %d (mode %d) %s: Relative source address %ld is out of bounds (0-%ld).\n",
 				cpu->curr_thread_id,
 				cpu->mode,
 				context,
@@ -150,7 +150,7 @@ exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_addre
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_dest_address, "ADDI");
 	check_data_address(cpu, relative_src_address,  "ADDI");
-	
+
 	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
 	long int absolute_src_address  = cpu->curr_data_base_for_active_entity + relative_src_address;
 
@@ -195,7 +195,7 @@ exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_addre
 }
 
 static void
-exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_pc_address)
+exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_pc_address, long int * next_pc_address)
 {
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_condition_address, "JIF");
@@ -207,7 +207,7 @@ exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_p
 	if (condition_value <= 0) {
 		/* Each instruction takes INSTR_SIZE (3) bytes, so multiply relative_new_pc_address by INSTR_SIZE */
 		long int absolute_instruction_address = cpu->curr_instruction_base_for_active_entity + (relative_new_pc_address * INSTR_SIZE);
-		mem_write(cpu->mem, REG_PC, absolute_instruction_address, cpu->mode);
+		*next_pc_address = absolute_instruction_address;
 	}
 }
 
@@ -219,82 +219,290 @@ exec_push(CPU * cpu, long int relative_element_address)
 
 	long int absolute_element_address = cpu->curr_data_base_for_active_entity + relative_element_address;
 	long int element_value = mem_read(cpu->mem, absolute_element_address, cpu->mode);
+	long int current_sp_value = mem_read(cpu->mem, REG_SP, cpu->mode);
 
-	long int target_address = mem_read(cpu->mem, REG_SP, cpu->mode);
+	long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
 
-	if (target_address == 0 || target_address > THREAD_BLOCK_END(cpu->curr_thread_id)) {
-        target_address = THREAD_BLOCK_END(cpu->curr_thread_id);
-        mem_write(cpu->mem, REG_SP, target_address, cpu->mode);
+	if (current_sp_value == 0 || current_sp_value > stack_upper_bound) {
+        current_sp_value = stack_upper_bound;
+        mem_write(cpu->mem, REG_SP, current_sp_value, cpu->mode);
     }
 
-    if (target_address - 1 < 0) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in PUSH for entity %d\n", cpu->curr_thread_id);
+    long int new_sp_value = current_sp_value - 1;
+    if (mem_read(cpu->mem, new_sp_value, cpu->mode) == -1) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in PUSH for entity %d. SP %ld encountered -1.\n",
+                cpu->curr_thread_id,
+                new_sp_value);
         exit(EXIT_FAILURE);
     }
-	mem_write(cpu->mem, target_address, element_value, cpu->mode);
-	mem_write(cpu->mem, REG_SP, target_address - 1, cpu->mode);
+    if (new_sp_value < 0) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in PUSH for entity %d. SP became negative (%ld).\n",
+                cpu->curr_thread_id,
+                new_sp_value);
+        exit(EXIT_FAILURE);
+    }
+	mem_write(cpu->mem, current_sp_value, element_value, cpu->mode);
+    mem_write(cpu->mem, REG_SP, new_sp_value, cpu->mode);
 }
 
 static void
-exec_pop(CPU * cpu, long int relative_dest_address)
+exec_pop(CPU * cpu, long int relative_dest_address) /* POP bir üstü okumalı o anki SP değerini değil */
 {
 	check_cpu(cpu, __func__);
-	check_data_address(cpu, relative_dest_address, "POP");
+    check_data_address(cpu, relative_dest_address, "POP");
 
-	long int element_adress = mem_read(cpu->mem, REG_SP, cpu->mode);
+    long int current_sp_value = mem_read(cpu->mem, REG_SP, cpu->mode); // Şu anki SP (örneğin 998)
+    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
 
-	if (element_address >= THREAD_BLOCK_END(cpu->curr_thread_id)) {
-        fprintf(stderr, "FATAL ERROR: Stack underflow in POP for entity %d\n", cpu->curr_thread_id);
+    if (current_sp_value >= stack_upper_bound) {
+        fprintf(stderr, "FATAL ERROR: Stack underflow in POP for entity %d. SP %ld at or beyond upper bound %ld.\n",
+                cpu->curr_thread_id, current_sp_value, stack_upper_bound);
         exit(EXIT_FAILURE);
     }
-	long int element = mem_read(cpu->mem, element_adress, cpu->mode);
 
-	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
+    // Stack’ten değeri oku (SP + 1, çünkü PUSH SP’ye yazıp azaltmıştı)
+    long int element_address = current_sp_value + 1; // 998 + 1 = 999
+    long int element = mem_read(cpu->mem, element_address, cpu->mode); // 999’dan 30 oku
+    long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address; // 21 + 2 = 23
 
-	mem_write(cpu->mem, absolute_dest_address, element, cpu->mode);
-	mem_write(cpu->mem, REG_SP, element_adress + 1, cpu->mode);
+    mem_write(cpu->mem, absolute_dest_address, element, cpu->mode); // 23’e 30 yaz
+    mem_write(cpu->mem, REG_SP, current_sp_value + 1, cpu->mode);  // REG_SP = 999
 }
 
 static void
-exec_call()
+exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
 {
+	check_cpu(cpu, __func__);
 
+    long int current_pc_value = mem_read(cpu->mem, REG_PC, cpu->mode);
+    if (current_pc_value % INSTR_SIZE != 0) {
+        fprintf(stderr,
+                "FATAL ERROR: REG_PC (%ld) does not point to the start of an instruction in CALL for entity %d\n",
+                current_pc_value,
+                cpu->curr_thread_id);
+        exit(EXIT_FAILURE);
+    }
+    check_instruction_address(cpu, relative_jump_address, "CALL");
+
+    long int current_sp_value = mem_read(cpu->mem, REG_SP, cpu->mode);
+    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+
+    if (current_sp_value == 0 || current_sp_value > stack_upper_bound) {
+        current_sp_value = stack_upper_bound;
+        mem_write(cpu->mem, REG_SP, current_sp_value, cpu->mode);
+    }
+
+    long int new_sp_value = current_sp_value - 1;
+    if (mem_read(cpu->mem, new_sp_value, cpu->mode) == -1) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in CALL for entity %d. SP %ld encountered -1.\n",
+                cpu->curr_thread_id,
+                new_sp_value);
+        exit(EXIT_FAILURE);
+    }
+
+    long int absolute_jump_address = cpu->curr_instruction_base_for_active_entity + (relative_jump_address * INSTR_SIZE);
+    if (absolute_jump_address < 0 || absolute_jump_address >= MEM_SIZE) {
+        fprintf(stderr,
+                "FATAL ERROR: Jump address %ld is out of memory bounds (0-%d) in CALL for entity %d\n",
+                absolute_jump_address,
+                MEM_SIZE - 1,
+                cpu->curr_thread_id);
+        exit(EXIT_FAILURE);
+    }
+    mem_write(cpu->mem, current_sp_value, *next_pc_address, cpu->mode);
+    mem_write(cpu->mem, REG_SP, new_sp_value, cpu->mode);
+    *next_pc_address = absolute_jump_address;
 }
 
 static void 
-exec_ret()
+exec_ret(CPU * cpu, long int * next_pc_address)
 {
+	check_cpu(cpu, __func__);
 
+    long int current_sp_value = mem_read(cpu->mem, REG_SP, cpu->mode);
+    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+
+    if (current_sp_value >= stack_upper_bound) {
+        fprintf(stderr, "FATAL ERROR: Stack underflow in RET for entity %d. SP %ld at or beyond upper bound %ld.\n",
+                cpu->curr_thread_id,
+                current_sp_value,
+                stack_upper_bound);
+        exit(EXIT_FAILURE);
+    }
+
+    long int return_address = mem_read(cpu->mem, current_sp_value, cpu->mode);
+    long int new_sp_value = current_sp_value + 1;
+
+    if (return_address < 0 || return_address >= MEM_SIZE) {
+        fprintf(stderr,
+                "FATAL ERROR: Invalid return address %ld in RET for entity %d\n",
+                return_address,
+                cpu->curr_thread_id);
+        exit(EXIT_FAILURE);
+    }
+    *next_pc_address = return_address;
+    mem_write(cpu->mem, REG_SP, new_sp_value, cpu->mode);
 }
 
 static void
-exec_hlt()
+exec_hlt(CPU * cpu)
 {
-
+	check_cpu(cpu, __func__);
+	cpu->is_halted = true;
 }
 
 static void
-exec_user()
+exec_user(CPU * cpu, long int pt_jump_address, long int * next_pc_address)
 {
+	check_cpu(cpu, __func__);
 
+	long int jump_address = mem_read(cpu->mem, pt_jump_address, cpu->mode);
+
+	if (jump_address < 0 || jump_address >= MEM_SIZE) {
+		fprintf(stderr,
+                "FATAL ERROR: Jump address %ld is out of memory bounds (0-%d) in USER for entity %d\n",
+                jump_address,
+                MEM_SIZE - 1,
+                cpu->curr_thread_id);
+        exit(EXIT_FAILURE);
+	}
+
+	if (jump_address < 1000) {
+        fprintf(stderr,
+                "FATAL ERROR: Jump address %ld is below user mode boundary (1000) in USER for entity %d\n",
+                jump_address,
+                cpu->curr_thread_id);
+        exit(EXIT_FAILURE);
+    }
+    cpu->mode = USER;
+    *next_pc_address = jump_address;
 }
 
 static void
-exec_syscall_prn()
+exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
 {
+	check_cpu(cpu, __func__);
 
+    long int absolute_source_address = cpu->curr_data_base_for_active_entity + source_address;
+    if (absolute_source_address < 0 || absolute_source_address >= MEM_SIZE) {
+        fprintf(stderr,
+                "FATAL ERROR: Memory address %ld is out of bounds in SYSCALL PRN for entity %d\n",
+                absolute_source_address, cpu->curr_thread_id);
+        exit(EXIT_FAILURE);
+    }
+    long int value = mem_read(cpu->mem, absolute_source_address, cpu->mode);
+    printf("-----%ld\n", value);
+
+    /* syscall olunca context switch olmalı, şimdilik test için pritn syscall ı açık bırakıldı */
+    /*
+    	long int current_pc = mem_read(cpu->mem, REG_PC, cpu->mode);
+        long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
+        long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+
+        if (current_sp == 0 || current_sp > stack_upper_bound) {
+            current_sp = stack_upper_bound;
+            mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
+        }
+
+        long int new_sp = current_sp - 1;
+        if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
+            fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
+                    cpu->curr_thread_id,
+                    new_sp);
+            exit(EXIT_FAILURE);
+        }
+        mem_write(cpu->mem, new_sp, current_pc, cpu->mode);
+
+        new_sp--;
+        if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
+            fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
+                    cpu->curr_thread_id,
+                    new_sp);
+            exit(EXIT_FAILURE);
+        }
+        mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
+        mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
+
+        cpu->mode = KERNEL;
+        mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, cpu->mode);
+        *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
+    */
 }
 
 static void
-exec_syscall_hlt()
+exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
 {
+	check_cpu(cpu, __func__);
 
+    long int current_pc = mem_read(cpu->mem, REG_PC, cpu->mode);
+    long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
+    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+
+    if (current_sp == 0 || current_sp > stack_upper_bound) {
+        current_sp = stack_upper_bound;
+        mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
+    }
+
+    long int new_sp = current_sp - 1;
+    if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1.\n",
+                cpu->curr_thread_id,
+                new_sp);
+        exit(EXIT_FAILURE);
+    }
+    mem_write(cpu->mem, new_sp, current_pc, cpu->mode);
+
+    new_sp--;
+    if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1.\n",
+                cpu->curr_thread_id,
+                new_sp);
+        exit(EXIT_FAILURE);
+    }
+    mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
+    mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
+
+    cpu->mode = KERNEL;
+    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_HLT_ID, cpu->mode);
+    *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
 }
 
 static void
-exec_syscall_yield()
+exec_syscall_yield(CPU * cpu, long int * next_pc_address)
 {
+	check_cpu(cpu, __func__);
 
+    long int current_pc = mem_read(cpu->mem, REG_PC, cpu->mode);
+    long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
+    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+
+    if (current_sp == 0 || current_sp > stack_upper_bound) {
+        current_sp = stack_upper_bound;
+        mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
+    }
+
+    long int new_sp = current_sp - 1;
+    if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL YIELD for entity %d. SP %ld encountered -1.\n",
+                cpu->curr_thread_id,
+                new_sp);
+        exit(EXIT_FAILURE);
+    }
+    mem_write(cpu->mem, new_sp, current_pc, cpu->mode);
+
+    new_sp--;
+    if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL YIELD for entity %d. SP %ld encountered -1.\n",
+                cpu->curr_thread_id,
+                new_sp);
+        exit(EXIT_FAILURE);
+    }
+    mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
+    mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
+
+    cpu->mode = KERNEL;
+    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_YIELD_ID, cpu->mode);
+    *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
 }
 
 void 
@@ -318,6 +526,25 @@ cpu_init(CPU * cpu, Memory * mem)
 	mem_write(mem, REG_PC, cpu->curr_instruction_base_for_active_entity, cpu->mode);
 	mem_write(mem, REG_SP, OS_BLOCK_END_ADDR, cpu->mode); /* 999: from up to bottom */
 	mem_write(mem, REG_INSTR_COUNT, 0, cpu->mode);
+}
+
+void
+cpu_set_context(CPU * cpu, int thread_id, long int data_base, long int instruction_base, CPU_mode initial_mode)
+{
+    check_cpu(cpu, __func__);
+    if (thread_id < OS_ID || thread_id >= MAX_PROGRAM_ENTITIES) {
+        fprintf(stderr, "FATAL ERROR: Invalid thread ID %d in cpu_set_context\n", thread_id);
+        exit(EXIT_FAILURE);
+    }
+    cpu->curr_thread_id = thread_id;
+    cpu->curr_data_base_for_active_entity = data_base;
+    cpu->curr_instruction_base_for_active_entity = instruction_base;
+    cpu->mode = initial_mode;
+    mem_write(cpu->mem, REG_PC, instruction_base, cpu->mode);
+
+    // SP’yi uygun üst sınıra ayarla
+    long int stack_upper_bound = (thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(thread_id);
+    mem_write(cpu->mem, REG_SP, stack_upper_bound, cpu->mode);
 }
 
 void 
@@ -348,6 +575,14 @@ cpu_execute_instruction(CPU * cpu)
 	}
 	/*********************** FETCHING PART ***********************/
 
+	/* Ayırıcı kontrolü: Bir sonraki talimat adresinde -1 varsa dur: next_instr durdurucu case bu olacak */
+    if (mem_read(cpu->mem, current_pc_address, cpu->mode) == -1) {
+        fprintf(stderr, "Reached end of instructions (separator -1) at address %ld for entity %d\n",
+                current_pc_address, cpu->curr_thread_id);
+        cpu->is_halted = true;
+        return;
+    }
+
 	/*********************** DECODE PART ***********************/
 	long int opcode_addr = current_pc_address;
 	long int operand_1_addr = current_pc_address + 1;
@@ -358,7 +593,11 @@ cpu_execute_instruction(CPU * cpu)
 	long int operand_1  = mem_read(cpu->mem, operand_1_addr, cpu->mode);
 	long int operand_2  = mem_read(cpu->mem, operand_2_addr, cpu->mode);
 	/*********************** DECODE PART ***********************/
-	
+
+#ifdef DEBUG_FLAG
+	printf("\n\n\n : %d _ %ld _ %ld\n\n\n", opcode, operand_1, operand_2);
+#endif
+
 	/* INSTR_SIZE: MAX_OPERANDS + 1 = 3 from common header... (MAX_OPERANDS: 2, Opcode: 1) */
 	long int next_pc_address = current_pc_address + INSTR_SIZE; 
 
@@ -390,7 +629,7 @@ cpu_execute_instruction(CPU * cpu)
 			break;
 
 		case OPCODE_JIF:
-			exec_jif(cpu, operand_1, operand_2);
+			exec_jif(cpu, operand_1, operand_2, &next_pc_address);
 			break;
 
 		case OPCODE_PUSH:
@@ -414,49 +653,49 @@ cpu_execute_instruction(CPU * cpu)
 			break;
 
 		case OPCODE_USER:
-			exec_user(cpu);
+			exec_user(cpu, operand_1, &next_pc_address);
 			break;
 
 		case OPCODE_SYSCALL_PRN:
-			exec_syscall_prn(cpu, operand_1);
+			exec_syscall_prn(cpu, operand_1, &next_pc_address);
 			break;
 
 		case OPCODE_SYSCALL_HLT:
-			exec_syscall_hlt(cpu);
+			exec_syscall_hlt(cpu, &next_pc_address);
 			break;
 
 		case OPCODE_SYSCALL_YIELD:
-			exec_syscall_yield(cpu);
+			exec_syscall_yield(cpu, &next_pc_address);
 			break;
 
 		case OPCODE_UNKNOWN:
-			fprintf(stderr, "FATAL ERROR: Invalid opcode reading from memory! %ld\n", opcode);
+			fprintf(stderr, "FATAL ERROR: Invalid opcode reading from memory! %d\n", opcode);
 			cpu->is_halted = true;
 			exit(EXIT_FAILURE);
 	}
 	/*********************** EXECUTE PART ***********************/
 
 	if (!cpu->is_halted) {
-		mem_write(cpu->mem, REG_PC, next_pc_address, KERNEL);
+		mem_write(cpu->mem, REG_PC, next_pc_address, cpu->mode);
 	}
-	long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL);
-	mem_write(cpu->mem, REG_INSTR_COUNT, mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL) + 1, KERNEL);
+	long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, cpu->mode);
+	mem_write(cpu->mem, REG_INSTR_COUNT, current_instr_count + 1, cpu->mode);
 }
 
 bool 
 cpu_is_halted(const CPU * cpu)
 {
-
+	check_cpu(cpu, __func__);
+	return cpu->is_halted;
 }
 
 void 
 cpu_dump_registers(const CPU * cpu)
 {
-
-}
-
-void 
-cpu_set_context(CPU * cpu, int thread_id, long int data_base, long int instruction_base, CPU_mode initial_mode)
-{
-
+	check_cpu(cpu, __func__);
+    printf("CPU Registers for Thread %d (Mode: %s):\n",
+           cpu->curr_thread_id, cpu->mode == KERNEL ? "KERNEL" : "USER");
+    printf("REG_PC: %ld\n", mem_read(cpu->mem, REG_PC, cpu->mode));
+    printf("REG_SP: %ld\n", mem_read(cpu->mem, REG_SP, cpu->mode));
+    printf("REG_INSTR_COUNT: %ld\n", mem_read(cpu->mem, REG_INSTR_COUNT, cpu->mode));
 }

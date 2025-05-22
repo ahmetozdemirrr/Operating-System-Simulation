@@ -18,7 +18,7 @@
 #define REG_SYSCALL_RESULT 2
 #define REG_INSTR_COUNT 3
 #define REG_RESERVED_START 4
-#define REG_RESERVED_END 19
+#define REG_RESERVED_END 20
 
 /* OS and Thread Layout Macros */
 #define OS_ID 0
@@ -34,6 +34,7 @@
 #define OS_DATA_END_ADDR (OS_DATA_START_ADDR + ENTITY_DATA_SIZE - 1)
 #define OS_INSTRUCTION_START_ADDR (OS_DATA_START_ADDR + ENTITY_DATA_SIZE)
 #define OS_BLOCK_END_ADDR 999
+#define OS_SYSCALL_HANDLER_ADDR OS_INSTRUCTION_START_ADDR
 
 /* user thread spscific layout base */
 #define USER_THREAD_START_BASE_ADDR 1000
@@ -49,6 +50,11 @@
 #define MAX_OPERANDS 2
 #define ASM_LINE_BUFFER_SIZE 64
 #define INSTR_SIZE (1 + MAX_OPERANDS) /* opcode + operands */
+
+/* SYSCALL macros */
+#define SYSCALL_PRN_ID 1
+#define SYSCALL_HLT_ID 2
+#define SYSCALL_YIELD_ID 3
 
 typedef enum
 {

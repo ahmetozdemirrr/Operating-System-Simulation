@@ -16,9 +16,9 @@ Begin Data Section
 52 -5    # Thread 1 data at address 1052
 End Data Section
 Begin Instruction Section
-0 CPY 50 600    # Copy value from address 1050 to 1600
-1 ADDI 600 51   # Add value at address 1051 to 1600
-2 SYSCALL PRN 600 # Print value at address 1600
+0 CPY 50 200    # Copy value from address 1050 to 1600
+1 ADDI 200 51   # Add value at address 1051 to 1600
+2 SYSCALL PRN 200 # Print value at address 1600
 3 HLT           # Halt the thread
 End Instruction Section
 

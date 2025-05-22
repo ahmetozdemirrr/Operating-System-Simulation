@@ -69,7 +69,7 @@ mem_read(Memory * mem, long int address, CPU_mode curr_mode)
 		exit(EXIT_FAILURE);
 	}
 
-	if (address < 1000 && curr_mode == USER) {
+	if (address <= OS_BLOCK_END_ADDR && address > OS_DATA_START_ADDR && curr_mode == USER) {
 		fprintf(stderr, "ERROR: User Mode Protection Violation! Address %ld (range 0-999) is not accessible for reading.\n", address);
 		exit(EXIT_FAILURE);
 	}
@@ -102,7 +102,7 @@ mem_write(Memory * mem, long int address, long int value, CPU_mode curr_mode)
 		exit(EXIT_FAILURE);
 	}
 
-	if (address < 1000 && curr_mode == USER) {
+	if (address <= OS_BLOCK_END_ADDR && address > OS_DATA_START_ADDR && curr_mode == USER) {
 		fprintf(stderr, "ERROR: User Mode Protection Violation! Address %ld (range 0-999) is not accessible for writing.\n", address);
 		exit(EXIT_FAILURE);
 	}
