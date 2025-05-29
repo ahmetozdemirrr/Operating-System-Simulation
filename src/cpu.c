@@ -423,37 +423,59 @@ exec_hlt(CPU * cpu)
 	printf("hlt\n");
 
 	check_cpu(cpu, __func__);
-	cpu->is_halted = false;
+	cpu->is_halted = true;
 }
 
 static void
-exec_user(CPU * cpu, long int pt_jump_address, long int * next_pc_address)
+exec_user(CPU * cpu, long int pt_jump_address_offset, long int * next_pc_address)
 {
 	printf("user\n");
 
 	check_cpu(cpu, __func__);
 
-	long int jump_address = mem_read(cpu->mem, pt_jump_address, cpu->mode);
+	long int absolute_ptr_address = cpu->curr_data_base_for_active_entity + pt_jump_address_offset;
+	long int target_user_pc =  mem_read(cpu->mem, absolute_ptr_address, cpu->mode); /* M[absolute_ptr_address] */
 
-	if (jump_address < 0 || jump_address >= MEM_SIZE) {
-		fprintf(stderr,
-                "FATAL ERROR: Jump address %ld is out of memory bounds (0-%d) in USER for entity %d\n",
-                jump_address,
-                MEM_SIZE - 1,
-                cpu->curr_thread_id);
-        exit(EXIT_FAILURE);
-	}
-
-	if (jump_address < USER_THREAD_START_BASE_ADDR) {
-	    fprintf(stderr,
-	            "FATAL ERROR: Jump address %ld is below user mode boundary (%d) in USER for entity %d\n",
-	            jump_address,
-	            USER_THREAD_START_BASE_ADDR,
-	            cpu->curr_thread_id);
-	    exit(EXIT_FAILURE);
-	}
+	if (target_user_pc < 0 || target_user_pc >= MEM_SIZE) {
+        fprintf(stderr,
+                "FATAL ERROR: USER instr: Target PC %ld (from M[%ld]) is out of MEMORY bounds (0-%d).\n",
+                target_user_pc, absolute_ptr_address, MEM_SIZE - 1);
+        cpu->is_halted = true; return;
+    }
+    if (target_user_pc < USER_THREAD_START_BASE_ADDR) {
+        fprintf(stderr,
+                "FATAL ERROR: USER instr: Target PC %ld (from M[%ld]) is below USER mode boundary (%ld).\n",
+                target_user_pc, absolute_ptr_address, USER_THREAD_START_BASE_ADDR);
+        cpu->is_halted = true; return;
+    }
+    /* eski
     cpu->mode = USER;
-    *next_pc_address = jump_address;
+    *next_pc_address = jump_to;
+	*/
+
+	if (cpu->curr_thread_id == OS_ID) {
+        printf("OS (Thread %d) is executing USER. Performing context switch to Thread 1.\n", cpu->curr_thread_id);
+
+        int target_thread_id = 1; // Hedef Thread 1
+        cpu->curr_thread_id = target_thread_id;
+        cpu->curr_data_base_for_active_entity = THREAD_DATA_START(target_thread_id);
+        cpu->curr_instruction_base_for_active_entity = THREAD_INSTR_START(target_thread_id);
+        cpu->mode = USER; // Modu USER'a çevir
+
+        // Thread 1 için Stack Pointer'ı ayarla (KERNEL ayrıcalığıyla)
+        long int thread1_sp_initial = THREAD_BLOCK_END(target_thread_id); // Thread bloğunun sonu
+        mem_write(cpu->mem, REG_SP, thread1_sp_initial, KERNEL);
+
+        printf("Context switched to Thread %d: Mode=USER, DataBase=%ld, InstrBase=%ld, SP=%ld\n",
+               cpu->curr_thread_id, cpu->curr_data_base_for_active_entity,
+               cpu->curr_instruction_base_for_active_entity, thread1_sp_initial);
+    } else {
+        // Eğer bir kullanıcı thread'i USER çağırırsa (bu senaryoda beklenmiyor)
+        // Sadece modu değiştir ve PC'yi ayarla. Context aynı kalır.
+        printf("Warning: USER instruction executed by non-OS thread_id %d. Only mode and PC will change.\n", cpu->curr_thread_id);
+        cpu->mode = USER;
+    }
+    *next_pc_address = target_user_pc;
 }
 
 static void
@@ -634,8 +656,6 @@ cpu_set_context(CPU * cpu, int thread_id, long int data_base, long int instructi
 void 
 cpu_execute_instruction(CPU * cpu)
 {
-	int i = 0;
-
 	if (cpu->is_halted) {
 		return;
 	}
@@ -652,7 +672,7 @@ cpu_execute_instruction(CPU * cpu)
 	*/
 	/*********************** FETCHING PART ***********************/
 	long int current_pc_address = mem_read(cpu->mem, REG_PC, cpu->mode);
-	printf("--------%ld\n", current_pc_address);
+
 	if (current_pc_address < 0 || current_pc_address + INSTR_SIZE > MEM_SIZE) {
 		 fprintf(stderr,
 				"FATAL ERROR: Program Counter (REG_PC: %ld) is out of valid memory bounds or too close to end.\n",
@@ -739,7 +759,6 @@ cpu_execute_instruction(CPU * cpu)
 			break;
 
 		case OPCODE_HLT:
-			i = 2;
 			exec_hlt(cpu);
 			break;
 
@@ -771,12 +790,6 @@ cpu_execute_instruction(CPU * cpu)
 	}
 	long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, cpu->mode);
 	mem_write(cpu->mem, REG_INSTR_COUNT, current_instr_count + 1, cpu->mode);
-
-	if (i == 2)
-	{
-		printf("DEBUG: context switch\n");
-		mem_write(cpu->mem, REG_PC, 1256, cpu->mode);
-	}
 }
 
 bool 

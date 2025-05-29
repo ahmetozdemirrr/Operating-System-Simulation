@@ -4,116 +4,74 @@ Begin Data Section
 2 -3
 End Data Section
 Begin Instruction Section
+0 USER 50    # Switch to user mode and jump to address in mem[50]
 1 HLT
 End Instruction Section
 
-# Simple Bubble Sort for GTU-C312 (Fixed Version)
+# Working Bubble Sort for 5 numbers
+# Performs 4 passes to ensure complete sorting
+# Array: [5, 2, 8, 1, 3] -> [1, 2, 3, 5, 8]
 
 Begin Data Section
-# Array elements (indices 0-9)
-0   12      # w[0]
-1   3       # w[1]
-2   89      # w[2]
-3   45      # w[3]
-4   -3      # w[4]
-5   0       # w[5]
-6   100     # w[6]
-7   1999999 # w[7]
-8   -999    # w[8]
-9   5       # w[9]
-10  10      # N = 10 (array size)
-11  0       # i (outer loop)
-12  0       # j (inner loop)
-13  0       # temp for w[j]
-14  0       # temp for w[j+1]
-15  0       # swap temp
-16  1       # constant 1
-17  0       # loop bound temp
-18  0       # comparison temp
+# Array elements
+0   5       # arr[0]
+1   2       # arr[1]
+2   8       # arr[2]
+3   1       # arr[3]
+4   3       # arr[4]
+
+# Working variables
+5   0       # temp for comparisons
+6   0       # swap temp
+7   4       # pass counter (4 passes needed)
+8   -1      # constant -1 for unconditional jumps
+50  2000    # Jump address for USER command (Thread 1 instruction start)
 End Data Section
 
-# Bubble Sort for GTU-C312 - Corrected JIF Usage
-# Sorts array elements 0-9 in ascending order
-#
-# Key insight: JIF uses INSTRUCTION INDEX, not memory address
-# So JIF 17 25 means "jump to instruction #25 if mem[17] <= 0"
-
 Begin Instruction Section
-0   SET 0 11        # i = 0
+# Main sorting loop - do 4 passes
+0   CPY 7 5         # temp = pass_counter
+1   JIF 5 29        # if pass_counter <= 0, jump to print
+2   JIF 8 3         # else continue (unconditional)
 
-# Outer loop: for i = 0; i < 9; i++
-1   CPY 11 17       # temp = i
-2   ADD 17 -9       # temp = i - 9
-3   JIF 17 4        # if i - 9 <= 0 (i < 9), continue
-4   SET 40 0        # else jump to instruction 40 (halt)
+# Pass: Compare all adjacent pairs
+# Compare arr[0] and arr[1]
+3   CPY 0 5         # temp = arr[0]
+4   SUBI 5 1        # temp = arr[0] - arr[1]
+5   JIF 5 9         # if arr[0] <= arr[1], skip swap
+6   CPY 0 6         # swap_temp = arr[0]
+7   CPY 1 0         # arr[0] = arr[1]
+8   CPY 6 1         # arr[1] = swap_temp
 
-5   SET 0 12        # j = 0
+# Compare arr[1] and arr[2]
+9   CPY 1 5         # temp = arr[1]
+10  SUBI 5 2        # temp = arr[1] - arr[2]
+11  JIF 5 15        # if arr[1] <= arr[2], skip swap
+12  CPY 1 6         # swap_temp = arr[1]
+13  CPY 2 1         # arr[1] = arr[2]
+14  CPY 6 2         # arr[2] = swap_temp
 
-# Inner loop: for j = 0; j < 9-i; j++
-6   CPY 12 17       # temp = j
-7   CPY 10 18       # temp2 = 10
-8   SUBI 18 11      # temp2 = 10 - i
-9   ADD 18 -1       # temp2 = 9 - i
-10  SUBI 18 17      # temp2 = 9 - i - j
-11  JIF 18 52       # if 9-i-j <= 0, exit inner loop (go to instruction 37) ... 37  ADD 11 1        # i++
+# Compare arr[2] and arr[3]
+15  CPY 2 5         # temp = arr[2]
+16  SUBI 5 3        # temp = arr[2] - arr[3]
+17  JIF 5 21        # if arr[2] <= arr[3], skip swap
+18  CPY 2 6         # swap_temp = arr[2]
+19  CPY 3 2         # arr[2] = arr[3]
+20  CPY 6 3         # arr[3] = swap_temp
 
-# Load w[j] and w[j+1]
-12  CPYI 12 13      # w[j] -> address 13
-13  CPY 12 17       # temp = j
-14  ADD 17 1        # temp = j + 1
-15  CPYI 17 14      # w[j+1] -> address 14
+# Compare arr[3] and arr[4]
+21  CPY 3 5         # temp = arr[3]
+22  SUBI 5 4        # temp = arr[3] - arr[4]
+23  JIF 5 27        # if arr[3] <= arr[4], skip swap
+24  CPY 3 6         # swap_temp = arr[3]
+25  CPY 4 3         # arr[3] = arr[4]
+26  CPY 6 4         # arr[4] = swap_temp
 
-# Compare w[j] vs w[j+1]
-16  CPY 13 17       # temp = w[j]
-17  SUBI 17 14      # temp = w[j] - w[j+1]
-18  JIF 17 50       # if w[j] <= w[j+1], no swap (go to instruction 35) ... 35  ADD 12 1        # j++
+# End of pass, decrement counter
+27  ADD 7 -1        # pass_counter--
+28  JIF 8 0         # jump back to start of main loop
 
-# Simple swap for first few positions (expand as needed)
-19  CPY 12 17       # Check j value
-20  JIF 17 21       # if j == 0, handle swap 0↔1
-21  CPY 13 15
-22  CPY 14 0
-23  CPY 15 1
-24  SET 35 0    # Swap elements 0,1
+# Sorting complete, just halt
+29  HLT             # halt
 
-25  ADD 17 -1       # temp = j - 1
-26  JIF 17 27       # if j == 1, handle swap 1↔2
-27  CPY 13 15
-28  CPY 14 1
-29  CPY 15 2
-30  SET 35 0    # Swap elements 1,2
-
-31  ADD 17 -1       # temp = j - 2
-32  JIF 17 33       # if j == 2, handle swap 2↔3
-33  CPY 13 15
-34  CPY 14 2
-35  CPY 15 3
-36  SET 35 0    # Swap elements 2,3
-
-37  ADD 17 -1       # temp = j - 3
-38  JIF 17 39       # if j == 3, handle swap 3↔4
-39  CPY 13 15
-40  CPY 14 3
-41  CPY 15 4
-42  SET 35 0    # Swap elements 3,4
-
-43  ADD 17 -1       # temp = j - 4
-44  JIF 17 45       # if j == 4, handle swap 4↔5
-45  CPY 13 15
-46  CPY 14 4
-47  CPY 15 5
-48  SET 35 0    # Swap elements 4,5
-
-# Add more cases for j=5,6,7,8 as needed...
-49  SET 35 0        # Default: no swap
-
-# Continue loops
-50  ADD 12 1        # j++
-51  SET 6 0         # Jump back to inner loop (instruction 6)
-
-52  ADD 11 1        # i++
-53  SET 1 0         # Jump back to outer loop (instruction 1)
-
-# Program end
-54  HLT             # Halt CPU
 End Instruction Section

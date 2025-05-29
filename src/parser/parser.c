@@ -303,12 +303,12 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index, long int i
 		case OPCODE_PUSH:
 		case OPCODE_POP:
 		case OPCODE_CALL:
+		case OPCODE_USER:
 		case OPCODE_SYSCALL_PRN:
 			expected_operands = 1;
 			break;
 		case OPCODE_RET:
 		case OPCODE_HLT:
-		case OPCODE_USER:
 		case OPCODE_SYSCALL_HLT:
 		case OPCODE_SYSCALL_YIELD:
 			expected_operands = 0;
