@@ -79,6 +79,7 @@ check_instruction_address(const CPU * cpu, const long int relative_address, cons
 static void
 exec_set(CPU * cpu, long int value, long int relative_address)
 {
+	printf("set: value: %ld - relative address: %ld\n", value, relative_address);
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_address, "SET");
 
@@ -89,6 +90,8 @@ exec_set(CPU * cpu, long int value, long int relative_address)
 static void 
 exec_cpy(CPU * cpu, long int relative_src_address, long int relative_dest_address)
 {
+	printf("cpy\n");
+
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_src_address,  "CPY");
 	check_data_address(cpu, relative_dest_address, "CPY");
@@ -102,6 +105,8 @@ exec_cpy(CPU * cpu, long int relative_src_address, long int relative_dest_addres
 static void 
 exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_address)
 {
+	printf("cpyi\n");
+
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_address_of_ptr, "CPYI");
 	check_data_address(cpu, relative_dest_address,   "CPYI");
@@ -126,6 +131,8 @@ exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_ad
 static void
 exec_add(CPU * cpu, long int relative_dest_address, long int value_to_add)
 {
+	printf("add\n");
+
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_dest_address, "ADD");
 
@@ -147,6 +154,8 @@ exec_add(CPU * cpu, long int relative_dest_address, long int value_to_add)
 static void
 exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_address)
 {
+	printf("addi\n");
+
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_dest_address, "ADDI");
 	check_data_address(cpu, relative_src_address,  "ADDI");
@@ -172,6 +181,8 @@ exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_addre
 static void
 exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_address)
 {
+	printf("subi\n");
+
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_dest_address, "SUBI");
 	check_data_address(cpu, relative_src_address,  "SUBI");
@@ -194,9 +205,19 @@ exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_addre
 	mem_write(cpu->mem, absolute_dest_address, src_value - dest_value, cpu->mode);
 }
 
+/* burada sorun şu, baştan beri bu aklımdaydı...
+	- parser'dan okuma yaptığımız zaman başta index gibi bir şey var
+	orayı baz alarak jump yapmamız lazım ama o indeksi biz kullanmıyoruz hiç.
+
+	atlayacağı index - kendi indexi -1 şeklindeki adrese jump yapmalı aritmetik olarak.
+
+bunu bir şekilde ekle.
+*/
 static void
 exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_pc_address, long int * next_pc_address)
 {
+	printf("jif\n");
+
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_condition_address, "JIF");
 	check_instruction_address(cpu, relative_new_pc_address, "JIF");
@@ -208,12 +229,16 @@ exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_p
 		/* Each instruction takes INSTR_SIZE (3) bytes, so multiply relative_new_pc_address by INSTR_SIZE */
 		long int absolute_instruction_address = cpu->curr_instruction_base_for_active_entity + (relative_new_pc_address * INSTR_SIZE);
 		*next_pc_address = absolute_instruction_address;
+		printf("gidilecek yer: %ld\n", absolute_instruction_address);
 	}
+
 }
 
 static void
 exec_push(CPU * cpu, long int relative_element_address)
 {
+	printf("push\n");
+
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_element_address, "PUSH");
 
@@ -248,6 +273,8 @@ exec_push(CPU * cpu, long int relative_element_address)
 static void
 exec_pop(CPU * cpu, long int relative_dest_address) /* POP bir üstü okumalı o anki SP değerini değil */
 {
+	printf("pop\n");
+
 	check_cpu(cpu, __func__);
     check_data_address(cpu, relative_dest_address, "POP");
 
@@ -272,6 +299,8 @@ exec_pop(CPU * cpu, long int relative_dest_address) /* POP bir üstü okumalı o
 static void
 exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
 {
+	printf("call\n");
+
 	check_cpu(cpu, __func__);
 
     long int current_pc_value = mem_read(cpu->mem, REG_PC, cpu->mode);
@@ -317,6 +346,8 @@ exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
 static void 
 exec_ret(CPU * cpu, long int * next_pc_address)
 {
+	printf("ret\n");
+
 	check_cpu(cpu, __func__);
 
     long int current_sp_value = mem_read(cpu->mem, REG_SP, cpu->mode);
@@ -347,13 +378,17 @@ exec_ret(CPU * cpu, long int * next_pc_address)
 static void
 exec_hlt(CPU * cpu)
 {
+	printf("hlt\n");
+
 	check_cpu(cpu, __func__);
-	cpu->is_halted = true;
+	cpu->is_halted = false;
 }
 
 static void
 exec_user(CPU * cpu, long int pt_jump_address, long int * next_pc_address)
 {
+	printf("user\n");
+
 	check_cpu(cpu, __func__);
 
 	long int jump_address = mem_read(cpu->mem, pt_jump_address, cpu->mode);
@@ -381,6 +416,8 @@ exec_user(CPU * cpu, long int pt_jump_address, long int * next_pc_address)
 static void
 exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
 {
+	printf("sys prn\n");
+
 	check_cpu(cpu, __func__);
 
     long int absolute_source_address = cpu->curr_data_base_for_active_entity + source_address;
@@ -432,6 +469,8 @@ exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
 static void
 exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
 {
+	printf("sys hlt\n");
+
 	check_cpu(cpu, __func__);
 
     long int current_pc = mem_read(cpu->mem, REG_PC, cpu->mode);
@@ -470,6 +509,8 @@ exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
 static void
 exec_syscall_yield(CPU * cpu, long int * next_pc_address)
 {
+	printf("sys yield\n");
+
 	check_cpu(cpu, __func__);
 
     long int current_pc = mem_read(cpu->mem, REG_PC, cpu->mode);
@@ -550,6 +591,8 @@ cpu_set_context(CPU * cpu, int thread_id, long int data_base, long int instructi
 void 
 cpu_execute_instruction(CPU * cpu)
 {
+	int i = 0;
+
 	if (cpu->is_halted) {
 		return;
 	}
@@ -566,6 +609,7 @@ cpu_execute_instruction(CPU * cpu)
 	*/
 	/*********************** FETCHING PART ***********************/
 	long int current_pc_address = mem_read(cpu->mem, REG_PC, cpu->mode);
+	printf("--------%ld\n", current_pc_address);
 	if (current_pc_address < 0 || current_pc_address + INSTR_SIZE > MEM_SIZE) {
 		 fprintf(stderr,
 				"FATAL ERROR: Program Counter (REG_PC: %ld) is out of valid memory bounds or too close to end.\n",
@@ -574,7 +618,6 @@ cpu_execute_instruction(CPU * cpu)
 		 return;
 	}
 	/*********************** FETCHING PART ***********************/
-
 	/* Ayırıcı kontrolü: Bir sonraki talimat adresinde -1 varsa dur: next_instr durdurucu case bu olacak */
     if (mem_read(cpu->mem, current_pc_address, cpu->mode) == -1) {
         fprintf(stderr, "Reached end of instructions (separator -1) at address %ld for entity %d\n",
@@ -649,6 +692,7 @@ cpu_execute_instruction(CPU * cpu)
 			break;
 
 		case OPCODE_HLT:
+			i = 2;
 			exec_hlt(cpu);
 			break;
 
@@ -680,6 +724,12 @@ cpu_execute_instruction(CPU * cpu)
 	}
 	long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, cpu->mode);
 	mem_write(cpu->mem, REG_INSTR_COUNT, current_instr_count + 1, cpu->mode);
+
+	if (i == 2)
+	{
+		printf("DEBUG: context switch\n");
+		mem_write(cpu->mem, REG_PC, 1256, cpu->mode);
+	}
 }
 
 bool 

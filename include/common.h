@@ -48,7 +48,7 @@
 
 /* parser macros */
 #define MAX_OPERANDS 2
-#define ASM_LINE_BUFFER_SIZE 64
+#define ASM_LINE_BUFFER_SIZE 256
 #define INSTR_SIZE (1 + MAX_OPERANDS) /* opcode + operands */
 
 /* SYSCALL macros */

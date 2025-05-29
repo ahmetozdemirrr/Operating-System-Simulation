@@ -20,8 +20,8 @@ PARSER_OBJS = $(OBJ_DIR)/parser_test.o $(OBJ_DIR)/parser.o $(OBJ_DIR)/memory.o
 PARSER_TEST_TARGET = $(BIN_DIR)/parser_test_runner
 
 # --- cpu test files ---
-CPU_C_FILES = $(TEST_DIR)/cpu_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
-CPU_OBJS = $(OBJ_DIR)/cpu_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
+CPU_C_FILES = $(TEST_DIR)/sort_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
+CPU_OBJS = $(OBJ_DIR)/sort_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
 CPU_TEST_TARGET = $(BIN_DIR)/cpu_test_runner
 
 # === TARGETS ===
