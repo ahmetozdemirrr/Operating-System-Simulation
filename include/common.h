@@ -12,7 +12,7 @@
 #include <stdbool.h>
 
 /* memory macros */
-#define MEM_SIZE 16384 
+#define MEM_SIZE 22000 /* 2000 for each thread even OS (32768) */
 #define REG_PC 0 /* program counter */
 #define REG_SP 1 /* stack pointer */
 #define REG_SYSCALL_RESULT 2
@@ -24,27 +24,39 @@
 #define OS_ID 0
 #define MAX_THREADS 10
 #define MAX_PROGRAM_ENTITIES 11
-#define ENTITY_DATA_SIZE 256
-#define ENTITY_INSTRUCTION_OFFSET ENTITY_DATA_SIZE
-#define ENTITY_BLOCK_SIZE_EXCEPT_OS 1000
-#define ENTITY_INSTR_SIZE (ENTITY_BLOCK_SIZE_EXCEPT_OS - ENTITY_DATA_SIZE)
+
+/* Entity size macros */
+#define ENTITY_DATA_SIZE 1000
+#define ENTITY_INSTRUCTION_SIZE 1000
+#define ENTITY_TOTAL_SIZE 2000  /* data + instruction */
+
+/* OS specific sizes */
+#define OS_USABLE_DATA_SIZE 980  /* 1000 - 20 (registers) */
+#define OS_TOTAL_SIZE 1980  /* 20 (registers) + 980 (data) + 1000 (instruction) */
 
 /* OS specific layout */
-#define OS_DATA_START_ADDR (REG_RESERVED_END + 1)
-#define OS_DATA_END_ADDR (OS_DATA_START_ADDR + ENTITY_DATA_SIZE - 1)
-#define OS_INSTRUCTION_START_ADDR (OS_DATA_START_ADDR + ENTITY_DATA_SIZE)
-#define OS_BLOCK_END_ADDR 999
+#define OS_DATA_START_ADDR 20  /* Register'lardan hemen sonra */
+#define OS_DATA_END_ADDR 999   /* 20 + 980 - 1 */
+#define OS_INSTRUCTION_START_ADDR 1000  /* Data'dan hemen sonra */
+#define OS_INSTRUCTION_END_ADDR 1999    /* 1000 + 1000 - 1 */
+#define OS_BLOCK_END_ADDR OS_INSTRUCTION_END_ADDR
 #define OS_SYSCALL_HANDLER_ADDR OS_INSTRUCTION_START_ADDR
 
-/* user thread spscific layout base */
-#define USER_THREAD_START_BASE_ADDR 1000
+/* User thread layout */
+#define USER_THREAD_START_BASE_ADDR 2000  /* OS'tan hemen sonra */
 
 /* Thread address calculation macros */
-#define THREAD_BASE_ADDR(thread_id) (USER_THREAD_START_BASE_ADDR + ((thread_id) - 1) * ENTITY_BLOCK_SIZE_EXCEPT_OS)
+#define THREAD_BASE_ADDR(thread_id) (USER_THREAD_START_BASE_ADDR + ((thread_id) - 1) * ENTITY_TOTAL_SIZE)
 #define THREAD_DATA_START(thread_id) (THREAD_BASE_ADDR(thread_id))
-#define THREAD_DATA_END(thread_id) (THREAD_BASE_ADDR(thread_id) + ENTITY_DATA_SIZE - 1)
-#define THREAD_INSTR_START(thread_id) (THREAD_BASE_ADDR(thread_id) + ENTITY_INSTRUCTION_OFFSET)
-#define THREAD_BLOCK_END(thread_id) (THREAD_BASE_ADDR(thread_id) + ENTITY_BLOCK_SIZE_EXCEPT_OS - 1)
+#define THREAD_DATA_END(thread_id) (THREAD_DATA_START(thread_id) + ENTITY_DATA_SIZE - 1)
+#define THREAD_INSTR_START(thread_id) (THREAD_DATA_END(thread_id) + 1)
+#define THREAD_INSTR_END(thread_id) (THREAD_INSTR_START(thread_id) + ENTITY_INSTRUCTION_SIZE - 1)
+#define THREAD_BLOCK_END(thread_id) THREAD_INSTR_END(thread_id)
+
+/* Backward compatibility */
+#define ENTITY_INSTRUCTION_OFFSET ENTITY_DATA_SIZE
+#define ENTITY_BLOCK_SIZE_EXCEPT_OS ENTITY_TOTAL_SIZE
+#define ENTITY_INSTR_SIZE ENTITY_INSTRUCTION_SIZE
 
 /* parser macros */
 #define MAX_OPERANDS 2
@@ -68,6 +80,7 @@ typedef enum
 	OPCODE_SET = 0,
 	OPCODE_CPY,
 	OPCODE_CPYI,
+	OPCODE_CPYI2,
 	OPCODE_ADD,
 	OPCODE_ADDI,
 	OPCODE_SUBI,

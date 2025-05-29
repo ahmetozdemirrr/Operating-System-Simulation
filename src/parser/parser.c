@@ -57,7 +57,7 @@ trim_whitespace(char * str)
  *       an error.
  */
 static int
-parse_data_line(const char * line, Memory * mem, long int base_addr)
+parse_data_line(const char * line, Memory * mem, long int base_addr, long int current_entity_id)
 {
 	if (line == NULL || mem == NULL) {
 		fprintf(stderr, "ERROR: NULL line or memory pointer\n");
@@ -92,9 +92,10 @@ parse_data_line(const char * line, Memory * mem, long int base_addr)
 		free(copy_line);
 		return -1;
 	}
+	long int max_data_size = (current_entity_id == OS_ID) ? OS_USABLE_DATA_SIZE : ENTITY_DATA_SIZE;
 
 	/* Check if the offset is within bounds */
-	if (address_offset < 0 || address_offset >= ENTITY_DATA_SIZE) {
+	if (address_offset < 0 || address_offset >= max_data_size) {
 		fprintf(stderr, "ERROR: Data address offset %ld out of bounds (0 to %d)\n",
 				address_offset, ENTITY_DATA_SIZE - 1);
 		free(copy_line);
@@ -217,6 +218,8 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index, long int i
 		opcode = OPCODE_CPY;
 	} else if (strcmp(token, "CPYI") == 0) {
 		opcode = OPCODE_CPYI;
+	} else if (strcmp(token, "CPYI2") == 0) {
+		opcode = OPCODE_CPYI2;
 	} else if (strcmp(token, "ADD") == 0) {
 		opcode = OPCODE_ADD;
 	} else if (strcmp(token, "ADDI") == 0) {
@@ -290,6 +293,7 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index, long int i
 		case OPCODE_SET:
 		case OPCODE_CPY:
 		case OPCODE_CPYI:
+		case OPCODE_CPYI2:
 		case OPCODE_ADD:
 		case OPCODE_ADDI:
 		case OPCODE_SUBI:
@@ -469,7 +473,7 @@ load_program_from_file(const char * filename, Memory * mem)
 					fprintf(stderr, "ERROR at line %d: Unexpected section marker %s before End Data Section\n", line_number, clean_line);
 					state = ERROR_CONTEXT;
 				}
-				else if (parse_data_line(clean_line, mem, current_base_addr) != 0) {
+				else if (parse_data_line(clean_line, mem, current_base_addr, current_entity_id) != 0) {
 					fprintf(stderr, "ERROR at line %d: Failed to parse data line: %s\n", line_number, clean_line);
 					free(line_buffer);
 					fclose(file);
@@ -477,9 +481,10 @@ load_program_from_file(const char * filename, Memory * mem)
 				}
 				else {
 					data_count++;
+					long int max_data_count = (current_entity_id == OS_ID) ? OS_USABLE_DATA_SIZE : ENTITY_DATA_SIZE;
 
-					if (data_count > ENTITY_DATA_SIZE) {
-						fprintf(stderr, "ERROR at line %d: Maximum data lines (%d) exceeded\n", line_number, ENTITY_DATA_SIZE);
+					if (data_count > max_data_count) {
+						fprintf(stderr, "ERROR at line %d: Maximum data lines (%ld) exceeded\n", line_number, max_data_count);
 						free(line_buffer);
 						fclose(file);
 						return -1;

@@ -41,7 +41,7 @@ check_data_address(const CPU * cpu, const long int relative_address, const char 
 	long int max_data_size = ENTITY_DATA_SIZE;
 
     if (cpu->curr_thread_id == OS_ID) {
-        max_data_size = OS_DATA_END_ADDR - OS_DATA_START_ADDR + 1;
+        max_data_size = OS_USABLE_DATA_SIZE;
     }
 
 	if (relative_address < 0 || relative_address >= max_data_size) {
@@ -126,6 +126,48 @@ exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_ad
 		exit(EXIT_FAILURE);
 	}
 	mem_write(cpu->mem, absolute_dest_address, mem_read(cpu->mem, indirect_src_absolute_address, cpu->mode), cpu->mode);
+}
+
+static void
+exec_cpyi2(CPU * cpu, long int relative_src_ptr_address, long int relative_dest_ptr_address)
+{
+	printf("cpyi2\n");
+
+	check_cpu(cpu, __func__);
+	check_data_address(cpu, relative_src_ptr_address, "CPYI");
+	check_data_address(cpu, relative_dest_ptr_address,   "CPYI");
+
+	/* A1 -> M[A1] */
+	long int absolute_src_ptr_address = cpu->curr_data_base_for_active_entity + relative_src_ptr_address;
+	long int actual_src_data_address = mem_read(cpu->mem, absolute_src_ptr_address, cpu->mode);
+
+	/* A2 -> M[A2] */
+	long int absolute_dest_ptr_address = cpu->curr_data_base_for_active_entity + relative_dest_ptr_address;
+	long int actual_dest_data_address = mem_read(cpu->mem, absolute_dest_ptr_address, cpu->mode);
+
+	if (actual_src_data_address < 0 || actual_src_data_address >= MEM_SIZE) {
+		fprintf(stderr,
+				"ERROR: Entity %d CPYI2: Indirect source data address %ld (read from M[%ld]) is out of MEMORY bounds (0-%d).\n",
+				cpu->curr_thread_id,
+				actual_src_data_address,
+				absolute_src_ptr_address,
+				MEM_SIZE - 1);
+		exit(EXIT_FAILURE);
+	}
+
+	if (actual_dest_data_address < 0 || actual_dest_data_address >= MEM_SIZE) {
+		fprintf(stderr,
+				"ERROR: Entity %d CPYI2: Indirect destination data address %ld (read from M[%ld]) is out of MEMORY bounds (0-%d).\n",
+				cpu->curr_thread_id,
+				actual_dest_data_address,
+				absolute_dest_ptr_address,
+				MEM_SIZE - 1);
+		exit(EXIT_FAILURE);
+	}
+	/* M[M[A1]]: */
+	long int value_to_copy = mem_read(cpu->mem, actual_src_data_address, cpu->mode);
+	/* M[M[A2]] = M[M[A1]] */
+	mem_write(cpu->mem, actual_dest_data_address, value_to_copy, cpu->mode);
 }
 
 static void
@@ -402,13 +444,14 @@ exec_user(CPU * cpu, long int pt_jump_address, long int * next_pc_address)
         exit(EXIT_FAILURE);
 	}
 
-	if (jump_address < 1000) {
-        fprintf(stderr,
-                "FATAL ERROR: Jump address %ld is below user mode boundary (1000) in USER for entity %d\n",
-                jump_address,
-                cpu->curr_thread_id);
-        exit(EXIT_FAILURE);
-    }
+	if (jump_address < USER_THREAD_START_BASE_ADDR) {
+	    fprintf(stderr,
+	            "FATAL ERROR: Jump address %ld is below user mode boundary (%d) in USER for entity %d\n",
+	            jump_address,
+	            USER_THREAD_START_BASE_ADDR,
+	            cpu->curr_thread_id);
+	    exit(EXIT_FAILURE);
+	}
     cpu->mode = USER;
     *next_pc_address = jump_address;
 }
@@ -657,6 +700,10 @@ cpu_execute_instruction(CPU * cpu)
 
 		case OPCODE_CPYI:
 			exec_cpyi(cpu, operand_1, operand_2);
+			break;
+
+		case OPCODE_CPYI2:
+			exec_cpyi2(cpu, operand_1, operand_2);
 			break;
 
 		case OPCODE_ADD:
