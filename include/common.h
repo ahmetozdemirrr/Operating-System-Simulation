@@ -19,6 +19,38 @@
 #define REG_INSTR_COUNT 3
 #define REG_RESERVED_START 4
 #define REG_RESERVED_END 20
+#define REG_CONTEXT_SWITCH_SIGNAL 17 /* it can be 999 or -999 */
+#define CTX_SWITCH_REQUEST -999
+#define CTX_SWITCH_DONE 999
+
+/* OS Mailbox for Context Switch Data (Offsets from OS_DATA_START_ADDR) */
+#define MAILBOX_OFFSET_NEXT_THREAD_ID  600
+#define MAILBOX_OFFSET_NEXT_PC         601
+#define MAILBOX_OFFSET_NEXT_SP         602
+#define MAILBOX_OFFSET_NEXT_DATA_BASE  603
+#define MAILBOX_OFFSET_NEXT_INSTR_BASE 604
+#define MAILBOX_OFFSET_NEXT_MODE       605
+/*
+	606, 607 currently unused, can be for future flags or ensuring alignment
+
+	typedef struct
+	{
+		Memory * mem;
+		CPU_mode mode;
+		bool is_halted;
+		int curr_thread_id;
+		long int curr_data_base_for_active_entity;
+		long int curr_instruction_base_for_active_entity;
+	}
+	CPU;
+*/
+/* Absolute addresses for OS Mailbox (calculated from OS_DATA_START_ADDR) */
+#define ADDR_MAILBOX_NEXT_THREAD_ID  (OS_DATA_START_ADDR + MAILBOX_OFFSET_NEXT_THREAD_ID)
+#define ADDR_MAILBOX_NEXT_PC         (OS_DATA_START_ADDR + MAILBOX_OFFSET_NEXT_PC)
+#define ADDR_MAILBOX_NEXT_SP         (OS_DATA_START_ADDR + MAILBOX_OFFSET_NEXT_SP)
+#define ADDR_MAILBOX_NEXT_DATA_BASE  (OS_DATA_START_ADDR + MAILBOX_OFFSET_NEXT_DATA_BASE)
+#define ADDR_MAILBOX_NEXT_INSTR_BASE (OS_DATA_START_ADDR + MAILBOX_OFFSET_NEXT_INSTR_BASE)
+#define ADDR_MAILBOX_NEXT_MODE       (OS_DATA_START_ADDR + MAILBOX_OFFSET_NEXT_MODE)
 
 /* OS and Thread Layout Macros */
 #define OS_ID 0
@@ -46,17 +78,17 @@
 #define USER_THREAD_START_BASE_ADDR 2000  /* OS'tan hemen sonra */
 
 /* Thread address calculation macros */
-#define THREAD_BASE_ADDR(thread_id) (USER_THREAD_START_BASE_ADDR + ((thread_id) - 1) * ENTITY_TOTAL_SIZE)
-#define THREAD_DATA_START(thread_id) (THREAD_BASE_ADDR(thread_id))
-#define THREAD_DATA_END(thread_id) (THREAD_DATA_START(thread_id) + ENTITY_DATA_SIZE - 1)
+#define THREAD_BASE_ADDR(thread_id)   (USER_THREAD_START_BASE_ADDR + ((thread_id) - 1) * ENTITY_TOTAL_SIZE)
+#define THREAD_DATA_START(thread_id)  (THREAD_BASE_ADDR(thread_id))
+#define THREAD_DATA_END(thread_id)    (THREAD_DATA_START(thread_id) + ENTITY_DATA_SIZE - 1)
 #define THREAD_INSTR_START(thread_id) (THREAD_DATA_END(thread_id) + 1)
-#define THREAD_INSTR_END(thread_id) (THREAD_INSTR_START(thread_id) + ENTITY_INSTRUCTION_SIZE - 1)
-#define THREAD_BLOCK_END(thread_id) THREAD_INSTR_END(thread_id)
+#define THREAD_INSTR_END(thread_id)   (THREAD_INSTR_START(thread_id) + ENTITY_INSTRUCTION_SIZE - 1)
+#define THREAD_BLOCK_END(thread_id)   THREAD_INSTR_END(thread_id)
 
 /* Backward compatibility */
-#define ENTITY_INSTRUCTION_OFFSET ENTITY_DATA_SIZE
+#define ENTITY_INSTRUCTION_OFFSET   ENTITY_DATA_SIZE
 #define ENTITY_BLOCK_SIZE_EXCEPT_OS ENTITY_TOTAL_SIZE
-#define ENTITY_INSTR_SIZE ENTITY_INSTRUCTION_SIZE
+#define ENTITY_INSTR_SIZE 			ENTITY_INSTRUCTION_SIZE
 
 /* parser macros */
 #define MAX_OPERANDS 2

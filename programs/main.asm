@@ -2,6 +2,117 @@ Begin Data Section
 0 -1
 1 -2
 2 -3
+
+# OS Thread Table Entry
+500 0 # OS thread id
+501
+502
+503
+504 21
+505 1000
+506
+507
+# User Thread 1 Table Entry
+508 1
+509
+510
+511
+512 2000
+513 3000
+514
+515
+# User Thread 2 Table Entry
+516 2
+517
+518
+519
+520 4000
+521 5000
+522
+523
+# User Thread 3 Table Entry
+524 3
+525
+526
+527
+528 6000
+529 7000
+530
+531
+# User Thread 4 Table Entry
+532 4
+533
+534
+535
+536 8000
+537 9000
+538
+539
+# User Thread 5 Table Entry
+540 5
+541
+542
+543
+544 10000
+545 11000
+546
+547
+# User Thread 6 Table Entry
+548 6
+549
+550
+551
+552 12000
+553 13000
+554
+555
+# User Thread 7 Table Entry
+556 7
+557
+558
+559
+560 14000
+561 15000
+562
+563
+# User Thread 8 Table Entry
+564 8
+565
+566
+567
+568 16000
+569 17000
+570
+571
+# User Thread 9 Table Entry
+572 9
+573
+574
+575 18000
+576 19000
+578
+579
+# User Thread 10 Table Entry
+580 10
+581
+582
+583
+584 20000
+585 30000
+586
+587
+# Context Switch Target -> The scheduler writes the entries of the thread it decides will work here.
+# then a signal is written to a special register. The CPU simulator constantly checks this signal, if the
+# signal indicates that the scheduler has finished its operation, the CPU should update the cpu struct by
+# reading 600 - 607 (in KERNEL mode, offset: 0)
+600
+601
+602
+603
+604
+605
+606
+607
 End Data Section
 
 Begin Instruction Section

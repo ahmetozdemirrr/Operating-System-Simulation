@@ -439,14 +439,20 @@ exec_user(CPU * cpu, long int pt_jump_address_offset, long int * next_pc_address
 	if (target_user_pc < 0 || target_user_pc >= MEM_SIZE) {
         fprintf(stderr,
                 "FATAL ERROR: USER instr: Target PC %ld (from M[%ld]) is out of MEMORY bounds (0-%d).\n",
-                target_user_pc, absolute_ptr_address, MEM_SIZE - 1);
-        cpu->is_halted = true; return;
+                target_user_pc,
+                absolute_ptr_address,
+                MEM_SIZE - 1);
+        cpu->is_halted = true;
+        return;
     }
     if (target_user_pc < USER_THREAD_START_BASE_ADDR) {
         fprintf(stderr,
                 "FATAL ERROR: USER instr: Target PC %ld (from M[%ld]) is below USER mode boundary (%ld).\n",
-                target_user_pc, absolute_ptr_address, USER_THREAD_START_BASE_ADDR);
-        cpu->is_halted = true; return;
+                target_user_pc,
+                absolute_ptr_address,
+                USER_THREAD_START_BASE_ADDR);
+        cpu->is_halted = true;
+        return;
     }
     /* eski
     cpu->mode = USER;
@@ -489,56 +495,16 @@ exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
     if (absolute_source_address < 0 || absolute_source_address >= MEM_SIZE) {
         fprintf(stderr,
                 "FATAL ERROR: Memory address %ld is out of bounds in SYSCALL PRN for entity %d\n",
-                absolute_source_address, cpu->curr_thread_id);
+                absolute_source_address,
+                cpu->curr_thread_id);
         exit(EXIT_FAILURE);
     }
     long int value = mem_read(cpu->mem, absolute_source_address, cpu->mode);
     printf("-----%ld\n", value);
 
     /* syscall olunca context switch olmalı, şimdilik test için pritn syscall ı açık bırakıldı */
-    /*
-    	long int current_pc = mem_read(cpu->mem, REG_PC, cpu->mode);
-        long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
-        long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
-
-        if (current_sp == 0 || current_sp > stack_upper_bound) {
-            current_sp = stack_upper_bound;
-            mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
-        }
-
-        long int new_sp = current_sp - 1;
-        if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
-            fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
-                    cpu->curr_thread_id,
-                    new_sp);
-            exit(EXIT_FAILURE);
-        }
-        mem_write(cpu->mem, new_sp, current_pc, cpu->mode);
-
-        new_sp--;
-        if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
-            fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
-                    cpu->curr_thread_id,
-                    new_sp);
-            exit(EXIT_FAILURE);
-        }
-        mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
-        mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
-
-        cpu->mode = KERNEL;
-        mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, cpu->mode);
-        *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
-    */
-}
-
-static void
-exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
-{
-	printf("sys hlt\n");
-
-	check_cpu(cpu, __func__);
-
-    long int current_pc = mem_read(cpu->mem, REG_PC, cpu->mode);
+	long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
+	long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
     long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
     long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
 
@@ -549,16 +515,57 @@ exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
 
     long int new_sp = current_sp - 1;
     if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1.\n",
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
                 cpu->curr_thread_id,
                 new_sp);
         exit(EXIT_FAILURE);
     }
-    mem_write(cpu->mem, new_sp, current_pc, cpu->mode);
+    mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
 
     new_sp--;
-    if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1.\n",
+    if ((new_sp < 0) || (mem_read(cpu->mem, new_sp, cpu->mode) == -1) && (new_sp != stack_upper_bound -2)) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
+                cpu->curr_thread_id,
+                new_sp);
+        exit(EXIT_FAILURE);
+    }
+    mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
+    mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
+
+    cpu->mode = KERNEL;
+    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, cpu->mode);
+    *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
+}
+
+static void
+exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
+{
+	printf("sys hlt\n");
+
+	check_cpu(cpu, __func__);
+
+    long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
+    long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
+    long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
+    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+
+    if (current_sp == 0 || current_sp > stack_upper_bound) {
+        current_sp = stack_upper_bound;
+        mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
+    }
+
+    long int new_sp = current_sp - 1;
+    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -1 )) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
+                cpu->curr_thread_id,
+                new_sp);
+        exit(EXIT_FAILURE);
+    }
+    mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
+
+    new_sp--;
+    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -2 )) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
                 cpu->curr_thread_id,
                 new_sp);
         exit(EXIT_FAILURE);
@@ -578,7 +585,8 @@ exec_syscall_yield(CPU * cpu, long int * next_pc_address)
 
 	check_cpu(cpu, __func__);
 
-    long int current_pc = mem_read(cpu->mem, REG_PC, cpu->mode);
+    long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
+    long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
     long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
     long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
 
@@ -588,17 +596,17 @@ exec_syscall_yield(CPU * cpu, long int * next_pc_address)
     }
 
     long int new_sp = current_sp - 1;
-    if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL YIELD for entity %d. SP %ld encountered -1.\n",
+    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -1 )) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL YIELD for entity %d. SP %ld encountered -1 or invalid.\n",
                 cpu->curr_thread_id,
                 new_sp);
         exit(EXIT_FAILURE);
     }
-    mem_write(cpu->mem, new_sp, current_pc, cpu->mode);
+    mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
 
     new_sp--;
-    if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL YIELD for entity %d. SP %ld encountered -1.\n",
+    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -2 )) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL YIELD for entity %d. SP %ld encountered -1 or invalid.\n",
                 cpu->curr_thread_id,
                 new_sp);
         exit(EXIT_FAILURE);
@@ -630,8 +638,13 @@ cpu_init(CPU * cpu, Memory * mem)
 	cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;
 
 	mem_write(mem, REG_PC, cpu->curr_instruction_base_for_active_entity, cpu->mode);
-	mem_write(mem, REG_SP, OS_BLOCK_END_ADDR, cpu->mode); /* 999: from up to bottom */
+	mem_write(mem, REG_SP, OS_BLOCK_END_ADDR, cpu->mode); /* 1999: from up to bottom */
 	mem_write(mem, REG_INSTR_COUNT, 0, cpu->mode);
+	/*
+		Context switch sinyalini başlangıçta "işlem tamamlandı" olarak ayarla.
+    	Bu yazma işlemi KERNEL modunda yapılmalı, çünkü bu OS'nin kontrol edeceği bir register.
+    */
+    mem_write(mem, REG_CONTEXT_SWITCH_SIGNAL, CTX_SWITCH_DONE, KERNEL);
 }
 
 void
@@ -656,6 +669,53 @@ cpu_set_context(CPU * cpu, int thread_id, long int data_base, long int instructi
 void 
 cpu_execute_instruction(CPU * cpu)
 {
+	/*
+		Context Switch Sinyalini Kontrol Et (Her komut döngüsünün başında)
+	    Bu register OS tarafından KERNEL modunda set edildiği için KERNEL modunda okunmalı.
+	    Eğer o an USER modda bir thread çalışıyorsa bile, bu kontrol CPU simülatörünün
+	    kendi iç mantığıdır ve OS'nin bıraktığı bir sinyali okur.
+	    Güvenlik açısından, bu okuma ve sonraki işlemlerin KERNEL ayrıcalığıyla yapıldığını varsayabiliriz.
+    */
+    volatile long int ctx_signal = mem_read(cpu->mem, REG_CONTEXT_SWITCH_SIGNAL, KERNEL);
+
+    if (ctx_signal == CTX_SWITCH_REQUEST) {
+        /*
+	        OS'nin context switch isteğinde bulunduğunu logla.
+	        Bu loglama, cpu->curr_thread_id OS iken daha anlamlı olur,
+	        çünkü scheduler OS'nin bir parçasıdır. Ancak sinyal herhangi bir anda tespit edilebilir.
+        */
+        printf("CPU: Context Switch Request DETECTED (Signal: %ld) by OS (presumably).\n", ctx_signal);
+
+        /* Posta kutusundan yeni context bilgilerini KERNEL modunda oku, çünkü OS bunları KERNEL modunda yazdı. */
+        int next_tid = (int)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_THREAD_ID, KERNEL);
+        long int next_pc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_PC, KERNEL);
+        long int next_sp_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_SP, KERNEL);
+        long int next_db_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_DATA_BASE, KERNEL);
+        long int next_ib_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_BASE, KERNEL);
+        CPU_mode next_m_val = (CPU_mode)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_MODE, KERNEL);
+
+        printf("CPU: Switching to Thread ID: %d, PC: %ld, SP: %ld, Mode: %s, DB: %ld, IB: %ld\n",
+               next_tid, next_pc_val, next_sp_val, (next_m_val == USER ? "USER" : "KERNEL"), next_db_val, next_ib_val);
+
+        // CPU context'ini doğrudan güncelle.
+        // cpu_set_context fonksiyonunu burada çağırmak yerine doğrudan atama yapmak,
+        // bu özel akış için daha net olabilir. cpu_set_context daha çok genel bir yardımcıdır.
+        cpu->curr_thread_id = next_tid;
+        cpu->curr_data_base_for_active_entity = next_db_val;
+        cpu->curr_instruction_base_for_active_entity = next_ib_val;
+        cpu->mode = next_m_val; // Yeni thread'in modu
+
+        // Register'ları yeni thread'in moduna göre yaz.
+        // PC ve SP yazılırken kullanılacak mod, yeni geçilecek thread'in modu olmalı.
+        mem_write(cpu->mem, REG_PC, next_pc_val, cpu->mode);
+        mem_write(cpu->mem, REG_SP, next_sp_val, cpu->mode);
+
+        // Sinyali "işlendi" olarak işaretle (KERNEL modunda, çünkü bu OS'nin takip ettiği bir register).
+        mem_write(cpu->mem, REG_CONTEXT_SWITCH_SIGNAL, CTX_SWITCH_DONE, KERNEL);
+
+        // cpu_dump_registers(cpu); // İsteğe bağlı: Yeni durumu görmek için
+    }
+
 	if (cpu->is_halted) {
 		return;
 	}
@@ -701,7 +761,13 @@ cpu_execute_instruction(CPU * cpu)
 	/*********************** DECODE PART ***********************/
 
 #ifdef DEBUG_FLAG
-	printf("\n\n\n : %d _ %ld _ %ld\n\n\n", opcode, operand_1, operand_2);
+	printf("\n\n\nInstruction for Thread - %d \n- (Mode:%s) at PC=%ld: Opcode=%ld, Op1=%ld, Op2=%ld\n\n\n",
+           cpu->curr_thread_id,
+           (cpu->mode == KERNEL ? "K" : "U"),
+           current_pc_address,
+           opcode_numeric,
+           operand_1,
+           operand_2);
 #endif
 
 	/* INSTR_SIZE: MAX_OPERANDS + 1 = 3 from common header... (MAX_OPERANDS: 2, Opcode: 1) */
@@ -778,9 +844,12 @@ cpu_execute_instruction(CPU * cpu)
 			exec_syscall_yield(cpu, &next_pc_address);
 			break;
 
-		case OPCODE_UNKNOWN:
-			fprintf(stderr, "FATAL ERROR: Invalid opcode reading from memory! %d\n", opcode);
-			cpu->is_halted = true;
+		default:
+			fprintf(stderr,
+					"FATAL ERROR: Invalid or Unknown opcode %ld encountered by entity %d at address %ld\n",
+                    opcode_numeric,
+                    cpu->curr_thread_id,
+                    current_pc_address);
 			exit(EXIT_FAILURE);
 	}
 	/*********************** EXECUTE PART ***********************/
@@ -788,8 +857,8 @@ cpu_execute_instruction(CPU * cpu)
 	if (!cpu->is_halted) {
 		mem_write(cpu->mem, REG_PC, next_pc_address, cpu->mode);
 	}
-	long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, cpu->mode);
-	mem_write(cpu->mem, REG_INSTR_COUNT, current_instr_count + 1, cpu->mode);
+	long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL);
+	mem_write(cpu->mem, REG_INSTR_COUNT, current_instr_count + 1, KERNEL);
 }
 
 bool 
