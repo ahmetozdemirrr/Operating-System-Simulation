@@ -2,6 +2,10 @@
 
 Begin Data Section
 
+# scheduler seçtiği threadin bilgilerini bruaya yazar
+50 1    # scheduled_thread_id
+51 1    # scheduled_thread_pc
+
 # Thread States
 90 0    # THREAD_STATE_READY
 91 1    # THREAD_STATE_RUNNING
@@ -13,20 +17,26 @@ Begin Data Section
 95 2    # SYSCALL_HLT_ID
 96 3    # SYSCALL_YIELD_ID
 
+# unconditional jif
+99 -1
+
 # Scheduler State
 100 1   # current_running_thread_id (başlangıçta Thread 1)
 101 1   # next_thread_id (başlangıçta Thread 1)
 102 0   # print_block_counter (PRN syscall için)
 103 100 # PRINT_BLOCK_DURATION (PRN syscall 100 instruction block eder)
 
-# Temporary variables for syscall handler
-110 0   # temp_syscall_type
-111 0   # temp_current_thread
-112 0   # temp_return_address
-113 0   # temp_old_sp
-114 0   # temp_thread_entry_base
-115 0   # temp_comparison_result
-116 -1  # constant_minus_1 (for unconditional jumps)
+# Temporary variables for syscall handler, cpu buraya hangi threadin syscall yaptığını
+# belirmtk için dolduracak, :
+
+110 0   # temp_thread_id
+111 0   # temp_thread_state
+112 0   # temp_thread_pc
+113 0   # temp_thread_sp
+114 0   # temp_thread_data_base
+115 0   # temp_thread_instr_base
+116 0   # mode_to_restore
+117 0   # wake_up_instr_count
 
 # Round-robin scheduler variables
 120 1   # scheduler_start_thread (round-robin başlangıç thread ID)
@@ -153,6 +163,40 @@ Begin Data Section
 End Data Section
 
 Begin Instruction Section
+
+# Booting OS: entry point, setting some values like current_thread, last_scheduled etc.
+0 	SET  0 100 # to show, OS is succesfuly init
+1   CALL 30    # scheduler
+2   USER 50    # scheduler tarafından belirlenen 50. adresteki yere git
+
+# scheduler
+30  SET  509 801 # index: i -> 509
+31  SET  581 802 # N: toplam thread block sayısı (8*10)'dan, döngü için
+# loop i to N:
+32  CPY  801 803 # temp for i
+33  CPY  802 804 # temp for N
+34  SUBI 804 803 # N - i <= 0 -> 803
+35  JIF  803 49  # N - i <= 0 mı? O halde scheduler baştan çalışsın (cpu idle state)
+36  CPYI 801 805 # M[M[801]] -> 805
+37  JIF  805 38  # o anki state ready ise bilgileri ver
+38  ADDI 801 806 # M[M[801]] -> 806
+39  SET  1   807 # for substracting
+40  CPY  807 808 #
+41  SUBI 806 808 # current - 1: thread_id verir, M[M[801] - 1] -> 808
+42  CPYI 808 50  # M[M[801] - 1] -> M[50]
+43  CPY  807 809 # for adding
+44  ADD  1   809 # current + 1: pc verir, M[M[801] + 1] -> 809
+45  CPYI 809 51  # M[M[801] + 1] -> M[50]
+46  ADD  801 8   # i += 8, sonraki thread entry'sine bak
+47  JIF  99  32  # döngü başına geri dön
+48  RET 		 # çağıran yere geri dön
+49  HLT
+
+
+
+
+
+
 # OS Syscall Handler (OS Instruction Section - 1000'den başlar)
 # Supporting up to 10 threads (Thread 1-10) with proper context management
 # Stack state when entering: [old_sp], [return_address], ...
@@ -437,9 +481,9 @@ End Instruction Section
 
 
 ######################## USER THREAD 2 ########################
+# Linear Search Implementation
 Begin Data Section
-
-# values: 0-9
+# Array elements (indices 0-9)
 0   32
 1   12
 2   998
@@ -450,67 +494,50 @@ Begin Data Section
 7   3
 8   4
 9   4
+10  10   # array size
+11  -345 # KEY to search for
+12  -1   # result index (will be set to found index or -1)
+13  0    # i (loop counter)
 
-10  10  # array size
-11  998 # KEY
-12  -1  # index: if not found remain -1
-13  0   # i value for loop
-14  0   # current_element (şu anki eleman)
-15  0   # key_copy (anahtar kopyası)
-16  0   # temp karşılaştırma için
-17  0   # temp karşılaştırma için
-99  -1  # sabit -1 (koşulsuz atlama için)
-
+99  -1   # constant -1 for unconditional jumps
 End Data Section
 
 Begin Instruction Section
 # Linear Search Algorithm
-# for (i = 0; i < size; i++) {
-#     if (array[i] == key) {
+# for (i = 0; i < N; i++) {
+#     if (((arr[i] - KEY) <= 0) && ((KEY - arr[i]) <= 0)) {
 #         index = i;
 #         break;
 #     }
 # }
 # Döngü başlangıcı
-0  CPY 13 16       # M[16] = i (şu anki indeks)
-1  CPY 10 17       # M[17] = array_size
-2  SUBI 16 17      # M[16] = i - array_size
-3  JIF 16 15       # if (i - array_size <= 0) devam et, yoksa döngüden çık
 
-# Dizinin i'nci elemanını oku (indeks = adres)
-4  CPY 13 16       # M[16] = i (indeks)
-5  CPYI 16 14      # M[14] = array[i] (i'nci elemanı oku)
+0   CPY  10  14  # N -> 14
+1   CPY  13  15  # i -> 15
+2   CPY  14  100 # temp for N
+3   CPY  15  101 # temp for i
+4   SUBI 100 101 # i - N -> 15
+5   JIF  101 18  # M[14] <= 0 ise i >= N olmuştur, bitir: HLT yap
+6   CPY  11  16  # KEY -> 16
+7   CPYI 13  17  # curr_elem: arr[M[13]] -> 17
+8   SUBI 16  17  # KEY - curr_elem -> 17
+9   JIF  17  12  # 17'deki sonuç 0'dan küçükse sonraki koşula bakalım (Y'de)
+10  ADD  13  1   # eğer sonuç büyükse diğer iterasyona geçebiliriz: i++
+11  JIF  99  0   # başa dön: koşulsuz
 
-# Karşılaştırma: array[i] == key ?
-6  CPY 14 16       # M[16] = array[i]
-7  CPY 11 17       # M[17] = key
-8  SUBI 16 17      # M[16] = array[i] - key
-9  JIF 16 12       # if (array[i] - key <= 0) ilk koşul sağlandı, ikinci koşulu kontrol et
+# KEY ve curr_elem dirty olabilir SUBI sonucunda, yeniden alıyorzu
+12  CPY  11 16   # KEY -> 16
+13  CPYI 13 17   # curr_elem: arr[M[13]] -> 17, dirty oldu yeniden alıyoruz
+14  SUBI 17 16   # ters çıkarma
+15  JIF  16 18   # bulundu
+16  ADD  13 1    # bulunmadı: i++ sonraki iterasyona git
+17  JIF  99 0    # başa dön: koşulsuz
 
-# İlk koşul sağlanmadı, sonraki elemana geç
-10 ADD 13 1        # i++
-11 JIF 99 0        # döngü başına git
+18  CPY  13 12      # i -> result
+19  SYSCALL PRN 12  # print result
+20  HLT             # stop execution
 
-# İkinci koşul kontrolü: key - array[i] <= 0 ?
-12 CPY 11 16       # M[16] = key
-13 CPY 14 17       # M[17] = array[i]
-14 SUBI 16 17      # M[16] = key - array[i]
-15 JIF 16 18       # if (key - array[i] <= 0) eşitlik var, bulundu!
-
-# İkinci koşul da sağlanmadı, sonraki elemana geç
-16 ADD 13 1        # i++
-17 JIF 99 0        # döngü başına git
-
-# Eleman bulundu!
-18 CPY 13 12       # index = i (bulunan indeksi kaydet)
-19 JIF 99 21       # sonuç yazdırma kısmına git
-
-# Döngü sonu (eleman bulunamadı)
-20 SET -1 12       # index = -1 (bulunamadı)
-
-# Sonucu yazdır
-21 SYSCALL PRN 12  # Bulunan indeksi (veya -1) yazdır
-22 SYSCALL HLT     # Thread'i sonlandır
+End Instruction Section
 ###############################################################
 
 
@@ -518,4 +545,33 @@ Begin Instruction Section
 
 
 ######################## USER THREAD 3 ########################
+# Multiplication Implementation
+Begin Data Section
+0   80000   # mult operand 1
+1   -12     # mult operand 2
+2   0       # counter i for loop
+3   0       # summ_buffer: for, M[3] += M[1]
+99  -1      # constant -1 for unconditional jumps
+End Data Section
+
+Begin Instruction Section
+# Multiplication alg.
+# for (i = 0; i < operand_1; i++) {
+# 	sum_buffer += operand_2;
+# }
+# loop strat:
+
+0   CPY  0 4       # operand_1 -> 4
+1   CPY  2 5       # i -> 5
+2   CPY  4 100     # opeand_1: temp
+3   CPY  5 101     # i: temp
+4   SUBI 100 101   # N - i
+5   JIF  101 9     # döngü bitti bitir: HLT
+6   ADDI 3 1       # M[3] += M[1] : sum_buffer += operand_2
+7   ADD  2 1       # i++, next iteration
+8   JIF  99 0      # unconditionl jump
+9   SYSCALL PRN 3  # printing result
+10  HLT
+
+End Instruction Section
 ###############################################################

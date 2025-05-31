@@ -415,7 +415,7 @@ load_program_from_file(const char * filename, Memory * mem)
 					long int end_addr = current_instr_base_addr + curr_insr_index * INSTR_SIZE;
                     long int max_end_addr = (current_entity_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(current_entity_id);
                     if (end_addr <= max_end_addr) {
-                        mem_write(mem, end_addr, -1, KERNEL); // Ayırıcı olarak -1
+                        mem_write(mem, end_addr, -1, KERNEL); /* as a seperator -1 */
                     }
 
 					state = INITIAL_CONTEXT;

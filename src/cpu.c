@@ -251,14 +251,6 @@ exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_addre
 	mem_write(cpu->mem, absolute_dest_address, src_value - dest_value, cpu->mode);
 }
 
-/* burada sorun şu, baştan beri bu aklımdaydı...
-	- parser'dan okuma yaptığımız zaman başta index gibi bir şey var
-	orayı baz alarak jump yapmamız lazım ama o indeksi biz kullanmıyoruz hiç.
-
-	atlayacağı index - kendi indexi -1 şeklindeki adrese jump yapmalı aritmetik olarak.
-
-bunu bir şekilde ekle.
-*/
 static void
 exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_pc_address, long int * next_pc_address)
 {

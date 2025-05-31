@@ -7,7 +7,7 @@
 #include <common.h>
 
 #include <ctype.h>
-#include <unistd.h>
+/* #include <unistd.h> for strdup func. */
 
 /**
  * mnemonics:

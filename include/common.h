@@ -3,7 +3,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define _POSIX_C_SOURCE 200809L /* for POSIX calls */
+#define _POSIX_C_SOURCE 200809L /* for POSIX calls (strdup) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,7 +72,8 @@
 #define OS_INSTRUCTION_START_ADDR 1000  /* Data'dan hemen sonra */
 #define OS_INSTRUCTION_END_ADDR 1999    /* 1000 + 1000 - 1 */
 #define OS_BLOCK_END_ADDR OS_INSTRUCTION_END_ADDR
-#define OS_SYSCALL_HANDLER_ADDR OS_INSTRUCTION_START_ADDR
+#define OS_SYSCALL_HANDLER_ADDR 1010
+#define OS_ENTRY_POINT_BOOT OS_INSTRUCTION_START_ADDR
 
 /* User thread layout */
 #define USER_THREAD_START_BASE_ADDR 2000  /* OS'tan hemen sonra */
