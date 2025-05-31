@@ -24,8 +24,25 @@ CPU_C_FILES = $(TEST_DIR)/sort_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC
 CPU_OBJS = $(OBJ_DIR)/sort_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
 CPU_TEST_TARGET = $(BIN_DIR)/cpu_test_runner
 
+# --- linear search test files ---
+SEARCH_C_FILES = $(TEST_DIR)/linear_search_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
+SEARCH_OBJS = $(OBJ_DIR)/linear_search_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
+SEARCH_TEST_TARGET = $(BIN_DIR)/search_test_runner
+
+# --- multiplication by addition test files --- (YENİ EKLENEN BÖLÜM)
+MULT_TEST_C_FILE = $(TEST_DIR)/multiplication_test.c # Test dosyanızın adı bu olmalı
+MULT_C_DEPS = $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
+MULT_OBJS = $(OBJ_DIR)/multiplication_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
+MULT_TEST_TARGET = $(BIN_DIR)/mult_test_runner
+
 # === TARGETS ===
-default: memtest parsetest
+default: memtest parsetest searchtest multtest
+
+# Add searchtest to existing targets
+searchtest: $(SEARCH_TEST_TARGET)
+	@echo "Running Linear Search Test..."
+	./$(SEARCH_TEST_TARGET)
+	@echo "Linear Search Test is Complete."
 
 memtest: $(MEM_TEST_TARGET)
 	@echo "Running Memory Test..."
@@ -42,6 +59,11 @@ cputest: $(CPU_TEST_TARGET)
 	./$(CPU_TEST_TARGET)
 	@echo "CPU Test is Complete."
 
+multtest: $(MULT_TEST_TARGET)
+	@echo "Running Multiplication by Addition Test..."
+	./$(MULT_TEST_TARGET)
+	@echo "Multiplication by Addition Test is Complete."
+
 $(MEM_TEST_TARGET): $(MEM_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
@@ -51,6 +73,14 @@ $(PARSER_TEST_TARGET): $(PARSER_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(CPU_TEST_TARGET): $(CPU_OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(SEARCH_TEST_TARGET): $(SEARCH_OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(MULT_TEST_TARGET): $(MULT_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
@@ -80,4 +110,4 @@ clean:
 	rm -rf $(BIN_DIR)
 	@echo "Cleaning is complete."
 
-.PHONY: all default memtest parsetest cputest clean
+.PHONY: all default memtest parsetest cputest searchtest multtest clean

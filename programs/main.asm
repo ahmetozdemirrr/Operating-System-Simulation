@@ -1,7 +1,6 @@
+######################## OS THREAD ########################
+
 Begin Data Section
-0 -1
-1 -2
-2 -3
 
 # Thread States
 90 0    # THREAD_STATE_READY
@@ -34,7 +33,8 @@ Begin Data Section
 121 10  # max_thread_count
 
 # Thread Table (500'den başlıyor)
-# Her entry için 8 bilgi: thread_id, thread_state, PC, SP, data_base_addr, instr_base_addr, mode_to_restore, wake_up_instruction_count
+# Her entry için 8 bilgi: thread_id, thread_state, PC, SP, data_base_addr,
+# instr_base_addr, mode_to_restore, wake_up_instruction_count
 
 # OS Thread Table Entry (500-507)
 500 0    # thread_id = 0 (OS)
@@ -150,307 +150,202 @@ Begin Data Section
 # then a signal is written to a special register. The CPU simulator constantly checks this signal, if the
 # signal indicates that the scheduler has finished its operation, the CPU should update the cpu struct by
 # reading 600 - 607 (in KERNEL mode, offset: 0)
-600
-601
-602
-603
-604
-605
-606
-607
 End Data Section
 
 Begin Instruction Section
 # OS Syscall Handler (OS Instruction Section - 1000'den başlar)
-# Supporting 3 threads (Thread 1, 2, 3) - can be extended
-# Stack state: [old_sp], [return_address], ...
+# Supporting up to 10 threads (Thread 1-10) with proper context management
+# Stack state when entering: [old_sp], [return_address], ...
 
 # =================== ENTRY AND CONTEXT SAVE ===================
-0   POP 113         # temp_old_sp (OS data offset 113)
-1   POP 112         # temp_return_address (OS data offset 112)
-2   CPY 100 111     # temp_current_thread = current_running_thread_id (offset 100)
+0   POP 113         # temp_old_sp = pop old SP from stack
+1   POP 112         # temp_return_address = pop return address from stack
+2   CPY 100 111     # temp_current_thread = current_running_thread_id
 
-# Save current thread context immediately
-3   CPY 111 114     # current_thread_id for comparison
-4   SET 1 115       # check if thread 1
-5   SUBI 114 115    # current_thread - 1
-6   JIF 114 25      # if thread 1, goto save_thread1_context
+# =================== SAVE CURRENT THREAD CONTEXT ===================
+# Calculate thread table entry address: 500 + (thread_id * 8)
+3   CPY 111 114     # thread_id for calculation
+4   SET 8 115       # multiplier for table entry size
+5   SET 0 116       # result accumulator = 0
 
-7   SET 2 115       # check if thread 2
-8   CPY 111 114     # reload current_thread
-9   SUBI 114 115    # current_thread - 2
-10  JIF 114 30      # if thread 2, goto save_thread2_context
+# Multiply thread_id * 8 using addition loop
+6   CPY 115 117     # counter = 8
+7   JIF 117 11      # if counter <= 0, jump to after loop
+8   ADDI 116 114    # result += thread_id
+9   ADD 117 -1      # counter--
+10  JIF -1 7        # unconditional jump back to loop
 
-11  JIF -1 35       # else thread 3, goto save_thread3_context
+# Calculate absolute thread table address: 500 + (thread_id * 8)
+11  ADD 116 500     # result = 500 + (thread_id * 8)
+12  CPY 116 118     # thread_table_base = result
+
+# Save PC and SP to thread table
+13  ADD 118 2       # PC offset in thread table
+14  CPY 112 118     # save return_address to thread_table[thread_id].PC
+15  CPY 118 119     # backup PC address
+16  ADD 119 1       # SP offset in thread table
+17  CPY 1 119       # save current REG_SP to thread_table[thread_id].SP
 
 # =================== SYSCALL TYPE DISPATCH ===================
-12  CPY 2 110       # temp_syscall_type = REG_SYSCALL_RESULT
-13  SET 1 115       # SYSCALL_PRN_ID = 1
-14  CPY 110 114     # copy syscall_type
-15  SUBI 114 115    # syscall_type - SYSCALL_PRN_ID
-16  JIF 114 40      # if <= 0, goto handle_prn
+18  CPY 2 110       # temp_syscall_type = REG_SYSCALL_RESULT
+19  SET 1 115       # SYSCALL_PRN_ID = 1
+20  CPY 110 114     # copy syscall_type
+21  SUBI 114 115    # syscall_type - SYSCALL_PRN_ID
+22  JIF 114 35      # if <= 0, goto handle_prn
 
-17  SET 2 115       # SYSCALL_HLT_ID = 2
-18  CPY 110 114     # copy syscall_type
-19  SUBI 114 115    # syscall_type - SYSCALL_HLT_ID
-20  JIF 114 50      # if <= 0, goto handle_hlt
+23  SET 2 115       # SYSCALL_HLT_ID = 2
+24  CPY 110 114     # copy syscall_type
+25  SUBI 114 115    # syscall_type - SYSCALL_HLT_ID
+26  JIF 114 45      # if <= 0, goto handle_hlt
 
-21  JIF -1 60       # else goto handle_yield
-22  HLT             # padding
-23  HLT             # padding
-24  HLT             # padding
+27  JIF -1 55       # else goto handle_yield (SYSCALL_YIELD_ID = 3)
 
-# Save Thread 1 context (PC and SP)
-25  CPY 112 510     # Thread 1 PC = return_address (absolute addr 510)
-26  CPY 1 511       # Thread 1 SP = current REG_SP (absolute addr 511)
-27  JIF -1 12       # goto syscall_dispatch
-28  HLT             # padding
-29  HLT             # padding
-
-# Save Thread 2 context
-30  CPY 112 518     # Thread 2 PC = return_address (absolute addr 518)
-31  CPY 1 519       # Thread 2 SP = current REG_SP (absolute addr 519)
-32  JIF -1 12       # goto syscall_dispatch
-33  HLT             # padding
-34  HLT             # padding
-
-# Save Thread 3 context
-35  CPY 112 526     # Thread 3 PC = return_address (absolute addr 526)
-36  CPY 1 527       # Thread 3 SP = current REG_SP (absolute addr 527)
-37  JIF -1 12       # goto syscall_dispatch
-38  HLT             # padding
-39  HLT             # padding
+# Padding for alignment
+28  HLT
+29  HLT
+30  HLT
+31  HLT
+32  HLT
+33  HLT
+34  HLT
 
 # =================== HANDLE_PRN ===================
-40  # Print syscall: Set current thread to BLOCKED
-41  CPY 111 114     # current_thread_id
-42  SET 1 115       # check thread 1
-43  SUBI 114 115    # current_thread - 1
-44  JIF 114 70      # if thread 1, set thread 1 to blocked
-
-45  SET 2 115       # check thread 2
-46  CPY 111 114     # reload current_thread
-47  SUBI 114 115    # current_thread - 2
-48  JIF 114 75      # if thread 2, set thread 2 to blocked
-
-49  JIF -1 80       # else thread 3, set thread 3 to blocked
+35  # Set current thread to BLOCKED state
+36  CPY 111 114     # current_thread_id
+37  CPY 118 119     # thread_table_base
+38  ADD 119 1       # state offset in thread table
+39  SET 2 119       # set state to BLOCKED (2)
+40
+41  # Set wake_up_instruction_count = 100
+42  CPY 118 119     # thread_table_base
+43  ADD 119 7       # wake_up_count offset
+44  SET 100 119     # set wake_up_count = 100
+45  JIF -1 65       # goto scheduler
 
 # =================== HANDLE_HLT ===================
-50  # Halt syscall: Set current thread to TERMINATED
-51  CPY 111 114     # current_thread_id
-52  SET 1 115       # check thread 1
-53  SUBI 114 115    # current_thread - 1
-54  JIF 114 85      # if thread 1, set thread 1 to terminated
+46  # Set current thread to TERMINATED state
+47  CPY 111 114     # current_thread_id
+48  CPY 118 119     # thread_table_base
+49  ADD 119 1       # state offset in thread table
+50  SET 3 119       # set state to TERMINATED (3)
+51  JIF -1 65       # goto scheduler
 
-55  SET 2 115       # check thread 2
-56  CPY 111 114     # reload current_thread
-57  SUBI 114 115    # current_thread - 2
-58  JIF 114 90      # if thread 2, set thread 2 to terminated
-
-59  JIF -1 95       # else thread 3, set thread 3 to terminated
+# Padding
+52  HLT
+53  HLT
+54  HLT
 
 # =================== HANDLE_YIELD ===================
-60  # Yield syscall: Set current thread to READY
-61  CPY 111 114     # current_thread_id
-62  SET 1 115       # check thread 1
-63  SUBI 114 115    # current_thread - 1
-64  JIF 114 100     # if thread 1, set thread 1 to ready
+55  # Set current thread to READY state
+56  CPY 111 114     # current_thread_id
+57  CPY 118 119     # thread_table_base
+58  ADD 119 1       # state offset in thread table
+59  SET 0 119       # set state to READY (0)
+60  JIF -1 65       # goto scheduler
 
-65  SET 2 115       # check thread 2
-66  CPY 111 114     # reload current_thread
-67  SUBI 114 115    # current_thread - 2
-68  JIF 114 105     # if thread 2, set thread 2 to ready
+# Padding
+61  HLT
+62  HLT
+63  HLT
+64  HLT
 
-69  JIF -1 110      # else thread 3, set thread 3 to ready
+# =================== ROUND-ROBIN SCHEDULER ===================
+65  SET 1 120       # next_thread_candidate = 1 (start from thread 1)
+66  SET 10 121      # max_threads = 10
 
-# =================== SET THREAD STATES ===================
-# Set Thread 1 to BLOCKED (PRN)
-70  SET 2 509       # Thread 1 state = BLOCKED (absolute addr 509)
-71  SET 100 515     # Thread 1 wake_up_count = 100 (absolute addr 515)
-72  JIF -1 115      # goto scheduler
-73  HLT             # padding
-74  HLT             # padding
+# Search for next ready thread
+67  CPY 120 114     # candidate_thread_id
+68  SET 8 115       # table entry size
+69  SET 0 116       # multiply result = 0
 
-# Set Thread 2 to BLOCKED (PRN)
-75  SET 2 517       # Thread 2 state = BLOCKED (absolute addr 517)
-76  SET 100 523     # Thread 2 wake_up_count = 100 (absolute addr 523)
-77  JIF -1 115      # goto scheduler
-78  HLT             # padding
-79  HLT             # padding
+# Calculate thread table address for candidate
+70  CPY 115 117     # counter = 8
+71  JIF 117 75      # if counter <= 0, continue
+72  ADDI 116 114    # result += candidate_thread_id
+73  ADD 117 -1      # counter--
+74  JIF -1 71       # jump back to loop
 
-# Set Thread 3 to BLOCKED (PRN)
-80  SET 2 525       # Thread 3 state = BLOCKED (absolute addr 525)
-81  SET 100 531     # Thread 3 wake_up_count = 100 (absolute addr 531)
-82  JIF -1 115      # goto scheduler
-83  HLT             # padding
-84  HLT             # padding
+75  ADD 116 500     # thread_table_addr = 500 + (candidate * 8)
+76  ADD 116 1       # state_addr = thread_table_addr + 1
+77  CPY 116 117     # load thread state
 
-# Set Thread 1 to TERMINATED (HLT)
-85  SET 3 509       # Thread 1 state = TERMINATED (absolute addr 509)
-86  JIF -1 115      # goto scheduler
-87  HLT             # padding
-88  HLT             # padding
-89  HLT             # padding
+# Check if thread is READY (state = 0)
+78  JIF 117 85      # if state <= 0, thread is READY, switch to it
 
-# Set Thread 2 to TERMINATED (HLT)
-90  SET 3 517       # Thread 2 state = TERMINATED (absolute addr 517)
-91  JIF -1 115      # goto scheduler
-92  HLT             # padding
-93  HLT             # padding
-94  HLT             # padding
+# Try next thread
+79  ADD 120 1       # next_thread_candidate++
+80  CPY 121 114     # max_threads
+81  CPY 120 115     # candidate_thread_id
+82  SUBI 115 114    # candidate - max_threads
+83  JIF 115 88      # if candidate <= max_threads, continue search
+84  SET 1 120       # wrap around to thread 1
 
-# Set Thread 3 to TERMINATED (HLT)
-95  SET 3 525       # Thread 3 state = TERMINATED (absolute addr 525)
-96  JIF -1 115      # goto scheduler
-97  HLT             # padding
-98  HLT             # padding
-99  HLT             # padding
+# Continue search if we haven't checked all threads
+85  CPY 120 114     # Check if we've looped back to starting point
+86  CPY 111 115     # original current_thread
+87  SUBI 114 115    # candidate - original
+88  JIF 114 67      # if different, continue search
+89  JIF -1 120      # No ready threads found, halt system
 
-# Set Thread 1 to READY (YIELD)
-100 SET 0 509       # Thread 1 state = READY (absolute addr 509)
-101 JIF -1 115      # goto scheduler
-102 HLT             # padding
-103 HLT             # padding
-104 HLT             # padding
+# =================== CONTEXT SWITCH TO SELECTED THREAD ===================
+90  # Selected thread is in 120 (next_thread_candidate)
+91  CPY 120 100     # current_running_thread_id = selected_thread
+92
+93  # Calculate selected thread's table address
+94  CPY 120 114     # selected_thread_id
+95  SET 8 115       # table entry size
+96  SET 0 116       # multiply result = 0
 
-# Set Thread 2 to READY (YIELD)
-105 SET 0 517       # Thread 2 state = READY (absolute addr 517)
-106 JIF -1 115      # goto scheduler
-107 HLT             # padding
-108 HLT             # padding
-109 HLT             # padding
+97  CPY 115 117     # counter = 8
+98  JIF 117 102     # if counter <= 0, continue
+99  ADDI 116 114    # result += selected_thread_id
+100 ADD 117 -1      # counter--
+101 JIF -1 98       # jump back
 
-# Set Thread 3 to READY (YIELD)
-110 SET 0 525       # Thread 3 state = READY (absolute addr 525)
-111 JIF -1 115      # goto scheduler
-112 HLT             # padding
-113 HLT             # padding
-114 HLT             # padding
+102 ADD 116 500     # selected_table_addr = 500 + (selected_id * 8)
 
-# =================== SIMPLE ROUND-ROBIN SCHEDULER ===================
-115 CPY 100 101     # next_thread = current_running_thread_id
-116 ADD 101 1       # next_thread++
+# Set selected thread state to RUNNING
+103 CPY 116 117     # table_addr
+104 ADD 117 1       # state offset
+105 SET 1 117       # set state to RUNNING (1)
 
-# Check wrap around (supporting threads 1, 2, 3)
-117 SET 3 115       # max_thread = 3
-118 CPY 101 114     # copy next_thread
-119 SUBI 114 115    # next_thread - max_thread
-120 JIF 114 125     # if <= 0, continue
-121 SET 1 101       # next_thread = 1 (wrap around)
-122 JIF -1 125      # goto check_thread_ready
-123 HLT             # padding
-124 HLT             # padding
+# Load thread context to mailbox
+106 SET 120 600     # MAILBOX_NEXT_THREAD_ID = selected_thread
+107
+108 CPY 116 117     # table_addr
+109 ADD 117 2       # PC offset
+110 CPY 117 601     # MAILBOX_NEXT_PC = thread.PC
 
-# Check if selected thread is READY (state = 0)
-125 CPY 101 114     # next_thread
-126 SET 1 115       # check thread 1
-127 SUBI 114 115    # next_thread - 1
-128 JIF 114 140     # if thread 1, check thread 1 state
+111 CPY 116 117     # table_addr
+112 ADD 117 3       # SP offset
+113 CPY 117 602     # MAILBOX_NEXT_SP = thread.SP
 
-129 SET 2 115       # check thread 2
-130 CPY 101 114     # reload next_thread
-131 SUBI 114 115    # next_thread - 2
-132 JIF 114 150     # if thread 2, check thread 2 state
+114 CPY 116 117     # table_addr
+115 ADD 117 4       # data_base offset
+116 CPY 117 603     # MAILBOX_NEXT_DATA_BASE = thread.data_base
 
-133 JIF -1 160      # else thread 3, check thread 3 state
-134 HLT             # padding
-135 HLT             # padding
-136 HLT             # padding
-137 HLT             # padding
-138 HLT             # padding
-139 HLT             # padding
+117 CPY 116 117     # table_addr
+118 ADD 117 5       # instr_base offset
+119 CPY 117 604     # MAILBOX_NEXT_INSTR_BASE = thread.instr_base
 
-# Check Thread 1 state
-140 CPY 509 114     # load Thread 1 state
-141 JIF 114 170     # if state <= 0 (READY), switch to Thread 1
-142 ADD 101 1       # try next thread
-143 JIF -1 117      # goto wrap around check
-144 HLT             # padding
-145 HLT             # padding
-146 HLT             # padding
-147 HLT             # padding
-148 HLT             # padding
-149 HLT             # padding
-
-# Check Thread 2 state
-150 CPY 517 114     # load Thread 2 state
-151 JIF 114 185     # if state <= 0 (READY), switch to Thread 2
-152 ADD 101 1       # try next thread
-153 JIF -1 117      # goto wrap around check
-154 HLT             # padding
-155 HLT             # padding
-156 HLT             # padding
-157 HLT             # padding
-158 HLT             # padding
-159 HLT             # padding
-
-# Check Thread 3 state
-160 CPY 525 114     # load Thread 3 state
-161 JIF 114 200     # if state <= 0 (READY), switch to Thread 3
-162 ADD 101 1       # try next thread
-163 JIF -1 117      # goto wrap around check
-164 HLT             # padding
-165 HLT             # padding
-166 HLT             # padding
-167 HLT             # padding
-168 HLT             # padding
-169 HLT             # padding
-
-# =================== CONTEXT SWITCH TO THREAD 1 ===================
-170 SET 1 509       # Set Thread 1 state to RUNNING
-171 SET 1 100       # current_running_thread_id = 1
-172 SET 1 600       # MAILBOX_NEXT_THREAD_ID = 1
-173 CPY 510 601     # MAILBOX_NEXT_PC = Thread 1 PC
-174 CPY 511 602     # MAILBOX_NEXT_SP = Thread 1 SP
-175 CPY 512 603     # MAILBOX_NEXT_DATA_BASE = Thread 1 data_base
-176 CPY 513 604     # MAILBOX_NEXT_INSTR_BASE = Thread 1 instr_base
-177 CPY 514 605     # MAILBOX_NEXT_MODE = Thread 1 mode
-178 JIF -1 215      # goto trigger_context_switch
-179 HLT             # padding
-180 HLT             # padding
-181 HLT             # padding
-182 HLT             # padding
-183 HLT             # padding
-184 HLT             # padding
-
-# =================== CONTEXT SWITCH TO THREAD 2 ===================
-185 SET 1 517       # Set Thread 2 state to RUNNING
-186 SET 2 100       # current_running_thread_id = 2
-187 SET 2 600       # MAILBOX_NEXT_THREAD_ID = 2
-188 CPY 518 601     # MAILBOX_NEXT_PC = Thread 2 PC
-189 CPY 519 602     # MAILBOX_NEXT_SP = Thread 2 SP
-190 CPY 520 603     # MAILBOX_NEXT_DATA_BASE = Thread 2 data_base
-191 CPY 521 604     # MAILBOX_NEXT_INSTR_BASE = Thread 2 instr_base
-192 CPY 522 605     # MAILBOX_NEXT_MODE = Thread 2 mode
-193 JIF -1 215      # goto trigger_context_switch
-194 HLT             # padding
-195 HLT             # padding
-196 HLT             # padding
-197 HLT             # padding
-198 HLT             # padding
-199 HLT             # padding
-
-# =================== CONTEXT SWITCH TO THREAD 3 ===================
-200 SET 1 525       # Set Thread 3 state to RUNNING
-201 SET 3 100       # current_running_thread_id = 3
-202 SET 3 600       # MAILBOX_NEXT_THREAD_ID = 3
-203 CPY 526 601     # MAILBOX_NEXT_PC = Thread 3 PC
-204 CPY 527 602     # MAILBOX_NEXT_SP = Thread 3 SP
-205 CPY 528 603     # MAILBOX_NEXT_DATA_BASE = Thread 3 data_base
-206 CPY 529 604     # MAILBOX_NEXT_INSTR_BASE = Thread 3 instr_base
-207 CPY 530 605     # MAILBOX_NEXT_MODE = Thread 3 mode
-208 JIF -1 215      # goto trigger_context_switch
-209 HLT             # padding
-210 HLT             # padding
-211 HLT             # padding
-212 HLT             # padding
-213 HLT             # padding
-214 HLT             # padding
+120 CPY 116 117     # table_addr
+121 ADD 117 6       # mode offset
+122 CPY 117 605     # MAILBOX_NEXT_MODE = thread.mode
 
 # =================== TRIGGER CONTEXT SWITCH ===================
-215 SET -999 17     # REG_CONTEXT_SWITCH_SIGNAL = CTX_SWITCH_REQUEST
-216 HLT             # End syscall handler - CPU will detect signal and switch
+123 SET -999 17     # REG_CONTEXT_SWITCH_SIGNAL = CTX_SWITCH_REQUEST
+124 HLT             # End syscall handler - CPU will detect signal and switch
+
+# =================== SYSTEM HALT (No Ready Threads) ===================
+125 # If no threads are ready, halt the system
+126 HLT
 End Instruction Section
+###############################################################
+
+
+
+
+
 
 ######################## USER THREAD 1 ########################
 
@@ -459,15 +354,15 @@ End Instruction Section
 # Array: [5, 8579348734678, 999, 3, -98] -> [-98, 3, 5, 999, 8579348734678]
 
 Begin Data Section
-0   5       		# arr[0]
+0   5               # arr[0]
 1   8579348734678   # arr[1]
-2   999       		# arr[2]
-3   3       		# arr[3]
-4   -98 			# arr[4]
-5   0 				# comp_result: arr_x - arr_y
-6   0 				# swap_temp
-7   4 				# pass_counter (for N=5 element N-1=4 transition is enough)
-8   -1 				# const_minus_1 (for unconditional JIF)
+2   999             # arr[2]
+3   3               # arr[3]
+4   -98             # arr[4]
+5   0               # comp_result: arr_x - arr_y
+6   0               # swap_temp
+7   4               # pass_counter (for N=5 element N-1=4 transition is enough)
+8   -1              # const_minus_1 (for unconditional JIF)
 End Data Section
 
 Begin Instruction Section
@@ -537,8 +432,90 @@ Begin Instruction Section
 End Instruction Section
 ###############################################################
 
+
+
+
+
 ######################## USER THREAD 2 ########################
+Begin Data Section
+
+# values: 0-9
+0   32
+1   12
+2   998
+3   -5
+4   234
+5   -345
+6   1000
+7   3
+8   4
+9   4
+
+10  10  # array size
+11  998 # KEY
+12  -1  # index: if not found remain -1
+13  0   # i value for loop
+14  0   # current_element (şu anki eleman)
+15  0   # key_copy (anahtar kopyası)
+16  0   # temp karşılaştırma için
+17  0   # temp karşılaştırma için
+99  -1  # sabit -1 (koşulsuz atlama için)
+
+End Data Section
+
+Begin Instruction Section
+# Linear Search Algorithm
+# for (i = 0; i < size; i++) {
+#     if (array[i] == key) {
+#         index = i;
+#         break;
+#     }
+# }
+# Döngü başlangıcı
+0  CPY 13 16       # M[16] = i (şu anki indeks)
+1  CPY 10 17       # M[17] = array_size
+2  SUBI 16 17      # M[16] = i - array_size
+3  JIF 16 15       # if (i - array_size <= 0) devam et, yoksa döngüden çık
+
+# Dizinin i'nci elemanını oku (indeks = adres)
+4  CPY 13 16       # M[16] = i (indeks)
+5  CPYI 16 14      # M[14] = array[i] (i'nci elemanı oku)
+
+# Karşılaştırma: array[i] == key ?
+6  CPY 14 16       # M[16] = array[i]
+7  CPY 11 17       # M[17] = key
+8  SUBI 16 17      # M[16] = array[i] - key
+9  JIF 16 12       # if (array[i] - key <= 0) ilk koşul sağlandı, ikinci koşulu kontrol et
+
+# İlk koşul sağlanmadı, sonraki elemana geç
+10 ADD 13 1        # i++
+11 JIF 99 0        # döngü başına git
+
+# İkinci koşul kontrolü: key - array[i] <= 0 ?
+12 CPY 11 16       # M[16] = key
+13 CPY 14 17       # M[17] = array[i]
+14 SUBI 16 17      # M[16] = key - array[i]
+15 JIF 16 18       # if (key - array[i] <= 0) eşitlik var, bulundu!
+
+# İkinci koşul da sağlanmadı, sonraki elemana geç
+16 ADD 13 1        # i++
+17 JIF 99 0        # döngü başına git
+
+# Eleman bulundu!
+18 CPY 13 12       # index = i (bulunan indeksi kaydet)
+19 JIF 99 21       # sonuç yazdırma kısmına git
+
+# Döngü sonu (eleman bulunamadı)
+20 SET -1 12       # index = -1 (bulunamadı)
+
+# Sonucu yazdır
+21 SYSCALL PRN 12  # Bulunan indeksi (veya -1) yazdır
+22 SYSCALL HLT     # Thread'i sonlandır
 ###############################################################
+
+
+
+
 
 ######################## USER THREAD 3 ########################
 ###############################################################
