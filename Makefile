@@ -35,8 +35,13 @@ MULT_C_DEPS = $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
 MULT_OBJS = $(OBJ_DIR)/multiplication_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
 MULT_TEST_TARGET = $(BIN_DIR)/mult_test_runner
 
+# Scheduler test files
+SCHEDULER_C_FILES = $(TEST_DIR)/scheduler_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c
+SCHEDULER_OBJS = $(OBJ_DIR)/scheduler_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o
+SCHEDULER_TEST_TARGET = $(BIN_DIR)/scheduler_test_runner
+
 # === TARGETS ===
-default: memtest parsetest searchtest multtest
+default: memtest parsetest searchtest multtest schedulertest
 
 # Add searchtest to existing targets
 searchtest: $(SEARCH_TEST_TARGET)
@@ -64,6 +69,11 @@ multtest: $(MULT_TEST_TARGET)
 	./$(MULT_TEST_TARGET)
 	@echo "Multiplication by Addition Test is Complete."
 
+schedulertest: $(SCHEDULER_TEST_TARGET)
+	@echo "Running Scheduler Test..."
+	./$(SCHEDULER_TEST_TARGET)
+	@echo "Scheduler Test is Complete."
+
 $(MEM_TEST_TARGET): $(MEM_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
@@ -81,6 +91,10 @@ $(SEARCH_TEST_TARGET): $(SEARCH_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(MULT_TEST_TARGET): $(MULT_OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(SCHEDULER_TEST_TARGET): $(SCHEDULER_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
@@ -110,4 +124,4 @@ clean:
 	rm -rf $(BIN_DIR)
 	@echo "Cleaning is complete."
 
-.PHONY: all default memtest parsetest cputest searchtest multtest clean
+.PHONY: all default memtest parsetest cputest searchtest multtest schedulertest clean
