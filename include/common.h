@@ -17,6 +17,7 @@
 #define REG_SP 1 /* stack pointer */
 #define REG_SYSCALL_RESULT 2
 #define REG_INSTR_COUNT 3
+#define REG_WAKEUP_INSTR_COUNT 4
 #define REG_RESERVED_START 4
 #define REG_RESERVED_END 20
 

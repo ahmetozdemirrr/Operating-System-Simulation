@@ -12,7 +12,7 @@ End Instruction Section
 
 # Multiplication Implementation
 Begin Data Section
-0   80000   # mult operand 1
+0   8   # mult operand 1
 1   -12     # mult operand 2
 2   0       # counter i for loop
 3   0       # summ_buffer: for, M[3] += M[1]

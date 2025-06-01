@@ -168,7 +168,7 @@ Begin Instruction Section
 38  CPY  804 805 # i -> 805 (temp), subi'de dirty olacağı için kopyalıyoruz
 39  CPY  801 806 # operand_1 -> 806 (temp), burada id kadar toplama işlemi yapacağız
 40  SUBI 806 805 # N - i, o yüzden id - i <= 0 kontrolü yapıyoruz
-41  JIF  805 Y   # Y devam edilecek yer (scheduler contextte)
+41  JIF  805 46  # 46 devam edilecek yer (scheduler contextte)
 42  ADDI 802 803 # 501 + 8 her seferinde (M[802]: 501 offsetini tutar, M[803]: 8 sabitini tutar)
 43  ADDI 804 97  # i++
 44  JIF  99  36  # çarpma döngüsün başına dön koşulsz
@@ -178,7 +178,22 @@ Begin Instruction Section
 # - M[800]: Geçici thread ID, önce current_running_thread_id, sonra next_thread_id, sıfırlamada 1
 # - M[802]: Hedef thread’in state adresi, tarama başlangıç noktası
 
-Y
+46  SET  581 807 # N -> 807: döngü için son index
+47  CPY  802 808 # i -> 808: değer yukarıda bulunan, start thread_state adresi olacak
+48  SET  0   809 # found_ready
+49  CPY  807 810 # temp N
+50  CPY  808 811 # temp i
+51  SUBI 810 811 # N - i
+52  JIF  811 X   # idle threadine git
+53  CPY  802 812 # wakeup instruction count -> 812
+54  SET  6   813 # wakeup sütununa atlamak için sabit 6
+55  ADDI 812 813 # sütun ayarlaması
+56
+
+
+X   # burayı nasıl yapacağımı bilemedim, son thread her zaman
+    # idle thread olarak çalışacak şekilde yaptım
+
 #subroutine# scheduler end
 
 End Instruction Section
