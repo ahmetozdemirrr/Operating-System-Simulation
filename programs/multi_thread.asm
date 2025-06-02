@@ -233,34 +233,35 @@ Begin Instruction Section
 #
 
 # idle thread için switch yapılacak yer
-70  SET  1    509 # thread_state'i running yap
+70  SET   1    509 # thread_state'i running yap
 # switching the core image
-71  CPY  508  600  # copying thread_id
-72  CPY  509  601  # copying thread_state
-73  CPY  510  602  # copying thread_pc
-74  CPY  511  603  # copying thread_sp
-75  CPY  512  604  # copying thread_data_base
-76  CPY  513  605  # copying thread_instruction_base
-77  CPY  514  606  # copying thread_instruction_count
-78  CPY  515  607  # copying thread_wakeup_instruction_count
-79  SET  1    100  # current_thread_id = 1
-80  CPY  602  112  # setting block 112: new threads PC OS will jump there using (USER 112)
-81  SET  -999 17   # REG_CONTEXT_SWITCH_SIGNAL registerıyla sinyal ver
-82  JIF  99   2    # USER komutuna koşulsuz atla
+71  CPY   508  600  # copying thread_id
+72  CPY   509  601  # copying thread_state
+73  CPY   510  602  # copying thread_pc
+74  CPY   511  603  # copying thread_sp
+75  CPY   512  604  # copying thread_data_base
+76  CPY   513  605  # copying thread_instruction_base
+77  CPY   514  606  # copying thread_instruction_count
+78  CPY   515  607  # copying thread_wakeup_instruction_count
+79  SET   1    100  # current_thread_id = 1
+80  CPY   602  112  # setting block 112: new threads PC OS will jump there using (USER 112)
+81  SET   -999 17   # REG_CONTEXT_SWITCH_SIGNAL registerıyla sinyal ver
+82  JIF   99   2    # USER komutuna koşulsuz atla
 
 # normal user threadler için context switch bloğu
-90  CPY  100  820  # 820 adresine current çalışan threadin id'sini alalım
+90  CPY   100  820  # 820 adresine current çalışan threadin id'sini alalım
 # current thread için table'da güncellenecek değerler: state, pc, sp, reg_inst_cnt, wakeup_inst_cnt
-91  SET  500  821  # 821'e thread table'ın offsetini koy
-92  CPY  98   822  # 822'ye TABLE_ENTRY_SIZE kopyala
+91  SET   500  821  # 821'e thread table'ın offsetini koy
+92  CPY   98   822  # 822'ye TABLE_ENTRY_SIZE kopyala
 # current thread'in entry'sine gelmek için çarpma döngüsü: id * TABLE_ENTRY_SIZE + 500
-93  SET  0    823  # i = 0
-94  CPY  823  824  # temp i
-95  SUBI 822  824  # TABLE_ENTRY_SIZE - i -> 824
-96  JIF  824  100  # TABLE_ENTRY_SIZE - i <= 0 ise döngü bitmiştir çık
-97  ADDI 821  820  # 500'e (offset) 8 (TABLE_ENTRY_SIZE) ekle
-98  ADD  823  1    # i++ sonraki iterasyon
-99  JIF  99   93   # döngü başına koşulsuz dön
+93  SET   0    823  # i = 0
+94  CPY   823  824  # temp i
+95  SUBI  822  824  # TABLE_ENTRY_SIZE - i -> 824
+96  JIF   824  100  # TABLE_ENTRY_SIZE - i <= 0 ise döngü bitmiştir çık
+97  ADDI  821  820  # 500'e (offset) 8 (TABLE_ENTRY_SIZE) ekle
+98  ADD   823  1    # i++ sonraki iterasyon
+99  JIF   99   93   # döngü başına koşulsuz dön
+#
 # context: 821, ilgili entrynin id sütun adresini tutar (tablonun satır başı)
 # şimdi ilgili bilgileri çekip thread table'a kaydedeceğiz
 # aşağıdaki sayıları satır offsetine ekleyerek değerlere ulaşacağız:
@@ -269,11 +270,120 @@ Begin Instruction Section
 # - +3: thread_sp
 # - +6: thread_instruction_count
 # - +7: wakeup_instruction_count
-100 SET  1    824
-101 SET  2    825
-102 SET  3    826
-103 SET  6    827
-104 SET  7    828
+#
+100 SET   1    824
+101 SET   2    825
+102 SET   3    826
+103 SET   6    827
+104 SET   7    828
+# 821 zaten table'ın satır başını tutuyordu, 824 işin sonunda state'i
+# değiştirebilecek adrese sahip olacak. Diğerleri de aynı şekilde devam edecek
+105 ADDI  824  821
+106 ADDI  825  821
+107 ADDI  826  821
+108 ADDI  827  821
+109 ADDI  828  821
+# şimdi yazacağımız adresleri elde ettik, copy ile register değerlerini bu adreslere yazacağız
+# indirect writing yok elimizde o yüzden register adreslerini bir temp tutucuya kopyalayıp onun
+# üzerinden CPYI2 kullanacağız
+
+# şimdi state güncellemesi için önce 2. registerı okuyacağız
+110 CPY   2    829 # 829 şuan 2'deki syscall id'yi tutuyor
+111 CPY   94   830 # 94 prn_id tutar, yani 1
+112 CPY   95   831 # 95 hlt_id tutar, yani 2
+113 CPY   96   832 # 96 yield_id tutar, yani 3
+114 SUBI  829  830 # syscall_id - prn_id -> 830
+115 JIF   830  120
+116 SUBI  829  831 # syscall_id - hlt_id -> 831
+117 JIF   831  123
+118 SUBI  829  832 # syscall_id - yield_id -> 832
+119 JIF   832  126
+
+120 CPY   829  833 # temp for syscall id
+121 SUBI  830  833 # ters çıkarma
+122 JIF   833  129 # ikisi de şartı sağlarsa syscall_id == prn_id'dir
+
+123 CPY   829  834 # temp for syscall id
+124 SUBI  831  834 # ters çıkarma
+125 JIF   834  133 # ikisi de şartı sağlarsa syscall_id == hlt_id'dir
+
+126 CPY   829  835 # temp for syscall id
+127 SUBI  832  835 # ters çıkarma
+128 JIF   835  137 # ikisi de şartı sağlarsa syscall_id == yield_id'dir
+
+# 824'ü 2 yap (syscall_prn_id), 2: blocked:
+129 SET   2    836
+130 SET   836  837
+131 CPYI2 837  824
+132 JIF   99   140
+
+# 824'ü 3 yap (syscall_hlt_id), 3: terminated:
+133 SET   3    838
+134 SET   838  839
+135 CPYI2 839  824
+136 JIF   99   140
+
+# 824'ü 0 yap (syscall_yield_id), 0: ready:
+137 SET   0    840
+138 SET   840  841
+139 CPYI2 841  824
+
+# şimdi pc güncelleme, 825 table'ın o sütununa işaret eder
+140 SET   0    842 # 0 (pc) tutan register adresidir
+141 CPYI2 842  825
+
+142 SET   1    843 # 1 (sp) tutan register adresidir
+143 CPYI2 843  826
+
+144 SET   3    844 # 3 (register instruction counter) register adresidir
+145 CPYI2 844  827
+
+146 SET   4    845 # 4 (wakeup instruction count) register adresidir
+147 CPYI2 845  828
+
+# thread table güncellendi
+# şimdi context switch yapacağız, 808 adresi scheduler'ın seçtiği threadin state adresini tutar
+# thread table'dan seçilen threadin verilerini çekelim ve mailbox'a (600-607) yazalım:
+
+148 CPY   808  846  # state pointer'ı temp olarak alalım
+# 808 adresi baz alınarak her bir sütuna erişim için eklenecek değerler
+149 SET   -1   847
+150 SET   1    848
+151 SET   2    849
+152 SET   3    850
+153 SET   4    851
+154 SET   5    852
+155 SET   6    853
+# her bir sütuna işaret eden pointerlar:
+156 ADDI  847  846  # thread id
+157 ADDI  848  846  # thread pc
+158 ADDI  849  846  # thread sp
+159 ADDI  850  846  # thread data base
+160 ADDI  851  846  # thread instruction base
+161 ADDI  852  846  # thread instruction count
+162 ADDI  853  846  # thread wakeup instruction count
+# 846'nın kendisi de thread state'i tutar
+
+# state'i running yap
+163 SET   1    854
+164 SET   854  855
+165 CPYI2 855  846
+
+# mailbox'a değerleri kopyala
+166 CPYI  846  601
+167 CPYI  847  600
+168 CPYI  848  602
+169 CPYI  849  603
+170 CPYI  850  604
+171 CPYI  851  605
+172 CPYI  852  606
+173 CPYI  853  607
+
+174 CPY   602  112  # setting block 112: new threads PC OS will jump there using (USER 112)
+175 SET   -999 17   # REG_CONTEXT_SWITCH_SIGNAL registerıyla sinyal ver
+176 CPY   600  100  # current çalışan thread değiştir
+177 JIF   99   2    # koşulsuz 2'ye atla, yeni bir thread seçimi için
+
 #subroutine# scheduler end
 
 End Instruction Section

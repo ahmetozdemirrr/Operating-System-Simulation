@@ -7,6 +7,24 @@ Begin Data Section
 92 2    # THREAD_STATE_BLOCKED
 93 3    # THREAD_STATE_TERMINATED
 
+
+
+
+
+
+110 SET  0    829 # pc
+111 SET  1    830 # sp
+112 SET  2    831 # syscall_result (id)
+113 SET  3    832 # register instruction count
+114 SET  4    833 # wakeup instruction count
+
+
+
+
+
+
+
+
 # Syscall IDs
 94 1    # SYSCALL_PRN_ID
 95 2    # SYSCALL_HLT_ID
