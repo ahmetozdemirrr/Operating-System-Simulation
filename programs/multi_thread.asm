@@ -23,12 +23,11 @@ Begin Data Section
 103 100 # PRINT_BLOCK_DURATION (PRN syscall 100 instruction block eder)
 
 # Round-robin scheduler variables
-120 1   # scheduler_start_thread (round-robin başlangıç thread ID)
 121 10  # max_thread_count
 
 # Thread Table (500'den başlıyor)
 # Her entry için 8 bilgi: thread_id, thread_state, PC, SP, data_base_addr,
-# instr_base_addr, mode_to_restore, wake_up_instruction_count
+# instr_base_addr, register_instruction_count, wake_up_instruction_count
 
 # OS Thread Table Entry (500-507)
 500 0    # thread_id = 0 (OS)
@@ -37,17 +36,17 @@ Begin Data Section
 503 1999 # SP = 1999 (OS stack top)
 504 20   # data_base_addr = 20 (OS data start)
 505 1000 # instr_base_addr = 1000 (OS instruction start)
-506 0    # mode_to_restore = 0 (KERNEL)
+506 0    # register_instruction_count = 0
 507 0    # wake_up_instruction_count = 0
 
-# User Thread 1 Table Entry (508-515)
+# OS Thread Table Entry (508-515) (idle thread)
 508 1    # thread_id = 1
 509 0    # thread_state = 0 (READY)
 510 3000 # PC = 3000 (Thread 1 instruction start)
 511 3999 # SP = 3999 (Thread 1 stack top)
 512 2000 # data_base_addr = 2000
 513 3000 # instr_base_addr = 3000
-514 1    # mode_to_restore = 1 (USER)
+514 0    # register_instruction_count = 0
 515 0    # wake_up_instruction_count = 0
 
 # User Thread 2 Table Entry (516-523)
@@ -57,7 +56,7 @@ Begin Data Section
 519 5999 # SP = 5999 (Thread 2 stack top)
 520 4000 # data_base_addr = 4000
 521 5000 # instr_base_addr = 5000
-522 1    # mode_to_restore = 1 (USER)
+522 0    # register_instruction_count = 0
 523 0    # wake_up_instruction_count = 0
 
 # User Thread 3 Table Entry (524-531)
@@ -67,7 +66,7 @@ Begin Data Section
 527 7999 # SP = 7999 (Thread 3 stack top)
 528 6000 # data_base_addr = 6000
 529 7000 # instr_base_addr = 7000
-530 1    # mode_to_restore = 1 (USER)
+530 0    # register_instruction_count = 0
 531 0    # wake_up_instruction_count = 0
 
 # User Thread 4 Table Entry (532-539)
@@ -77,7 +76,7 @@ Begin Data Section
 535 9999 # SP = 9999 (Thread 4 stack top)
 536 8000 # data_base_addr = 8000
 537 9000 # instr_base_addr = 9000
-538 1    # mode_to_restore = 1 (USER)
+538 0    # register_instruction_count = 0
 539 0    # wake_up_instruction_count = 0
 
 # User Thread 5 Table Entry (540-547)
@@ -87,7 +86,7 @@ Begin Data Section
 543 11999 # SP = 11999 (Thread 5 stack top)
 544 10000 # data_base_addr = 10000
 545 11000 # instr_base_addr = 11000
-546 1     # mode_to_restore = 1 (USER)
+546 0     # register_instruction_count = 0
 547 0     # wake_up_instruction_count = 0
 
 # User Thread 6 Table Entry (548-555)
@@ -97,7 +96,7 @@ Begin Data Section
 551 13999 # SP = 13999 (Thread 6 stack top)
 552 12000 # data_base_addr = 12000
 553 13000 # instr_base_addr = 13000
-554 1     # mode_to_restore = 1 (USER)
+554 0     # register_instruction_count = 0
 555 0     # wake_up_instruction_count = 0
 
 # User Thread 7 Table Entry (556-563)
@@ -107,7 +106,7 @@ Begin Data Section
 559 15999 # SP = 15999 (Thread 7 stack top)
 560 14000 # data_base_addr = 14000
 561 15000 # instr_base_addr = 15000
-562 1     # mode_to_restore = 1 (USER)
+562 0     # register_instruction_count = 0
 563 0     # wake_up_instruction_count = 0
 
 # User Thread 8 Table Entry (564-571)
@@ -117,7 +116,7 @@ Begin Data Section
 567 17999 # SP = 17999 (Thread 8 stack top)
 568 16000 # data_base_addr = 16000
 569 17000 # instr_base_addr = 17000
-570 1     # mode_to_restore = 1 (USER)
+570 0     # register_instruction_count = 0
 571 0     # wake_up_instruction_count = 0
 
 # User Thread 9 Table Entry (572-579)
@@ -127,7 +126,7 @@ Begin Data Section
 575 19999 # SP = 19999 (Thread 9 stack top)
 576 18000 # data_base_addr = 18000
 577 19000 # instr_base_addr = 19000
-578 1     # mode_to_restore = 1 (USER)
+578 0     # register_instruction_count = 0
 579 0     # wake_up_instruction_count = 0
 
 # User Thread 10 Table Entry (580-587)
@@ -137,7 +136,7 @@ Begin Data Section
 583 21999 # SP = 21999 (Thread 10 stack top)
 584 20000 # data_base_addr = 20000
 585 21000 # instr_base_addr = 21000
-586 1     # mode_to_restore = 1 (USER)
+586 0     # register_instruction_count = 0
 587 0     # wake_up_instruction_count = 0
 
 
@@ -188,12 +187,62 @@ Begin Instruction Section
 53  CPY  802 812 # wakeup instruction count -> 812
 54  SET  6   813 # wakeup sütununa atlamak için sabit 6
 55  ADDI 812 813 # sütun ayarlaması
-56
 
+# wakeup mechanism:
+56  CPYI 812 814  # M[814] = wakeup_instruction_count (M[812] adresinden oku)
+57  SUBI 814 97   # M[814] -= 1 (M[97] sabit 1)
+58  SET  814 812  # Güncellenmiş değeri M[812] adresine yaz
+59  JIF  814 62   # eğer wakeup değeri <= 0 ise Y'ye atla, Y'de bu threadin seçimi gerçekleştirilecek
+# Wakeup > 0, bir sonraki thread’e geç, şuan bu threadin seçilmeyeceğini anladık
+60  ADDI 808 98   # M[808] += 8 (bir sonraki thread’in state adresine geç, M[98] sabit 8)
+61  JIF  99  50   # Döngü başına dön (50’den devam et)
 
-X   # burayı nasıl yapacağımı bilemedim, son thread her zaman
-    # idle thread olarak çalışacak şekilde yaptım
+62  SET  0   808  # burada state'i ready (0) yapmalıyız, çünkü wakeuo değeri <= 0
+63  SET  1   809  # found_ready = 1 (M[809])
+64  JIF  99  90   # Context switch hazırlığına git
 
+# !!!!! Context Switchden önce mevcut threadin state'i de güncellenmeli:
+# eğer syscall hlt ile bitmişse terminated olarak işaretlenmel
+# eğer yield ile bitmişse ready olarak ayarlanır
+# veya prn ile bitmişse blocked olarak ayarlanır
+# yeni çalışana da running değerini atıyoruz (bunu yaptım sanırım)
+# bu ayarlamalar syscall numarası kontrol edilerek yapılmalı
+
+# context switch mechanism (instruction 90'da başlar): X idle thread için context switcj yapılacak komut
+# başlangıcı olacak. OS'un simülasyonda çalışan cpu ile haberleşebilmesi için bir mailbox kullanacağı (600-607)
+#
+# - 600: thread_id
+# - 601: thread_state
+# - 602: thread_pc
+# - 603: thread_sp
+# - 604: thread_data_base
+# - 605: thread_instruction_base
+# - 606: thread_instruction_count
+# - 607: thread_wakeup_instruction_count
+#
+# - Register 17: signal receiver
+#
+# ardından context swithc bildirimi için yine mailbox olarak 17. registerı context switch olduğuna
+# dair bilgi veren bir sinyal alıcısı olarak kullanacağız. Buradan okunan değer -999 ise context switch
+# yapılmıştır ve 600-607 mailbox'ından yeni core image bilgileri alınmalıdır. 999 olduğu zman da aynı
+# contextte devam edilir.
+#
+
+# idle thread için switch yapılacak yer
+70  SET  1    509 # thread_state'i running yap
+# switching the core image
+71  CPY  508  600 # copying thread_id
+72  CPY  509  601 # copying thread_state
+73  CPY  510  602 # copying thread_pc
+74  CPY  511  603 # copying thread_sp
+75  CPY  512  604 # copying thread_data_base
+76  CPY  513  605 # copying thread_instruction_base
+77  CPY  514  606 # copying thread_instruction_count
+78  CPY  515  607 # copying thread_wakeup_instruction_count
+79  SET  1    100 # current_thread_id = 1
+80  CPY  602  112 # setting block 112: new threads PC OS will jump there using (USER 112)
+81  SET  -999 17  # REG_CONTEXT_SWITCH_SIGNAL registerıyla sinyal ver
+82  JIF  99   2   # USER komutuna koşulsuz atla
 #subroutine# scheduler end
 
 End Instruction Section
@@ -204,8 +253,29 @@ End Instruction Section
 
 
 
-
 ######################## USER THREAD 1 ########################
+# idle thread, for efficient CPU:
+Begin Data Section
+# symbolic values for debugging
+0 -73
+1 -73
+2 -73
+3 -52
+End Data Section
+
+Begin Instruction Section
+0 SYSCALL YIELD # scheduler'a kontrolü geri ver
+1 JIF 99 0      # unconditional jump
+End Instruction Section
+###############################################################
+
+
+
+
+
+
+
+######################## USER THREAD 2 ########################
 
 # Working Bubble Sort for 5 numbers
 # Performs 4 passes to ensure complete sorting
@@ -294,7 +364,7 @@ End Instruction Section
 
 
 
-######################## USER THREAD 2 ########################
+######################## USER THREAD 3 ########################
 # Linear Search Implementation
 Begin Data Section
 # Array elements (indices 0-9)
@@ -358,7 +428,7 @@ End Instruction Section
 
 
 
-######################## USER THREAD 3 ########################
+######################## USER THREAD 4 ########################
 # Multiplication Implementation
 Begin Data Section
 0   80000   # mult operand 1
@@ -387,25 +457,5 @@ Begin Instruction Section
 9   SYSCALL PRN 3  # printing result
 10  HLT
 
-End Instruction Section
-###############################################################
-
-
-
-
-
-######################## USER THREAD 4 ########################
-# idle thread, for efficient CPU:
-Begin Data Section
-# symbolic values for debugging
-0 -73
-1 -73
-2 -73
-3 -52
-End Data Section
-
-Begin Instruction Section
-0 SYSCALL YIELD # scheduler'a kontrolü geri ver
-1 JIF 99 0      # unconditional jump
 End Instruction Section
 ###############################################################

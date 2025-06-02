@@ -683,7 +683,7 @@ cpu_execute_instruction(CPU * cpu)
         long int next_pc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_PC,        		KERNEL);
         long int next_sp_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_SP,        		KERNEL);
         long int next_db_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_DATA_BASE,      KERNEL);
-        long int next_ib_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_BASE,     KERNEL);
+        long int next_ib_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT__INSTR_COUNT,     KERNEL);
         long int next_wakeup = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_WAKEUP_CNT,     KERNEL);
 
         printf("CPU: Switching to Thread ID: %d, PC: %ld, SP: %ld, Mode: %s, DB: %ld, IB: %ld\n",

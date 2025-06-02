@@ -193,12 +193,13 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index, long int i
 		free(copy_line);
 		return -1;
 	}
+	/*
+		if (instruction_label_val != curr_insr_index) {
+			fprintf(stderr, "WARNING: Instruction index %ld does not match expected %d\n",
+					instruction_label_val, curr_insr_index);
+		}
 
-	if (instruction_label_val != curr_insr_index) {
-		fprintf(stderr, "WARNING: Instruction index %ld does not match expected %d\n",
-				instruction_label_val, curr_insr_index);
-	}
-
+	*/
 	/* 2 - mnemonic */
 	token = strtok(NULL, " \t");
 
@@ -207,7 +208,6 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index, long int i
 		free(copy_line);
 		return -1;
 	}
-
 	Opcode opcode = OPCODE_UNKNOWN;
 
 	int is_syscall = 0;
