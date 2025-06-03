@@ -341,14 +341,14 @@ exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
 
 	check_cpu(cpu, __func__);
 
-    long int current_pc_value = mem_read(cpu->mem, REG_PC, cpu->mode);
+/*     long int current_pc_value = mem_read(cpu->mem, REG_PC, cpu->mode);
     if (current_pc_value % INSTR_SIZE != 0) {
         fprintf(stderr,
                 "FATAL ERROR: REG_PC (%ld) does not point to the start of an instruction in CALL for entity %d\n",
                 current_pc_value,
                 cpu->curr_thread_id);
         exit(EXIT_FAILURE);
-    }
+    } */
     check_instruction_address(cpu, relative_jump_address, "CALL");
 
     long int current_sp_value = mem_read(cpu->mem, REG_SP, cpu->mode);
@@ -494,38 +494,38 @@ exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
     printf("Thread %d SYSCALL PRN: Value = %ld\n", cpu->curr_thread_id, value);
 
     /* syscall olunca context switch olmalı, şimdilik test için pritn syscall ı açık bırakıldı */
-	// long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
-	// long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
-    // long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
-    // long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+	long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
+	long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
+    long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
+    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
 
-    // if (current_sp == 0 || current_sp > stack_upper_bound) {
-    //     current_sp = stack_upper_bound;
-    //     mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
-    // }
+    if (current_sp == 0 || current_sp > stack_upper_bound) {
+        current_sp = stack_upper_bound;
+        mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
+    }
 
-    // long int new_sp = current_sp - 1;
-    // if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
-    //     fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
-    //             cpu->curr_thread_id,
-    //             new_sp);
-    //     exit(EXIT_FAILURE);
-    // }
-    // mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
+    long int new_sp = current_sp - 1;
+    if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
+                cpu->curr_thread_id,
+                new_sp);
+        exit(EXIT_FAILURE);
+    }
+    mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
 
-    // new_sp--;
-    // if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -2 )) {
-    //     fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
-    //             cpu->curr_thread_id,
-    //             new_sp);
-    //     exit(EXIT_FAILURE);
-    // }
-    // mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
-    // mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
+    new_sp--;
+    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -2 )) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
+                cpu->curr_thread_id,
+                new_sp);
+        exit(EXIT_FAILURE);
+    }
+    mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
+    mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
 
-    // cpu->mode = KERNEL;
-    // mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, cpu->mode);
-    // *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
+    cpu->mode = KERNEL;
+    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, cpu->mode);
+    *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
 }
 
 static void
@@ -678,16 +678,16 @@ cpu_execute_instruction(CPU * cpu)
 
         /* Posta kutusundan yeni context bilgilerini KERNEL modunda oku, çünkü OS bunları KERNEL modunda yazdı. */
         int    next_tid = (int)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_THREAD_ID, 		KERNEL);
-        CPU_mode next_m_val  = (CPU_mode)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_MODE, KERNEL);
         long int next_state  = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_STATE,     		KERNEL);
         long int next_pc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_PC,        		KERNEL);
         long int next_sp_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_SP,        		KERNEL);
         long int next_db_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_DATA_BASE,      KERNEL);
-        long int next_ib_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT__INSTR_COUNT,     KERNEL);
+        long int next_ib_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_BASE,     KERNEL);
+        long int next_ic_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_COUNT,    KERNEL);
         long int next_wakeup = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_WAKEUP_CNT,     KERNEL);
 
-        printf("CPU: Switching to Thread ID: %d, PC: %ld, SP: %ld, Mode: %s, DB: %ld, IB: %ld\n",
-               next_tid, next_pc_val, next_sp_val, (next_m_val == USER ? "USER" : "KERNEL"), next_db_val, next_ib_val);
+        printf("CPU: Switching to Thread ID: %d, PC: %ld, SP: %ld, DB: %ld, IB: %ld\n",
+               next_tid, next_pc_val, next_sp_val, next_db_val, next_ib_val);
 
         // CPU context'ini doğrudan güncelle.
         // cpu_set_context fonksiyonunu burada çağırmak yerine doğrudan atama yapmak,
@@ -695,7 +695,6 @@ cpu_execute_instruction(CPU * cpu)
         cpu->curr_thread_id = next_tid;
         cpu->curr_data_base_for_active_entity = next_db_val;
         cpu->curr_instruction_base_for_active_entity = next_ib_val;
-        cpu->mode = next_m_val; // Yeni thread'in modu
 
         // Register'ları yeni thread'in moduna göre yaz.
         // PC ve SP yazılırken kullanılacak mod, yeni geçilecek thread'in modu olmalı.

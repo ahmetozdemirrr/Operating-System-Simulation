@@ -40,8 +40,13 @@ SCHEDULER_C_FILES = $(TEST_DIR)/scheduler_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/mem
 SCHEDULER_OBJS = $(OBJ_DIR)/scheduler_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o
 SCHEDULER_TEST_TARGET = $(BIN_DIR)/scheduler_test_runner
 
+# Multi-thread test files
+MULTITHREAD_C_FILES = $(TEST_DIR)/multi_thread_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
+MULTITHREAD_OBJS = $(OBJ_DIR)/multi_thread_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
+MULTITHREAD_TEST_TARGET = $(BIN_DIR)/multithread_test_runner
+
 # === TARGETS ===
-default: memtest parsetest searchtest multtest schedulertest
+default: memtest parsetest searchtest multtest schedulertest multithreadtest
 
 # Add searchtest to existing targets
 searchtest: $(SEARCH_TEST_TARGET)
@@ -74,6 +79,12 @@ schedulertest: $(SCHEDULER_TEST_TARGET)
 	./$(SCHEDULER_TEST_TARGET)
 	@echo "Scheduler Test is Complete."
 
+# Multi-thread test target
+multithreadtest: $(MULTITHREAD_TEST_TARGET)
+	@echo "Running Multi-Thread OS Test..."
+	./$(MULTITHREAD_TEST_TARGET)
+	@echo "Multi-Thread OS Test is Complete."
+
 $(MEM_TEST_TARGET): $(MEM_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
@@ -95,6 +106,10 @@ $(MULT_TEST_TARGET): $(MULT_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(SCHEDULER_TEST_TARGET): $(SCHEDULER_OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(MULTITHREAD_TEST_TARGET): $(MULTITHREAD_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
@@ -124,4 +139,4 @@ clean:
 	rm -rf $(BIN_DIR)
 	@echo "Cleaning is complete."
 
-.PHONY: all default memtest parsetest cputest searchtest multtest schedulertest clean
+.PHONY: all default memtest parsetest cputest searchtest multtest schedulertest multithreadtest clean

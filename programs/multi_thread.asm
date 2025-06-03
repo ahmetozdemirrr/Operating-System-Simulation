@@ -385,7 +385,7 @@ Begin Instruction Section
 177 CPY   602  112  # setting block 112: new threads PC OS will jump there using (USER 112)
 178 SET   -999 17   # REG_CONTEXT_SWITCH_SIGNAL registerıyla sinyal ver
 179 CPY   600  100  # current çalışan thread değiştir
-180 JIF   99   2    # koşulsuz 2'ye atla, yeni bir thread seçimi için
+180 RET             # OS booting kısmındaki CALL çağrısına geri dön, yeni bir thread seçimi için
 #subroutine# scheduler end
 
 #subroutine# syscall handler start
@@ -414,33 +414,33 @@ Begin Instruction Section
 210 CPY   856  860
 211 CPY   94   857
 212 SUBI  857  860
-213 JIF   860  A    # syscall prn handler'a atla
+213 JIF   860  222  # syscall prn handler'a atla
 
 214 CPY   856  861
 215 CPY   95   857
 216 SUBI  857  861
-217 JIF   861  B    # syscall hlt handler'a atla
+217 JIF   861  226  # syscall hlt handler'a atla
 
 218 CPY   856  862
 219 CPY   96   858
 220 SUBI  858  862
-221 JIF   862  C    # syscall yield handler'a atla
+221 JIF   862  228  # syscall yield handler'a atla
 
 # şimdi yukarıdaki bağlamda biz hangi syscall'ın çağrıldığını
 # anlamış olup gerekli yerlere zıplamasını sağlıyoruz
 
-A
-A+X JIF   99   C+X+1 # diğer case'lerin çalışmaması için atla
+222 CPY   103  863  # 863 adresine prn için wakeup_count kopyala
+223 CPY   863  4    # register 4'e (REG_WAKEUP_INSTR_COUNT) 103'te tutulan 100 değerini yaz
+224 CALL  30
+225 JIF   99   230  # diğer case'lerin çalışmaması için atla
 
+226 CALL  30
+227 JIF   99   230  # diğer case'lerin çalışmaması için atla
 
-B
-B+X JIF   99   C+X+1 # diğer case'lerin çalışmaması için atla
+228 CALL  30
+229 JIF   99   230  # diğer case'lerin çalışmaması için atla
 
-
-C
-C+X       99   C+X+1 # diğer case'lerin çalışmaması için atla
-
-C+X+1
+230 RET
 
 #subroutine# syscall handler end
 
