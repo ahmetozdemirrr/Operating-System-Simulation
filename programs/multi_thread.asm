@@ -295,96 +295,154 @@ Begin Instruction Section
 114 SUBI  829  830 # syscall_id - prn_id -> 830
 115 JIF   830  120
 116 SUBI  829  831 # syscall_id - hlt_id -> 831
-117 JIF   831  123
+117 JIF   831  124
 118 SUBI  829  832 # syscall_id - yield_id -> 832
-119 JIF   832  126
+119 JIF   832  128
 
 120 CPY   829  833 # temp for syscall id
-121 SUBI  830  833 # ters çıkarma
-122 JIF   833  129 # ikisi de şartı sağlarsa syscall_id == prn_id'dir
+121 CPY   94   830 # dirty olan id dğerini yeniden al
+122 SUBI  830  833 # ters çıkarma
+123 JIF   833  133 # ikisi de şartı sağlarsa syscall_id == prn_id'dir
 
-123 CPY   829  834 # temp for syscall id
-124 SUBI  831  834 # ters çıkarma
-125 JIF   834  133 # ikisi de şartı sağlarsa syscall_id == hlt_id'dir
+124 CPY   829  834 # temp for syscall id
+125 CPY   95   831 # dirty olan id değerini yeniden al
+126 SUBI  831  834 # ters çıkarma
+127 JIF   834  136 # ikisi de şartı sağlarsa syscall_id == hlt_id'dir
 
-126 CPY   829  835 # temp for syscall id
-127 SUBI  832  835 # ters çıkarma
-128 JIF   835  137 # ikisi de şartı sağlarsa syscall_id == yield_id'dir
+128 CPY   829  835 # temp for syscall id
+129 CPY   96   832 # dirty olan id değerini yeniden al
+130 SUBI  832  835 # ters çıkarma
+131 JIF   835  140 # ikisi de şartı sağlarsa syscall_id == yield_id'dir
 
 # 824'ü 2 yap (syscall_prn_id), 2: blocked:
-129 SET   2    836
-130 SET   836  837
-131 CPYI2 837  824
-132 JIF   99   140
+132 SET   2    836
+133 SET   836  837
+134 CPYI2 837  824
+135 JIF   99   143
 
 # 824'ü 3 yap (syscall_hlt_id), 3: terminated:
-133 SET   3    838
-134 SET   838  839
-135 CPYI2 839  824
-136 JIF   99   140
+136 SET   3    838
+137 SET   838  839
+138 CPYI2 839  824
+139 JIF   99   143
 
 # 824'ü 0 yap (syscall_yield_id), 0: ready:
-137 SET   0    840
-138 SET   840  841
-139 CPYI2 841  824
+140 SET   0    840
+141 SET   840  841
+142 CPYI2 841  824
 
 # şimdi pc güncelleme, 825 table'ın o sütununa işaret eder
-140 SET   0    842 # 0 (pc) tutan register adresidir
-141 CPYI2 842  825
+143 SET   0    842 # 0 (pc) tutan register adresidir
+144 CPYI2 842  825
 
-142 SET   1    843 # 1 (sp) tutan register adresidir
-143 CPYI2 843  826
+145 SET   1    843 # 1 (sp) tutan register adresidir
+146 CPYI2 843  826
 
-144 SET   3    844 # 3 (register instruction counter) register adresidir
-145 CPYI2 844  827
+147 SET   3    844 # 3 (register instruction counter) register adresidir
+148 CPYI2 844  827
 
-146 SET   4    845 # 4 (wakeup instruction count) register adresidir
-147 CPYI2 845  828
+149 SET   4    845 # 4 (wakeup instruction count) register adresidir
+150 CPYI2 845  828
 
 # thread table güncellendi
 # şimdi context switch yapacağız, 808 adresi scheduler'ın seçtiği threadin state adresini tutar
 # thread table'dan seçilen threadin verilerini çekelim ve mailbox'a (600-607) yazalım:
 
-148 CPY   808  846  # state pointer'ı temp olarak alalım
+151 CPY   808  846  # state pointer'ı temp olarak alalım
 # 808 adresi baz alınarak her bir sütuna erişim için eklenecek değerler
-149 SET   -1   847
-150 SET   1    848
-151 SET   2    849
-152 SET   3    850
-153 SET   4    851
-154 SET   5    852
-155 SET   6    853
+152 SET   -1   847
+153 SET   1    848
+154 SET   2    849
+155 SET   3    850
+156 SET   4    851
+157 SET   5    852
+158 SET   6    853
 # her bir sütuna işaret eden pointerlar:
-156 ADDI  847  846  # thread id
-157 ADDI  848  846  # thread pc
-158 ADDI  849  846  # thread sp
-159 ADDI  850  846  # thread data base
-160 ADDI  851  846  # thread instruction base
-161 ADDI  852  846  # thread instruction count
-162 ADDI  853  846  # thread wakeup instruction count
+159 ADDI  847  846  # thread id
+160 ADDI  848  846  # thread pc
+161 ADDI  849  846  # thread sp
+162 ADDI  850  846  # thread data base
+163 ADDI  851  846  # thread instruction base
+164 ADDI  852  846  # thread instruction count
+165 ADDI  853  846  # thread wakeup instruction count
 # 846'nın kendisi de thread state'i tutar
 
 # state'i running yap
-163 SET   1    854
-164 SET   854  855
-165 CPYI2 855  846
+166 SET   1    854
+167 SET   854  855
+168 CPYI2 855  846
 
 # mailbox'a değerleri kopyala
-166 CPYI  846  601
-167 CPYI  847  600
-168 CPYI  848  602
-169 CPYI  849  603
-170 CPYI  850  604
-171 CPYI  851  605
-172 CPYI  852  606
-173 CPYI  853  607
+169 CPYI  846  601
+170 CPYI  847  600
+171 CPYI  848  602
+172 CPYI  849  603
+173 CPYI  850  604
+174 CPYI  851  605
+175 CPYI  852  606
+176 CPYI  853  607
 
-174 CPY   602  112  # setting block 112: new threads PC OS will jump there using (USER 112)
-175 SET   -999 17   # REG_CONTEXT_SWITCH_SIGNAL registerıyla sinyal ver
-176 CPY   600  100  # current çalışan thread değiştir
-177 JIF   99   2    # koşulsuz 2'ye atla, yeni bir thread seçimi için
-
+177 CPY   602  112  # setting block 112: new threads PC OS will jump there using (USER 112)
+178 SET   -999 17   # REG_CONTEXT_SWITCH_SIGNAL registerıyla sinyal ver
+179 CPY   600  100  # current çalışan thread değiştir
+180 JIF   99   2    # koşulsuz 2'ye atla, yeni bir thread seçimi için
 #subroutine# scheduler end
+
+#subroutine# syscall handler start
+#
+# * SYSCALL_ID değeri REGISTER 2'de tutuluyor
+# * syscall prn için wakeup değeri, 103. adreste tutuluyor
+#
+# reading syscall id:
+200 CPY   2    856  # 856 şuan syscall id tutuyor
+201 CPY   94   857  # 94 prn_id tutar, yani 1
+202 CPY   95   858  # 95 hlt_id tutar, yani 2
+203 CPY   96   859  # 96 yield_id tutar, yani 3
+
+204 SUBI  856  857  # syscall id - prn_id
+205 JIF   857  210
+
+206 SUBI  856  858  # syscall id - hlt_id
+207 JIF   858  214
+
+208 SUBI  856  859  # syscall id - yield_id
+209 JIF   859  218
+
+# yukarıdaki SUBI işlemleri ile id'lerin tutulduğu adresler dirty oluyor o yüzden
+# ikinci çıkarmadan önce yine kopyalıyoruz
+
+210 CPY   856  860
+211 CPY   94   857
+212 SUBI  857  860
+213 JIF   860  A    # syscall prn handler'a atla
+
+214 CPY   856  861
+215 CPY   95   857
+216 SUBI  857  861
+217 JIF   861  B    # syscall hlt handler'a atla
+
+218 CPY   856  862
+219 CPY   96   858
+220 SUBI  858  862
+221 JIF   862  C    # syscall yield handler'a atla
+
+# şimdi yukarıdaki bağlamda biz hangi syscall'ın çağrıldığını
+# anlamış olup gerekli yerlere zıplamasını sağlıyoruz
+
+A
+A+X JIF   99   C+X+1 # diğer case'lerin çalışmaması için atla
+
+
+B
+B+X JIF   99   C+X+1 # diğer case'lerin çalışmaması için atla
+
+
+C
+C+X       99   C+X+1 # diğer case'lerin çalışmaması için atla
+
+C+X+1
+
+#subroutine# syscall handler end
 
 End Instruction Section
 ###############################################################
