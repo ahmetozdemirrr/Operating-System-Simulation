@@ -379,6 +379,7 @@ exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
     mem_write(cpu->mem, current_sp_value, *next_pc_address, cpu->mode);
     mem_write(cpu->mem, REG_SP, new_sp_value, cpu->mode);
     *next_pc_address = absolute_jump_address;
+    printf("atlanacak adres: %ld\n", absolute_jump_address);
 }
 
 static void
@@ -631,6 +632,13 @@ cpu_init(CPU * cpu, Memory * mem)
 	mem_write(mem, REG_PC, cpu->curr_instruction_base_for_active_entity, cpu->mode);
 	mem_write(mem, REG_SP, OS_BLOCK_END_ADDR, cpu->mode); /* 1999: from up to bottom */
 	mem_write(mem, REG_INSTR_COUNT, 0, cpu->mode);
+
+	/*
+		DÜZELTME: Boot sırasında scheduler çağırıldığında syscall handling problemini önlemek için
+		REG_SYSCALL_RESULT'ı YIELD olarak ayarla. Bu sayede OS thread'i READY kalır ve BLOCKED olmaz.
+	*/
+	mem_write(mem, REG_SYSCALL_RESULT, SYSCALL_YIELD_ID, cpu->mode);
+
 	/*
 		Context switch sinyalini başlangıçta "işlem tamamlandı" olarak ayarla.
     	Bu yazma işlemi KERNEL modunda yapılmalı, çünkü bu OS'nin kontrol edeceği bir register.

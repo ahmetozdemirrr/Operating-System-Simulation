@@ -81,7 +81,7 @@ Begin Data Section
 
 # User Thread 5 Table Entry (540-547)
 540 5     # thread_id = 5
-541 0     # thread_state = 0 (READY)
+541 3     # thread_state = 3 (Terminated)
 542 11000 # PC = 11000 (Thread 5 instruction start)
 543 11999 # SP = 11999 (Thread 5 stack top)
 544 10000 # data_base_addr = 10000
@@ -91,7 +91,7 @@ Begin Data Section
 
 # User Thread 6 Table Entry (548-555)
 548 6     # thread_id = 6
-549 0     # thread_state = 0 (READY)
+549 3     # thread_state = 3 (Terminated)
 550 13000 # PC = 13000 (Thread 6 instruction start)
 551 13999 # SP = 13999 (Thread 6 stack top)
 552 12000 # data_base_addr = 12000
@@ -101,7 +101,7 @@ Begin Data Section
 
 # User Thread 7 Table Entry (556-563)
 556 7     # thread_id = 7
-557 0     # thread_state = 0 (READY)
+557 3     # thread_state = 3 (Terminated)
 558 15000 # PC = 15000 (Thread 7 instruction start)
 559 15999 # SP = 15999 (Thread 7 stack top)
 560 14000 # data_base_addr = 14000
@@ -111,7 +111,7 @@ Begin Data Section
 
 # User Thread 8 Table Entry (564-571)
 564 8     # thread_id = 8
-565 0     # thread_state = 0 (READY)
+565 3     # thread_state = 3 (Terminated)
 566 17000 # PC = 17000 (Thread 8 instruction start)
 567 17999 # SP = 17999 (Thread 8 stack top)
 568 16000 # data_base_addr = 16000
@@ -121,7 +121,7 @@ Begin Data Section
 
 # User Thread 9 Table Entry (572-579)
 572 9     # thread_id = 9
-573 0     # thread_state = 0 (READY)
+573 3     # thread_state = 3 (Terminated)
 574 19000 # PC = 19000 (Thread 9 instruction start)
 575 19999 # SP = 19999 (Thread 9 stack top)
 576 18000 # data_base_addr = 18000
@@ -131,7 +131,7 @@ Begin Data Section
 
 # User Thread 10 Table Entry (580-587)
 580 10    # thread_id = 10
-581 0     # thread_state = 0 (READY)
+581 3     # thread_state = 3 (Terminated)
 582 21000 # PC = 21000 (Thread 10 instruction start)
 583 21999 # SP = 21999 (Thread 10 stack top)
 584 20000 # data_base_addr = 20000
@@ -148,62 +148,88 @@ End Data Section
 
 Begin Instruction Section
 #subroutine# booting OS: entry point
-0   SET   0 100      # OS başarıyla başlatıldı
-1   CALL  30         # Scheduler’ı çağır
-2   USER  112        # Scheduler’ın belirlediği thread PC’sine atla
+0   SET   0    100  # OS başarıyla başlatıldı
+1   CALL  30        # Scheduler’ı çağır
+2   USER  112       # Scheduler’ın belirlediği thread PC’sine atla
 #subroutine# booting OS end
-
+3   SET   0    73
+4   SET   0    73
+5   SET   0    73
+6   SET   0    73
+7   SET   0    73
+8   SET   0    73
+9   SET   0    73
+10  SET   0    73
+11  SET   0    73
+12  SET   0    73
+13  SET   0    73
+14  SET   0    73
+15  SET   0    73
+16  SET   0    73
+17  SET   0    73
+18  SET   0    73
+19  SET   0    73
+20  SET   0    73
+21  SET   0    73
+22  SET   0    73
+23  SET   0    73
+24  SET   0    73
+25  SET   0    73
+26  SET   0    73
+27  SET   0    73
+29  SET   0    73
+29  SET   0    73
 #subroutine# scheduler start
-30  CPY   100 800  # şuan çalışan threadin id'sini al: M[100], her zaman bu bilgiyi tutar
-31  ADDI  800 97   # next thread's id, 97 sabit '1' sayısını tutar
-32  CPY   800 801  # temp next_thread_id
-33  SUBI  121 801  # max_thread - next_id -> 801
-34  JIF   801 45   # eğer max thread aşılıyorsa, başa dön
-35  SET   501 802  # M[802] table sorguları için offset 500 (+1 table'ın ikinci sütunu anlamına gelir) değerini tutar
+30  CPY   100  800  # şuan çalışan threadin id'sini al: M[100], her zaman bu bilgiyi tutar
+31  ADDI  800  97   # next thread's id, 97 sabit '1' sayısını tutar
+32  CPY   800  801  # temp next_thread_id
+33  SUBI  121  801  # max_thread - next_id -> 801
+34  JIF   801  45   # eğer max thread aşılıyorsa, başa dön
+35  SET   501  802  # M[802] table sorguları için offset 500 (+1 table'ın ikinci sütunu anlamına gelir) değerini tutar
 
 # çarpma işlemi: 500 + id * 8 + 1: next_thread'in state'ine id'si üzerinden ulaşmak için bu döngüyü kullanacağız
-36  CPY   98  803  # operand_1 -> 803, 98 her zaman sabit '8' sayısını tutar
-37  SET   0   804  # i -> 804
-38  CPY   804 805  # i -> 805 (temp), subi'de dirty olacağı için kopyalıyoruz
-39  CPY   801 806  # operand_1 -> 806 (temp), burada id kadar toplama işlemi yapacağız
-40  SUBI  806 805  # N - i, o yüzden id - i <= 0 kontrolü yapıyoruz
-41  JIF   805 46   # 46 devam edilecek yer (scheduler contextte)
-42  ADDI  802 803  # 501 + 8 her seferinde (M[802]: 501 offsetini tutar, M[803]: 8 sabitini tutar)
-43  ADDI  804 97   # i++
-44  JIF   99  36   # çarpma döngüsün başına dön koşulsz
-45  SET   1   800  # burayı 1 yap schedulerburadan aramaya devam etmeli, çünkü table'da sona gelindi başa dön
+36  CPY   98   803  # operand_1 -> 803, 98 her zaman sabit '8' sayısını tutar
+37  SET   0    804  # i -> 804
+38  CPY   804  805  # i -> 805 (temp), subi'de dirty olacağı için kopyalıyoruz
+39  CPY   800  806  # operand_1 -> 806 (temp), burada id kadar toplama işlemi yapacağız
+40  SUBI  806  805  # N - i, o yüzden id - i <= 0 kontrolü yapıyoruz
+41  JIF   805  46   # 46 devam edilecek yer (scheduler contextte)
+42  ADDI  802  803  # 501 + 8 her seferinde (M[802]: 501 offsetini tutar, M[803]: 8 sabitini tutar)
+43  ADDI  804  97   # i++
+44  JIF   99   38   # çarpma döngüsün başına dön koşulsz
+45  SET   1    800  # burayı 1 yap schedulerburadan aramaya devam etmeli, çünkü table'da sona gelindi başa dön
 
 # context:
 # - M[800]: Geçici thread ID, önce current_running_thread_id, sonra next_thread_id, sıfırlamada 1
 # - M[802]: Hedef thread’in state adresi, tarama başlangıç noktası
 
-46  SET   581 807  # N -> 807: döngü için son index
-47  CPY   802 808  # i -> 808: değer yukarıda bulunan, start thread_state adresi olacak
-48  SET   0   809  # found_ready
-49  CPY   807 810  # temp N
-50  CPY   808 811  # temp i
-51  SUBI  810 811  # N - i
-52  JIF   811 70   # idle threadine git
-53  CPY   802 812  # wakeup instruction count -> 812
-54  SET   6   813  # wakeup sütununa atlamak için sabit 6
-55  ADDI  812 813  # sütun ayarlaması
+46  SET   587  807  # N -> 807: döngü için son index
+47  CPY   802  808  # i -> 808: değer yukarıda bulunan, start thread_state adresi olacak
+48  SET   0    809  # found_ready
+49  CPY   807  810  # temp N
+50  CPY   808  811  # temp i
+51  SUBI  810  811  # N - i
+52  JIF   811  70   # idle threadine git
+53  CPY   802  812  # wakeup instruction count -> 812
+54  SET   6    813  # wakeup sütununa atlamak için sabit 6
+55  ADDI  812  813  # sütun ayarlaması
 
 # wakeup mechanism:
-56  CPYI  812 814  # M[814] = wakeup_instruction_count (M[812] adresinden oku)
-57  SET   1   815  # çıkarma işlemi için, dirty temp değişken
-58  SUBI  814 815  # M[814] -= 1 -> elde edilen değer 815'e yazılsın (wakeup değerini azaltıyoruz)
-59  SET   815 819  # 815 -> 819
-60  CPYI2 819 812  # dolaylı atamayı bu şekilde yapmış olduk
-61  JIF   815 64   # eğer wakeup değeri <= 0 ise Y'ye atla, Y'de bu threadin seçimi gerçekleştirilecek
+56  CPYI  812  814  # M[814] = wakeup_instruction_count (M[812] adresinden oku)
+57  SET   1    815  # çıkarma işlemi için, dirty temp değişken
+58  SUBI  814  815  # M[814] -= 1 -> elde edilen değer 815'e yazılsın (wakeup değerini azaltıyoruz)
+59  SET   815  819  # 815 -> 819
+60  CPYI2 819  812  # dolaylı atamayı bu şekilde yapmış olduk
+61  JIF   815  64   # eğer wakeup değeri <= 0 ise Y'ye atla, Y'de bu threadin seçimi gerçekleştirilecek
 # Wakeup > 0, bir sonraki thread’e geç, şuan bu threadin seçilmeyeceğini anladık
-62  ADDI  808 98   # M[808] += 8 (bir sonraki thread’in state adresine geç, M[98] sabit 8)
-63  JIF   99  50   # Döngü başına dön (50’den devam et)
-64  SET   0   817  # 817'ye 0 yaz
-65  SET   817 818  # 817 adresini 818'e yaz
-66  CPYI2 818 808  # M[M[818]] : 0, M[M[808]]: M[808] = M[5XX]... (state 0'lanır) çünkü wakeuo değeri <= 0
+62  ADDI  808  98   # M[808] += 8 (bir sonraki thread’in state adresine geç, M[98] sabit 8)
+63  JIF   99   50   # Döngü başına dön (50’den devam et)
+64  SET   0    817  # 817'ye 0 yaz
+65  SET   817  818  # 817 adresini 818'e yaz
+66  CPYI2 818  808  # M[M[818]] : 0, M[M[808]]: M[808] = M[5XX]... (state 0'lanır) çünkü wakeuo değeri <= 0
 
-67  SET   1   809  # found_ready = 1 (M[809])
-68  JIF   99  90   # Context switch hazırlığına git
+67  SET   1    809  # found_ready = 1 (M[809])
+68  JIF   99   90   # Context switch hazırlığına git
 
 # !!!!! Context Switchden önce mevcut threadin state'i de güncellenmeli:
 # eğer syscall hlt ile bitmişse terminated olarak işaretlenmel
@@ -231,9 +257,9 @@ Begin Instruction Section
 # yapılmıştır ve 600-607 mailbox'ından yeni core image bilgileri alınmalıdır. 999 olduğu zman da aynı
 # contextte devam edilir.
 #
-
+69  SET   0    73
 # idle thread için switch yapılacak yer
-70  SET   1    509 # thread_state'i running yap
+70  SET   1    509  # thread_state'i running yap
 # switching the core image
 71  CPY   508  600  # copying thread_id
 72  CPY   509  601  # copying thread_state
@@ -247,7 +273,13 @@ Begin Instruction Section
 80  CPY   602  112  # setting block 112: new threads PC OS will jump there using (USER 112)
 81  SET   -999 17   # REG_CONTEXT_SWITCH_SIGNAL registerıyla sinyal ver
 82  JIF   99   2    # USER komutuna koşulsuz atla
-
+83  SET   0    73
+84  SET   0    73
+85  SET   0    73
+86  SET   0    73
+87  SET   0    73
+88  SET   0    73
+89  SET   0    73
 # normal user threadler için context switch bloğu
 90  CPY   100  820  # 820 adresine current çalışan threadin id'sini alalım
 # current thread için table'da güncellenecek değerler: state, pc, sp, reg_inst_cnt, wakeup_inst_cnt
@@ -260,7 +292,7 @@ Begin Instruction Section
 96  JIF   824  100  # TABLE_ENTRY_SIZE - i <= 0 ise döngü bitmiştir çık
 97  ADDI  821  820  # 500'e (offset) 8 (TABLE_ENTRY_SIZE) ekle
 98  ADD   823  1    # i++ sonraki iterasyon
-99  JIF   99   93   # döngü başına koşulsuz dön
+99  JIF   99   94   # döngü başına koşulsuz dön
 #
 # context: 821, ilgili entrynin id sütun adresini tutar (tablonun satır başı)
 # şimdi ilgili bilgileri çekip thread table'a kaydedeceğiz
@@ -302,7 +334,7 @@ Begin Instruction Section
 120 CPY   829  833 # temp for syscall id
 121 CPY   94   830 # dirty olan id dğerini yeniden al
 122 SUBI  830  833 # ters çıkarma
-123 JIF   833  133 # ikisi de şartı sağlarsa syscall_id == prn_id'dir
+123 JIF   833  132 # ikisi de şartı sağlarsa syscall_id == prn_id'dir
 
 124 CPY   829  834 # temp for syscall id
 125 CPY   95   831 # dirty olan id değerini yeniden al
@@ -387,6 +419,26 @@ Begin Instruction Section
 179 CPY   600  100  # current çalışan thread değiştir
 180 RET             # OS booting kısmındaki CALL çağrısına geri dön, yeni bir thread seçimi için
 #subroutine# scheduler end
+
+181 SET   0    73
+182 SET   0    73
+183 SET   0    73
+184 SET   0    73
+185 SET   0    73
+186 SET   0    73
+187 SET   0    73
+188 SET   0    73
+189 SET   0    73
+190 SET   0    73
+191 SET   0    73
+192 SET   0    73
+193 SET   0    73
+194 SET   0    73
+195 SET   0    73
+196 SET   0    73
+197 SET   0    73
+198 SET   0    73
+199 SET   0    73
 
 #subroutine# syscall handler start
 #
