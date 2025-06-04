@@ -801,8 +801,8 @@ cpu_execute_instruction(CPU * cpu)
 		}
         // Register'ları yeni thread'in moduna göre yaz.
         // PC ve SP yazılırken kullanılacak mod, yeni geçilecek thread'in modu olmalı.
-        mem_write(cpu->mem, REG_PC, next_pc_val, cpu->mode);
-        mem_write(cpu->mem, REG_SP, next_sp_val, cpu->mode);
+        mem_write(cpu->mem, REG_PC, next_pc_val, KERNEL);
+        mem_write(cpu->mem, REG_SP, next_sp_val, KERNEL);
 
         // Sinyali "işlendi" olarak işaretle (KERNEL modunda, çünkü bu OS'nin takip ettiği bir register).
         mem_write(cpu->mem, REG_CONTEXT_SWITCH_SIGNAL, CTX_SWITCH_DONE, KERNEL);
@@ -958,7 +958,7 @@ if (cpu->mode == KERNEL && cpu->curr_thread_id == OS_ID) {
 			exit(EXIT_FAILURE);
 	}
 	/*********************** EXECUTE PART ***********************/
-	printf("OS 100 adresindeki değer: %ld\n", mem_read(cpu->mem, 120, KERNEL));
+	printf("OS M[100] (current_thread_id): %ld\n", mem_read(cpu->mem, OS_DATA_START_ADDR + 100, KERNEL));
 
 	if (!cpu->is_halted) {
 		mem_write(cpu->mem, REG_PC, next_pc_address, cpu->mode);

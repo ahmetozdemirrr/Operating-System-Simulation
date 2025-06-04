@@ -280,7 +280,7 @@ Begin Instruction Section
 41  JIF   364 45   # <= 0 ise state_addr = get_thread_table_addr(tid, 1), satırından devam et
 # > 0 ise
 42  CPY   102 361  # MAX_THREADS -> 361
-43  SUBI  369 361  # tid - MAX_THREADS -> 361
+43  SUBI  360 361  # tid - MAX_THREADS -> 361
 44  CPY   361 360  # tid - MAX_THREADS -> 360 (tid)
 
 45  CPY   360 112  # tid: 356
@@ -433,7 +433,7 @@ Begin Instruction Section
 126 CPY   118 383  # result of is_equal
 127 JIF   383 131  # eşit değiller sonraki eşitlik kontrolüne git
 # eşitlerse
-128 SET   93  384  # 92, terminated_state değerini tutar (3), dolaylama yapıyruz burada
+128 SET   93  384  # 93, terminated_state değerini tutar (3), dolaylama yapıyruz burada
 129 CPYI2 384 374  # M[M[384]] -> M[M[374]], (M[384]:93, M[374]:state_address (M[93]:3, M[state_address]:target))
 130 JIF   80  133  # koşulsuz atla diğer atamalara gerek yok
 
@@ -550,8 +550,8 @@ Begin Instruction Section
 182 ADD   392 1    # base_addr + 1
 183 CPYI  391 392  # 391->91->running_state_value : 1, 392->base_address+1->state, sonuç olarak state = 1
 # ctx_signal
-184 SET   -999 17  # 17. registera -999 sinyalini koy
-185 CPY   389  100 # current_running_thread ayarla (389 bu değeri tutuyordu)
+184 CPY   389  100 # current_running_thread ayarla (389 bu değeri tutuyordu)
+185 SET   -999 17  # 17. registera -999 sinyalini koy
 # return to calle
 186 RET
 ## end of prepare_context_switch routine ##
@@ -747,7 +747,7 @@ Begin Instruction Section
 31  JIF 8 0         # unconditional jump (because M[8]=-1) jump to instr 0.
 
 # --- Sorting is ended ---
-32  HLT
+32  SYSCALL HLT
 End Instruction Section
 ###############################################################
 
@@ -810,7 +810,7 @@ Begin Instruction Section
 
 18  CPY  13 12      # i -> result
 19  SYSCALL PRN 12  # print result
-20  HLT             # stop execution
+20  SYSCALL HLT     # stop execution
 
 End Instruction Section
 ###############################################################
@@ -822,7 +822,7 @@ End Instruction Section
 ######################## USER THREAD 4 ########################
 # Multiplication Implementation
 Begin Data Section
-0   80000   # mult operand 1
+0   5       # mult operand 1
 1   -12     # mult operand 2
 2   0       # counter i for loop
 3   0       # summ_buffer: for, M[3] += M[1]
@@ -846,7 +846,7 @@ Begin Instruction Section
 7   ADD  2 1       # i++, next iteration
 8   JIF  99 0      # unconditionl jump
 9   SYSCALL PRN 3  # printing result
-10  HLT
+10  SYSCALL HLT
 
 End Instruction Section
 ###############################################################
