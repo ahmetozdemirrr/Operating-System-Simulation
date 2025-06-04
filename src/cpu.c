@@ -406,8 +406,8 @@ exec_ret(CPU * cpu, long int * next_pc_address)
                 stack_upper_bound);
         exit(EXIT_FAILURE);
     }
-
-    long int return_address = mem_read(cpu->mem, current_sp_value, cpu->mode);
+    // DÜZELTME: Return address'i SP+1 adresinden oku (CALL'da yazıldığı yer)
+    long int return_address = mem_read(cpu->mem, current_sp_value + 1, cpu->mode);
     long int new_sp_value = current_sp_value + 1;
 
     if (return_address < 0 || return_address >= MEM_SIZE) {
@@ -621,6 +621,11 @@ exec_syscall_yield(CPU * cpu, long int * next_pc_address)
     cpu->mode = KERNEL;
     mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_YIELD_ID, cpu->mode);
     *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
+}
+
+static long int get_thread_table_addr(int thread_id, int field)
+{
+    return 200 + (thread_id * 8) + field;  /* Thread table 200'den başlıyor */
 }
 
 void
@@ -863,6 +868,40 @@ cpu_execute_instruction(CPU * cpu)
 	}
 	long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL);
 	mem_write(cpu->mem, REG_INSTR_COUNT, current_instr_count + 1, KERNEL);
+
+	// WAKEUP COUNTDOWN - Her instruction sonrası BLOCKED thread'lerin wakeup değerlerini azalt
+	// Bu kod KERNEL modunda çalışmalı çünkü thread table'a erişiyor
+	if (cpu->mode == KERNEL || cpu->mode == USER) {
+	    // Tüm thread'leri kontrol et (1'den MAX_THREADS'e kadar)
+	    for (int tid = 1; tid <= MAX_THREADS; tid++) {
+	        // Thread table'dan state'i oku
+	        long int state_addr = get_thread_table_addr(tid, 1);
+	        long int state = mem_read(cpu->mem, state_addr, KERNEL); // KERNEL modunda oku
+
+	        if (state == THREAD_STATE_BLOCKED) {
+	            // Wakeup count'u oku
+	            long int wakeup_addr = get_thread_table_addr(tid, 7);
+	            long int wakeup = mem_read(cpu->mem, wakeup_addr, KERNEL);
+
+	            // Wakeup > 0 ise azalt
+	            if (wakeup > 0) {
+	                wakeup--;
+	                mem_write(cpu->mem, wakeup_addr, wakeup, KERNEL);
+
+	                // Debug log
+	                #ifdef DEBUG_FLAG
+	                printf("Thread %d wakeup countdown: %ld\n", tid, wakeup);
+	                #endif
+
+	                // Wakeup 0'a ulaştıysa thread'i READY yap
+	                if (wakeup == 0) {
+	                    mem_write(cpu->mem, state_addr, THREAD_STATE_READY, KERNEL);
+	                    printf("Thread %d unblocked (wakeup reached 0)\n", tid);
+	                }
+	            }
+	        }
+	    }
+	}
 }
 
 bool
