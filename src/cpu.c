@@ -504,41 +504,41 @@ exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
         exit(EXIT_FAILURE);
     }
     long int value = mem_read(cpu->mem, absolute_source_address, cpu->mode);
-    printf("-----%ld\n", value);
 
     /* syscall olunca context switch olmalı, şimdilik test için pritn syscall ı açık bırakıldı */
-	// long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
-	// long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
-    // long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
-    // long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+	long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
+	long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
+    long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
+    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
 
-    // if (current_sp == 0 || current_sp > stack_upper_bound) {
-    //     current_sp = stack_upper_bound;
-    //     mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
-    // }
+    if (current_sp == 0 || current_sp > stack_upper_bound) {
+        current_sp = stack_upper_bound;
+        mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
+    }
 
-    // long int new_sp = current_sp - 1;
-    // if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
-    //     fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
-    //             cpu->curr_thread_id,
-    //             new_sp);
-    //     exit(EXIT_FAILURE);
-    // }
-    // mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
+    long int new_sp = current_sp - 1;
+    if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
+                cpu->curr_thread_id,
+                new_sp);
+        exit(EXIT_FAILURE);
+    }
+    mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
 
-    // new_sp--;
-    // if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -2 )) {
-    //     fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
-    //             cpu->curr_thread_id,
-    //             new_sp);
-    //     exit(EXIT_FAILURE);
-    // }
-    // mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
-    // mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
+    new_sp--;
+    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -2 )) {
+        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
+                cpu->curr_thread_id,
+                new_sp);
+        exit(EXIT_FAILURE);
+    }
+    mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
+    mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
 
-    // cpu->mode = KERNEL;
-    // mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, cpu->mode);
-    // *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
+    cpu->mode = KERNEL;
+    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, cpu->mode);
+    *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
+    printf("SYSCALL PRN output: %ld\n", value);
 }
 
 static void
@@ -646,7 +646,7 @@ cpu_init(CPU * cpu, Memory * mem)
 	cpu->curr_data_base_for_active_entity = OS_DATA_START_ADDR;
 	cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;
 
-	mem_write(mem, REG_PC, cpu->curr_instruction_base_for_active_entity, cpu->mode);
+	mem_write(mem, REG_PC, cpu->curr_instruction_base_for_active_entity, cpu->mode); /* sistem ilk başladığında OS entry pointten çalışsın */
 	mem_write(mem, REG_SP, OS_BLOCK_END_ADDR, cpu->mode); /* 1999: from up to bottom */
 	mem_write(mem, REG_INSTR_COUNT, 0, cpu->mode);
 	/*
@@ -696,15 +696,40 @@ cpu_execute_instruction(CPU * cpu)
         printf("CPU: Context Switch Request DETECTED (Signal: %ld) by OS (presumably).\n", ctx_signal);
 
         /* Posta kutusundan yeni context bilgilerini KERNEL modunda oku, çünkü OS bunları KERNEL modunda yazdı. */
-        int next_tid = (int)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_THREAD_ID, KERNEL);
-        long int next_pc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_PC, KERNEL);
-        long int next_sp_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_SP, KERNEL);
-        long int next_db_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_DATA_BASE, KERNEL);
-        long int next_ib_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_BASE, KERNEL);
-        CPU_mode next_m_val = (CPU_mode)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_MODE, KERNEL);
+        int next_tid =    (int)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_THREAD_ID,   KERNEL);
+        long int next_state  = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_STATE,       KERNEL);
+        long int next_pc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_PC,          KERNEL);
+        long int next_sp_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_SP,          KERNEL);
+        long int next_db_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_DATA_BASE,   KERNEL);
+        long int next_ib_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_BASE,  KERNEL);
+        long int next_ic_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_COUNT, KERNEL);
+        long int next_wc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_WAKEUP_CNT,  KERNEL);
 
-        printf("CPU: Switching to Thread ID: %d, PC: %ld, SP: %ld, Mode: %s, DB: %ld, IB: %ld\n",
-               next_tid, next_pc_val, next_sp_val, (next_m_val == USER ? "USER" : "KERNEL"), next_db_val, next_ib_val);
+        char state[15];
+
+        switch (next_state) {
+        	case 0:
+        		strcpy(state, "READY");
+        		break;
+        	case 1:
+        		strcpy(state, "RUNNING");
+        		break;
+        	case 2:
+        		strcpy(state, "BLOCKED");
+        		break;
+        	case 3:
+        		strcpy(state, "TERMINATED");
+        		break;
+        }
+        printf("CPU: Switching to Thread ID: %d, State: %s, PC: %ld, SP: %ld, DB: %ld, IB: %ld, IC: %ld, WC: %ld\n",
+               next_tid,
+               state,
+               next_pc_val,
+               next_sp_val,
+               next_db_val,
+               next_ib_val,
+               next_ic_val,
+               next_wc_val);
 
         // CPU context'ini doğrudan güncelle.
         // cpu_set_context fonksiyonunu burada çağırmak yerine doğrudan atama yapmak,
@@ -712,7 +737,7 @@ cpu_execute_instruction(CPU * cpu)
         cpu->curr_thread_id = next_tid;
         cpu->curr_data_base_for_active_entity = next_db_val;
         cpu->curr_instruction_base_for_active_entity = next_ib_val;
-        cpu->mode = next_m_val; // Yeni thread'in modu
+        cpu->mode = USER; // Yeni thread'in modu
 
         // Register'ları yeni thread'in moduna göre yaz.
         // PC ve SP yazılırken kullanılacak mod, yeni geçilecek thread'in modu olmalı.
