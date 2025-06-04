@@ -348,15 +348,6 @@ exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
 	printf("call\n");
 
 	check_cpu(cpu, __func__);
-
-    long int current_pc_value = mem_read(cpu->mem, REG_PC, cpu->mode);
-    if (current_pc_value % INSTR_SIZE != 0) {
-        fprintf(stderr,
-                "FATAL ERROR: REG_PC (%ld) does not point to the start of an instruction in CALL for entity %d\n",
-                current_pc_value,
-                cpu->curr_thread_id);
-        exit(EXIT_FAILURE);
-    }
     check_instruction_address(cpu, relative_jump_address, "CALL");
 
     long int current_sp_value = mem_read(cpu->mem, REG_SP, cpu->mode);

@@ -45,8 +45,19 @@ MULTITHREAD_C_FILES = $(TEST_DIR)/multi_thread_test.c $(SRC_DIR)/cpu.c $(SRC_DIR
 MULTITHREAD_OBJS = $(OBJ_DIR)/multi_thread_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
 MULTITHREAD_TEST_TARGET = $(BIN_DIR)/multithread_test_runner
 
+# OS System Test files
+OS_SYSTEM_C_FILES = $(TEST_DIR)/os_system_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
+OS_SYSTEM_OBJS = $(OBJ_DIR)/os_system_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
+OS_SYSTEM_TEST_TARGET = $(BIN_DIR)/os_system_test_runner
+
+# OS Debug Test files
+OS_DEBUG_C_FILES = $(TEST_DIR)/os_debug_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
+OS_DEBUG_OBJS = $(OBJ_DIR)/os_debug_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
+OS_DEBUG_TEST_TARGET = $(BIN_DIR)/os_debug_test_runner
+
+
 # === TARGETS ===
-default: memtest parsetest searchtest multtest schedulertest multithreadtest
+default: memtest parsetest searchtest multtest schedulertest multithreadtest ossystemtest osdebugtest
 
 # Add searchtest to existing targets
 searchtest: $(SEARCH_TEST_TARGET)
@@ -85,6 +96,18 @@ multithreadtest: $(MULTITHREAD_TEST_TARGET)
 	./$(MULTITHREAD_TEST_TARGET)
 	@echo "Multi-Thread OS Test is Complete."
 
+# OS System test target
+ossystemtest: $(OS_SYSTEM_TEST_TARGET)
+	@echo "Running OS System Test..."
+	./$(OS_SYSTEM_TEST_TARGET)
+	@echo "OS System Test is Complete."
+
+# OS Debug test target
+osdebugtest: $(OS_DEBUG_TEST_TARGET)
+	@echo "Running OS Debug Test..."
+	./$(OS_DEBUG_TEST_TARGET)
+	@echo "OS Debug Test is Complete."
+
 $(MEM_TEST_TARGET): $(MEM_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
@@ -110,6 +133,14 @@ $(SCHEDULER_TEST_TARGET): $(SCHEDULER_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(MULTITHREAD_TEST_TARGET): $(MULTITHREAD_OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(OS_SYSTEM_TEST_TARGET): $(OS_SYSTEM_OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(OS_DEBUG_TEST_TARGET): $(OS_DEBUG_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
@@ -139,4 +170,4 @@ clean:
 	rm -rf $(BIN_DIR)
 	@echo "Cleaning is complete."
 
-.PHONY: all default memtest parsetest cputest searchtest multtest schedulertest multithreadtest clean
+.PHONY: all default memtest parsetest cputest searchtest multtest schedulertest multithreadtest ossystemtest osdebugtest clean
