@@ -27,14 +27,14 @@
 #define CTX_SWITCH_DONE 999
 
 /* OS Mailbox for Context Switch Data (Offsets from OS_DATA_START_ADDR) */
-#define MAILBOX_OFFSET_NEXT_THREAD_ID  		   180
-#define MAILBOX_OFFSET_NEXT_STATE      		   181
-#define MAILBOX_OFFSET_NEXT_PC                 182
-#define MAILBOX_OFFSET_NEXT_SP         		   183
-#define MAILBOX_OFFSET_NEXT_DATA_BASE          184
-#define MAILBOX_OFFSET_NEXT_INSTR_BASE         185
-#define MAILBOX_OFFSET_NEXT_INSTR_COUNT        186
-#define MAILBOX_OFFSET_NEXT_WAKEUP_INSTR_COUNT 187
+#define MAILBOX_OFFSET_NEXT_THREAD_ID  		   580
+#define MAILBOX_OFFSET_NEXT_STATE      		   581
+#define MAILBOX_OFFSET_NEXT_PC                 582
+#define MAILBOX_OFFSET_NEXT_SP         		   583
+#define MAILBOX_OFFSET_NEXT_DATA_BASE          584
+#define MAILBOX_OFFSET_NEXT_INSTR_BASE         585
+#define MAILBOX_OFFSET_NEXT_INSTR_COUNT        586
+#define MAILBOX_OFFSET_NEXT_WAKEUP_INSTR_COUNT 587
 
 /*
 	606, 607 currently unused, can be for future flags or ensuring alignment
@@ -108,6 +108,12 @@
 #define SYSCALL_PRN_ID 1
 #define SYSCALL_HLT_ID 2
 #define SYSCALL_YIELD_ID 3
+
+/* Thread states */
+#define THREAD_STATE_READY      0
+#define THREAD_STATE_RUNNING    1
+#define THREAD_STATE_BLOCKED    2
+#define THREAD_STATE_TERMINATED 3
 
 typedef enum
 {

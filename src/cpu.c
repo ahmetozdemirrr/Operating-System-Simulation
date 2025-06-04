@@ -41,7 +41,7 @@ check_data_address(const CPU * cpu, const long int relative_address, const char 
 	long int max_data_size = ENTITY_DATA_SIZE;
 
     if (cpu->curr_thread_id == OS_ID) {
-        max_data_size = (relative_address < 20) ? 20 : OS_USABLE_DATA_SIZE;
+        max_data_size = OS_USABLE_DATA_SIZE;
     }
 
 	if (relative_address < 0 || relative_address >= max_data_size) {
@@ -83,7 +83,7 @@ exec_set(CPU * cpu, long int value, long int relative_address)
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_address, "SET");
 
-	long int absolute_addr = (cpu->curr_thread_id == OS_ID && relative_address < 20) ? relative_address : cpu->curr_data_base_for_active_entity + relative_address;
+	long int absolute_addr = cpu->curr_data_base_for_active_entity + relative_address;
 	mem_write(cpu->mem, absolute_addr, value, cpu->mode);
 }
 
@@ -96,8 +96,8 @@ exec_cpy(CPU * cpu, long int relative_src_address, long int relative_dest_addres
 	check_data_address(cpu, relative_src_address,  "CPY");
 	check_data_address(cpu, relative_dest_address, "CPY");
 
-	long int absolute_src_address  = (cpu->curr_thread_id == OS_ID && relative_src_address < 20) ? relative_src_address : cpu->curr_data_base_for_active_entity + relative_src_address;
-	long int absolute_dest_address = (cpu->curr_thread_id == OS_ID && relative_dest_address < 20) ? relative_dest_address : cpu->curr_data_base_for_active_entity + relative_dest_address;
+	long int absolute_src_address  = cpu->curr_data_base_for_active_entity +  relative_src_address;
+	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
 
 	mem_write(cpu->mem, absolute_dest_address, mem_read(cpu->mem, absolute_src_address, cpu->mode), cpu->mode);
 }
@@ -112,13 +112,13 @@ exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_ad
 	check_data_address(cpu, relative_address_of_ptr, "CPYI");
 	check_data_address(cpu, relative_dest_address,   "CPYI");
 
-	long int pointer_absolute_address  = (cpu->curr_thread_id == OS_ID && relative_address_of_ptr < 20) ? relative_address_of_ptr : cpu->curr_data_base_for_active_entity + relative_address_of_ptr;
-	long int absolute_dest_address     = (cpu->curr_thread_id == OS_ID && relative_dest_address < 20) ? relative_dest_address : cpu->curr_data_base_for_active_entity + relative_dest_address;
+	long int pointer_absolute_address  = cpu->curr_data_base_for_active_entity + relative_address_of_ptr;
+	long int absolute_dest_address     = cpu->curr_data_base_for_active_entity + relative_dest_address;
 
 	long int src_offset_value = mem_read(cpu->mem, pointer_absolute_address, cpu->mode);
 	check_data_address(cpu, src_offset_value, "CPYI (indirect_src_offset_as_data_addr)");
 
-	long int indirect_src_absolute_address = (cpu->curr_thread_id == OS_ID && src_offset_value < 20) ? src_offset_value : cpu->curr_data_base_for_active_entity + src_offset_value;
+	long int indirect_src_absolute_address = cpu->curr_data_base_for_active_entity + src_offset_value;
 	printf("---%ld\n", indirect_src_absolute_address);
 	if (indirect_src_absolute_address < 0 || indirect_src_absolute_address >= MEM_SIZE) {
 		fprintf(stderr,
@@ -142,11 +142,11 @@ exec_cpyi2(CPU * cpu, long int relative_src_ptr_address, long int relative_dest_
 	check_data_address(cpu, relative_dest_ptr_address,   "CPYI");
 
 	/* A1 -> M[A1] */
-	long int absolute_src_ptr_address = (cpu->curr_thread_id == OS_ID && relative_src_ptr_address < 20) ? relative_src_ptr_address : cpu->curr_data_base_for_active_entity + relative_src_ptr_address;
+	long int absolute_src_ptr_address = cpu->curr_data_base_for_active_entity + relative_src_ptr_address;
 	long int actual_src_data_address = mem_read(cpu->mem, absolute_src_ptr_address, cpu->mode);
 
 	/* A2 -> M[A2] */
-	long int absolute_dest_ptr_address = (cpu->curr_thread_id == OS_ID && relative_dest_ptr_address < 20) ? relative_dest_ptr_address : cpu->curr_data_base_for_active_entity + relative_dest_ptr_address;
+	long int absolute_dest_ptr_address = cpu->curr_data_base_for_active_entity + relative_dest_ptr_address;
 	long int actual_dest_data_address = mem_read(cpu->mem, absolute_dest_ptr_address, cpu->mode);
 
 	if (actual_src_data_address < 0 || actual_src_data_address >= MEM_SIZE) {
@@ -182,7 +182,7 @@ exec_add(CPU * cpu, long int relative_dest_address, long int value_to_add)
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_dest_address, "ADD");
 
-	long int absolute_dest_address = (cpu->curr_thread_id == OS_ID && relative_dest_address < 20) ? relative_dest_address : cpu->curr_data_base_for_active_entity + relative_dest_address;
+	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
 	long int dest_value = mem_read(cpu->mem, absolute_dest_address, cpu->mode);
 
 	/* Overflow check */
@@ -206,8 +206,8 @@ exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_addre
 	check_data_address(cpu, relative_dest_address, "ADDI");
 	check_data_address(cpu, relative_src_address,  "ADDI");
 
-	long int absolute_dest_address = (cpu->curr_thread_id == OS_ID && relative_dest_address < 20) ? relative_dest_address : cpu->curr_data_base_for_active_entity + relative_dest_address;
-	long int absolute_src_address  = (cpu->curr_thread_id == OS_ID && relative_src_address < 20) ? relative_src_address : cpu->curr_data_base_for_active_entity + relative_src_address;
+	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
+	long int absolute_src_address  = cpu->curr_data_base_for_active_entity + relative_src_address;
 
 	long int src_value  = mem_read(cpu->mem, absolute_src_address,  cpu->mode);
 	long int dest_value = mem_read(cpu->mem, absolute_dest_address, cpu->mode);
@@ -233,8 +233,8 @@ exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_addre
 	check_data_address(cpu, relative_dest_address, "SUBI");
 	check_data_address(cpu, relative_src_address,  "SUBI");
 
-	long int absolute_dest_address = (cpu->curr_thread_id == OS_ID && relative_dest_address < 20) ? relative_dest_address : cpu->curr_data_base_for_active_entity + relative_dest_address;
-	long int absolute_src_address  = (cpu->curr_thread_id == OS_ID && relative_src_address < 20) ? relative_src_address : cpu->curr_data_base_for_active_entity + relative_src_address;
+	long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address;
+	long int absolute_src_address  = cpu->curr_data_base_for_active_entity + relative_src_address;
 
 	long int src_value  = mem_read(cpu->mem, absolute_src_address,  cpu->mode);
 	long int dest_value = mem_read(cpu->mem, absolute_dest_address, cpu->mode);
@@ -251,6 +251,14 @@ exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_addre
 	mem_write(cpu->mem, absolute_dest_address, src_value - dest_value, cpu->mode);
 }
 
+/* burada sorun şu, baştan beri bu aklımdaydı...
+	- parser'dan okuma yaptığımız zaman başta index gibi bir şey var
+	orayı baz alarak jump yapmamız lazım ama o indeksi biz kullanmıyoruz hiç.
+
+	atlayacağı index - kendi indexi -1 şeklindeki adrese jump yapmalı aritmetik olarak.
+
+bunu bir şekilde ekle.
+*/
 static void
 exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_pc_address, long int * next_pc_address)
 {
@@ -260,7 +268,7 @@ exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_p
 	check_data_address(cpu, relative_condition_address, "JIF");
 	check_instruction_address(cpu, relative_new_pc_address, "JIF");
 
-	long int absolute_condition_address = (cpu->curr_thread_id == OS_ID && relative_condition_address < 20) ? relative_condition_address : cpu->curr_data_base_for_active_entity + relative_condition_address;
+	long int absolute_condition_address = cpu->curr_data_base_for_active_entity + relative_condition_address;
 	long int condition_value = mem_read(cpu->mem, absolute_condition_address, cpu->mode);
 
 	if (condition_value <= 0) {
@@ -280,7 +288,7 @@ exec_push(CPU * cpu, long int relative_element_address)
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_element_address, "PUSH");
 
-	long int absolute_element_address = (cpu->curr_thread_id == OS_ID && relative_element_address < 20) ? relative_element_address : cpu->curr_data_base_for_active_entity + relative_element_address;
+	long int absolute_element_address = cpu->curr_data_base_for_active_entity + relative_element_address;
 	long int element_value = mem_read(cpu->mem, absolute_element_address, cpu->mode);
 	long int current_sp_value = mem_read(cpu->mem, REG_SP, cpu->mode);
 
@@ -328,7 +336,7 @@ exec_pop(CPU * cpu, long int relative_dest_address) /* POP bir üstü okumalı o
     // Stack’ten değeri oku (SP + 1, çünkü PUSH SP’ye yazıp azaltmıştı)
     long int element_address = current_sp_value + 1; // 998 + 1 = 999
     long int element = mem_read(cpu->mem, element_address, cpu->mode); // 999’dan 30 oku
-    long int absolute_dest_address = (cpu->curr_thread_id == OS_ID && relative_dest_address < 20) ? relative_dest_address : cpu->curr_data_base_for_active_entity + relative_dest_address; // 21 + 2 = 23
+    long int absolute_dest_address = cpu->curr_data_base_for_active_entity + relative_dest_address; // 21 + 2 = 23
 
     mem_write(cpu->mem, absolute_dest_address, element, cpu->mode); // 23’e 30 yaz
     mem_write(cpu->mem, REG_SP, current_sp_value + 1, cpu->mode);  // REG_SP = 999
@@ -341,14 +349,14 @@ exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
 
 	check_cpu(cpu, __func__);
 
-/*     long int current_pc_value = mem_read(cpu->mem, REG_PC, cpu->mode);
+    long int current_pc_value = mem_read(cpu->mem, REG_PC, cpu->mode);
     if (current_pc_value % INSTR_SIZE != 0) {
         fprintf(stderr,
                 "FATAL ERROR: REG_PC (%ld) does not point to the start of an instruction in CALL for entity %d\n",
                 current_pc_value,
                 cpu->curr_thread_id);
         exit(EXIT_FAILURE);
-    } */
+    }
     check_instruction_address(cpu, relative_jump_address, "CALL");
 
     long int current_sp_value = mem_read(cpu->mem, REG_SP, cpu->mode);
@@ -379,7 +387,6 @@ exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
     mem_write(cpu->mem, current_sp_value, *next_pc_address, cpu->mode);
     mem_write(cpu->mem, REG_SP, new_sp_value, cpu->mode);
     *next_pc_address = absolute_jump_address;
-    printf("atlanacak adres: %ld\n", absolute_jump_address);
 }
 
 static void
@@ -430,7 +437,7 @@ exec_user(CPU * cpu, long int pt_jump_address_offset, long int * next_pc_address
 
 	check_cpu(cpu, __func__);
 
-	long int absolute_ptr_address = (cpu->curr_thread_id == OS_ID && pt_jump_address_offset < 20) ? pt_jump_address_offset : cpu->curr_data_base_for_active_entity + pt_jump_address_offset;
+	long int absolute_ptr_address = cpu->curr_data_base_for_active_entity + pt_jump_address_offset;
 	long int target_user_pc =  mem_read(cpu->mem, absolute_ptr_address, cpu->mode); /* M[absolute_ptr_address] */
 
 	if (target_user_pc < 0 || target_user_pc >= MEM_SIZE) {
@@ -451,6 +458,11 @@ exec_user(CPU * cpu, long int pt_jump_address_offset, long int * next_pc_address
         cpu->is_halted = true;
         return;
     }
+    /* eski
+    cpu->mode = USER;
+    *next_pc_address = jump_to;
+	*/
+
 	if (cpu->curr_thread_id == OS_ID) {
         printf("OS (Thread %d) is executing USER. Performing context switch to Thread 1.\n", cpu->curr_thread_id);
 
@@ -483,7 +495,7 @@ exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
 
 	check_cpu(cpu, __func__);
 
-    long int absolute_source_address = (cpu->curr_thread_id == OS_ID && source_address < 20) ? source_address : cpu->curr_data_base_for_active_entity + source_address;
+    long int absolute_source_address = cpu->curr_data_base_for_active_entity + source_address;
     if (absolute_source_address < 0 || absolute_source_address >= MEM_SIZE) {
         fprintf(stderr,
                 "FATAL ERROR: Memory address %ld is out of bounds in SYSCALL PRN for entity %d\n",
@@ -492,41 +504,41 @@ exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
         exit(EXIT_FAILURE);
     }
     long int value = mem_read(cpu->mem, absolute_source_address, cpu->mode);
-    printf("Thread %d SYSCALL PRN: Value = %ld\n", cpu->curr_thread_id, value);
+    printf("-----%ld\n", value);
 
     /* syscall olunca context switch olmalı, şimdilik test için pritn syscall ı açık bırakıldı */
-	long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
-	long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
-    long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
-    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+	// long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
+	// long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
+    // long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
+    // long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
 
-    if (current_sp == 0 || current_sp > stack_upper_bound) {
-        current_sp = stack_upper_bound;
-        mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
-    }
+    // if (current_sp == 0 || current_sp > stack_upper_bound) {
+    //     current_sp = stack_upper_bound;
+    //     mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
+    // }
 
-    long int new_sp = current_sp - 1;
-    if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
-                cpu->curr_thread_id,
-                new_sp);
-        exit(EXIT_FAILURE);
-    }
-    mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
+    // long int new_sp = current_sp - 1;
+    // if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
+    //     fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
+    //             cpu->curr_thread_id,
+    //             new_sp);
+    //     exit(EXIT_FAILURE);
+    // }
+    // mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
 
-    new_sp--;
-    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -2 )) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
-                cpu->curr_thread_id,
-                new_sp);
-        exit(EXIT_FAILURE);
-    }
-    mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
-    mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
+    // new_sp--;
+    // if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -2 )) {
+    //     fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
+    //             cpu->curr_thread_id,
+    //             new_sp);
+    //     exit(EXIT_FAILURE);
+    // }
+    // mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
+    // mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
 
-    cpu->mode = KERNEL;
-    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, cpu->mode);
-    *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
+    // cpu->mode = KERNEL;
+    // mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, cpu->mode);
+    // *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
 }
 
 static void
@@ -627,18 +639,11 @@ cpu_init(CPU * cpu, Memory * mem)
 	cpu->is_halted = false;
 	cpu->curr_thread_id = OS_ID;
 	cpu->curr_data_base_for_active_entity = OS_DATA_START_ADDR;
-	cpu->curr_instruction_base_for_active_entity = OS_ENTRY_POINT_BOOT;
+	cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;
 
 	mem_write(mem, REG_PC, cpu->curr_instruction_base_for_active_entity, cpu->mode);
 	mem_write(mem, REG_SP, OS_BLOCK_END_ADDR, cpu->mode); /* 1999: from up to bottom */
 	mem_write(mem, REG_INSTR_COUNT, 0, cpu->mode);
-
-	/*
-		DÜZELTME: Boot sırasında scheduler çağırıldığında syscall handling problemini önlemek için
-		REG_SYSCALL_RESULT'ı YIELD olarak ayarla. Bu sayede OS thread'i READY kalır ve BLOCKED olmaz.
-	*/
-	mem_write(mem, REG_SYSCALL_RESULT, SYSCALL_YIELD_ID, cpu->mode);
-
 	/*
 		Context switch sinyalini başlangıçta "işlem tamamlandı" olarak ayarla.
     	Bu yazma işlemi KERNEL modunda yapılmalı, çünkü bu OS'nin kontrol edeceği bir register.
@@ -660,6 +665,7 @@ cpu_set_context(CPU * cpu, int thread_id, long int data_base, long int instructi
     cpu->mode = initial_mode;
     mem_write(cpu->mem, REG_PC, instruction_base, cpu->mode);
 
+    // SP’yi uygun üst sınıra ayarla
     long int stack_upper_bound = (thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(thread_id);
     mem_write(cpu->mem, REG_SP, stack_upper_bound, cpu->mode);
 }
@@ -668,11 +674,11 @@ void
 cpu_execute_instruction(CPU * cpu)
 {
 	/*
-		Context Switch Sinyalini Kontrol Et (Her komut döngüsünün başında). Bu register OS tarafından
-		KERNEL modunda set edildiği için KERNEL modunda okunmalı. Eğer o an USER modda bir thread
-		çalışıyorsa bile, bu kontrol CPU simülatörünün kendi iç mantığıdır ve OS'nin bıraktığı bir
-		sinyali okur. Güvenlik açısından, bu okuma ve sonraki işlemlerin KERNEL ayrıcalığıyla yapıldığını
-		varsayabiliriz.
+		Context Switch Sinyalini Kontrol Et (Her komut döngüsünün başında)
+	    Bu register OS tarafından KERNEL modunda set edildiği için KERNEL modunda okunmalı.
+	    Eğer o an USER modda bir thread çalışıyorsa bile, bu kontrol CPU simülatörünün
+	    kendi iç mantığıdır ve OS'nin bıraktığı bir sinyali okur.
+	    Güvenlik açısından, bu okuma ve sonraki işlemlerin KERNEL ayrıcalığıyla yapıldığını varsayabiliriz.
     */
     volatile long int ctx_signal = mem_read(cpu->mem, REG_CONTEXT_SWITCH_SIGNAL, KERNEL);
 
@@ -685,17 +691,15 @@ cpu_execute_instruction(CPU * cpu)
         printf("CPU: Context Switch Request DETECTED (Signal: %ld) by OS (presumably).\n", ctx_signal);
 
         /* Posta kutusundan yeni context bilgilerini KERNEL modunda oku, çünkü OS bunları KERNEL modunda yazdı. */
-        int    next_tid = (int)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_THREAD_ID, 		KERNEL);
-        long int next_state  = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_STATE,     		KERNEL);
-        long int next_pc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_PC,        		KERNEL);
-        long int next_sp_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_SP,        		KERNEL);
-        long int next_db_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_DATA_BASE,      KERNEL);
-        long int next_ib_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_BASE,     KERNEL);
-        long int next_ic_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_COUNT,    KERNEL);
-        long int next_wakeup = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_WAKEUP_CNT,     KERNEL);
+        int next_tid = (int)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_THREAD_ID, KERNEL);
+        long int next_pc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_PC, KERNEL);
+        long int next_sp_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_SP, KERNEL);
+        long int next_db_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_DATA_BASE, KERNEL);
+        long int next_ib_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_BASE, KERNEL);
+        CPU_mode next_m_val = (CPU_mode)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_MODE, KERNEL);
 
-        printf("CPU: Switching to Thread ID: %d, PC: %ld, SP: %ld, DB: %ld, IB: %ld\n",
-               next_tid, next_pc_val, next_sp_val, next_db_val, next_ib_val);
+        printf("CPU: Switching to Thread ID: %d, PC: %ld, SP: %ld, Mode: %s, DB: %ld, IB: %ld\n",
+               next_tid, next_pc_val, next_sp_val, (next_m_val == USER ? "USER" : "KERNEL"), next_db_val, next_ib_val);
 
         // CPU context'ini doğrudan güncelle.
         // cpu_set_context fonksiyonunu burada çağırmak yerine doğrudan atama yapmak,
@@ -703,6 +707,7 @@ cpu_execute_instruction(CPU * cpu)
         cpu->curr_thread_id = next_tid;
         cpu->curr_data_base_for_active_entity = next_db_val;
         cpu->curr_instruction_base_for_active_entity = next_ib_val;
+        cpu->mode = next_m_val; // Yeni thread'in modu
 
         // Register'ları yeni thread'in moduna göre yaz.
         // PC ve SP yazılırken kullanılacak mod, yeni geçilecek thread'in modu olmalı.
