@@ -90,7 +90,20 @@ exec_set(CPU * cpu, long int value, long int relative_address)
 static void
 exec_cpy(CPU * cpu, long int relative_src_address, long int relative_dest_address)
 {
-	printf("cpy\n");
+	// Mevcut printf("cpy\n"); satırını koruyun veya genişletin.
+    long int abs_src, abs_dest, val_read;
+
+    if (cpu->mode == KERNEL && cpu->curr_thread_id == OS_ID) { // Sadece OS çalışırken detaylı log
+        abs_src = (relative_src_address < 20) ? relative_src_address : cpu->curr_data_base_for_active_entity + relative_src_address;
+        abs_dest = (relative_dest_address < 20) ? relative_dest_address : cpu->curr_data_base_for_active_entity + relative_dest_address;
+        val_read = mem_read(cpu->mem, abs_src, cpu->mode);
+
+        printf("OS_CPY: RelSrc=%ld (Abs=%ld, Val=%ld) -> RelDest=%ld (Abs=%ld)\n",
+               relative_src_address, abs_src, val_read,
+               relative_dest_address, abs_dest);
+    } else {
+        printf("cpy\n"); // Diğer durumlar için basit log
+    }
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_src_address,  "CPY");
@@ -100,6 +113,20 @@ exec_cpy(CPU * cpu, long int relative_src_address, long int relative_dest_addres
 	long int absolute_dest_address = (cpu->curr_thread_id == OS_ID && relative_dest_address < 20) ? relative_dest_address : cpu->curr_data_base_for_active_entity + relative_dest_address;
 
 	mem_write(cpu->mem, absolute_dest_address, mem_read(cpu->mem, absolute_src_address, cpu->mode), cpu->mode);
+if (cpu->mode == KERNEL && cpu->curr_thread_id == OS_ID) {
+    // OS'nin PC'sini alıp, os.asm'deki komut numarasına göre kontrol et
+    long int current_os_pc_offset_in_block = mem_read(cpu->mem, REG_PC, KERNEL) - OS_INSTRUCTION_START_ADDR;
+    long int target_pc_offset_for_instr_185 = 185 * INSTR_SIZE; // INSTR_SIZE genellikle 3
+
+    // ÖNEMLİ NOT: Yukarıdaki PC kontrolü, exec_cpy çağrıldığında REG_PC'nin bir sonraki komutu göstermesi nedeniyle
+    // tam olarak 185. komuta denk gelmeyebilir. exec_cpy'nin çağrıldığı PC değerine bakmak daha doğru olur.
+    // Şimdilik sadece operandlara göre kontrol edelim:
+    if (relative_src_address == 389 && relative_dest_address == 100) {
+        printf("DEBUG_EXEC_CPY_INSTR_185: M[OS_BASE+100] (M[120]) set to %ld (value copied was %ld from M[OS_BASE+389])\n",
+               mem_read(cpu->mem, OS_DATA_START_ADDR + 100, KERNEL),
+               mem_read(cpu->mem, absolute_src_address, cpu->mode)); // value_read_for_cpy, M[OS_BASE+389]'dan okunan değerdir
+    }
+}
 }
 
 static void
@@ -826,7 +853,18 @@ cpu_execute_instruction(CPU * cpu)
 	long int operand_1  = mem_read(cpu->mem, operand_1_addr, cpu->mode);
 	long int operand_2  = mem_read(cpu->mem, operand_2_addr, cpu->mode);
 	/*********************** DECODE PART ***********************/
-
+if (cpu->mode == KERNEL && cpu->curr_thread_id == OS_ID) {
+    long int current_os_pc_offset = current_pc_address - OS_INSTRUCTION_START_ADDR;
+    // os.asm'deki scheduler komutlarına denk gelen PC offsetlerini kontrol edin.
+    // Örneğin, komut 45'in PC offset'i X ise:
+    // X = (45 * INSTR_SIZE)
+    if (current_os_pc_offset == (45 * INSTR_SIZE)) { // Komut 45 CPY 360 112 ise
+        long int val_360 = mem_read(cpu->mem, OS_DATA_START_ADDR + 360, KERNEL);
+        printf("DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = %ld\n", val_360);
+    }
+    // Benzer şekilde, komut 47 (CALL 5) sonrası M[OS_BASE+115]'in değerini loglayabilirsiniz.
+    // Veya komut 49 (CPYI 362 363) sonrası M[OS_BASE+363]'ün (okunan state) değerini.
+}
 #ifdef DEBUG_FLAG
 	printf("\n\n\nInstruction for Thread - %d \n- (Mode:%s) at PC=%ld: Opcode=%ld, Op1=%ld, Op2=%ld\n\n\n",
            cpu->curr_thread_id,
@@ -920,6 +958,7 @@ cpu_execute_instruction(CPU * cpu)
 			exit(EXIT_FAILURE);
 	}
 	/*********************** EXECUTE PART ***********************/
+	printf("OS 100 adresindeki değer: %ld\n", mem_read(cpu->mem, 120, KERNEL));
 
 	if (!cpu->is_halted) {
 		mem_write(cpu->mem, REG_PC, next_pc_address, cpu->mode);
