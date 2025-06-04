@@ -1,0 +1,4787 @@
+Running OS System Test...
+./bin/os_system_test_runner
+=== OS System Test ===
+
+Loading program from: programs/os.asm
+Program loaded successfully!
+
+=== Initial System State ===
+OS Entry Point: 1000
+Current Thread ID (M[100]): 0
+
+Initial Thread Table:
+Thread 0: ID=0, State=1, PC=1000, SP=1999, DB=20, IB=1000, IC=0, Wakeup=0
+Thread 1: ID=1, State=0, PC=3000, SP=3999, DB=2000, IB=3000, IC=0, Wakeup=0
+Thread 2: ID=2, State=0, PC=5000, SP=5999, DB=4000, IB=5000, IC=0, Wakeup=0
+Thread 3: ID=3, State=0, PC=7000, SP=7999, DB=6000, IB=7000, IC=0, Wakeup=0
+Thread 4: ID=4, State=0, PC=9000, SP=9999, DB=8000, IB=9000, IC=0, Wakeup=0
+
+=== Starting Execution ===
+set: value: 0 - relative address: 100
+OS M[100] (current_thread_id): 0
+call
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=100 (Abs=120, Val=0) -> RelDest=356 (Abs=376)
+OS M[100] (current_thread_id): 0
+set: value: 0 - relative address: 357
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=358 (Abs=378)
+OS M[100] (current_thread_id): 0
+jif
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=359 (Abs=379)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=358 (Abs=378, Val=10) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 0
+subi
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+addi
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=364 (Abs=384)
+OS M[100] (current_thread_id): 0
+subi
+OS M[100] (current_thread_id): 0
+jif
+gidilecek yer: 1135
+OS M[100] (current_thread_id): 0
+DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = 1
+OS_CPY: RelSrc=360 (Abs=380, Val=1) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 0
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 0
+call
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=112 (Abs=132, Val=1) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 0
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 0
+subi
+OS M[100] (current_thread_id): 0
+jif
+OS M[100] (current_thread_id): 0
+addi
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 0
+subi
+OS M[100] (current_thread_id): 0
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 0
+addi
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=353 (Abs=373, Val=209) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 0
+ret
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=115 (Abs=135, Val=209) -> RelDest=362 (Abs=382)
+OS M[100] (current_thread_id): 0
+A1: 362, A2: 363
+cpyi
+---229
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=90 (Abs=110, Val=0) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=363 (Abs=383, Val=0) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 0
+call
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=116 (Abs=136, Val=0) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=117 (Abs=137, Val=0) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=901 (Abs=921, Val=0) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 0
+subi
+OS M[100] (current_thread_id): 0
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 0
+subi
+OS M[100] (current_thread_id): 0
+jif
+gidilecek yer: 1663
+OS M[100] (current_thread_id): 0
+set: value: 1 - relative address: 118
+OS M[100] (current_thread_id): 0
+ret
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+jif
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=360 (Abs=380, Val=1) -> RelDest=357 (Abs=377)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=357 (Abs=377, Val=1) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 0
+set: value: 0 - relative address: 117
+OS M[100] (current_thread_id): 0
+call
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=116 (Abs=136, Val=1) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=117 (Abs=137, Val=0) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=901 (Abs=921, Val=0) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 0
+subi
+OS M[100] (current_thread_id): 0
+jif
+OS M[100] (current_thread_id): 0
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 0
+ret
+OS M[100] (current_thread_id): 0
+jif
+gidilecek yer: 1183
+OS M[100] (current_thread_id): 0
+jif
+gidilecek yer: 1189
+OS M[100] (current_thread_id): 0
+call
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=357 (Abs=377, Val=1) -> RelDest=389 (Abs=409)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=389 (Abs=409, Val=1) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 0
+set: value: 0 - relative address: 113
+OS M[100] (current_thread_id): 0
+call
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=112 (Abs=132, Val=1) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=113 (Abs=133, Val=0) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 0
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 0
+subi
+OS M[100] (current_thread_id): 0
+jif
+OS M[100] (current_thread_id): 0
+addi
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 0
+subi
+OS M[100] (current_thread_id): 0
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 0
+addi
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=353 (Abs=373, Val=208) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 0
+ret
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=115 (Abs=135, Val=208) -> RelDest=390 (Abs=410)
+OS M[100] (current_thread_id): 0
+A1: 390, A2: 600
+cpyi
+---228
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+A1: 390, A2: 601
+cpyi
+---229
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+A1: 390, A2: 602
+cpyi
+---230
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+A1: 390, A2: 603
+cpyi
+---231
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+A1: 390, A2: 604
+cpyi
+---232
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+A1: 390, A2: 605
+cpyi
+---233
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+A1: 390, A2: 606
+cpyi
+---234
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+A1: 390, A2: 607
+cpyi
+---235
+OS M[100] (current_thread_id): 0
+set: value: 91 - relative address: 391
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=115 (Abs=135, Val=208) -> RelDest=392 (Abs=412)
+OS M[100] (current_thread_id): 0
+add
+OS M[100] (current_thread_id): 0
+A1: 391, A2: 392
+cpyi
+---111
+OS M[100] (current_thread_id): 0
+OS_CPY: RelSrc=389 (Abs=409, Val=1) -> RelDest=100 (Abs=120)
+DEBUG_EXEC_CPY_INSTR_185: M[OS_BASE+100] (M[120]) set to 1 (value copied was 1 from M[OS_BASE+389])
+OS M[100] (current_thread_id): 1
+set: value: -999 - relative address: 17
+OS M[100] (current_thread_id): 1
+CPU: Context Switch Request DETECTED (Signal: -999) by OS (presumably).
+CPU: Switching to Thread ID: 1, State: READY, PC: 3000, SP: 3999, DB: 2000, IB: 3000, IC: 0, WC: 0
+sys yield
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=2 (Abs=2, Val=3) -> RelDest=394 (Abs=414)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=394 (Abs=414, Val=3) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=94 (Abs=114, Val=1) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=116 (Abs=136, Val=3) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=117 (Abs=137, Val=1) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=901 (Abs=921, Val=1) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=118 (Abs=138, Val=0) -> RelDest=395 (Abs=415)
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1624
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=100 (Abs=120, Val=1) -> RelDest=356 (Abs=376)
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 357
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=358 (Abs=378)
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=359 (Abs=379)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=358 (Abs=378, Val=10) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=364 (Abs=384)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1135
+OS M[100] (current_thread_id): 1
+DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = 2
+OS_CPY: RelSrc=360 (Abs=380, Val=2) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 1
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=112 (Abs=132, Val=2) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=353 (Abs=373, Val=217) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=115 (Abs=135, Val=217) -> RelDest=362 (Abs=382)
+OS M[100] (current_thread_id): 1
+A1: 362, A2: 363
+cpyi
+---237
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=90 (Abs=110, Val=0) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=363 (Abs=383, Val=0) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=116 (Abs=136, Val=0) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=117 (Abs=137, Val=0) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=901 (Abs=921, Val=0) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1663
+OS M[100] (current_thread_id): 1
+set: value: 1 - relative address: 118
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=360 (Abs=380, Val=2) -> RelDest=357 (Abs=377)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=357 (Abs=377, Val=2) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 117
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=116 (Abs=136, Val=2) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=117 (Abs=137, Val=0) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=901 (Abs=921, Val=0) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1183
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=100 (Abs=120, Val=1) -> RelDest=372 (Abs=392)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=2 (Abs=2, Val=3) -> RelDest=373 (Abs=393)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=372 (Abs=392, Val=1) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 1
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=112 (Abs=132, Val=1) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=353 (Abs=373, Val=209) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=115 (Abs=135, Val=209) -> RelDest=374 (Abs=394)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=372 (Abs=392, Val=1) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 1
+set: value: 2 - relative address: 113
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=112 (Abs=132, Val=1) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=113 (Abs=133, Val=2) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=353 (Abs=373, Val=210) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=115 (Abs=135, Val=210) -> RelDest=375 (Abs=395)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=372 (Abs=392, Val=1) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 1
+set: value: 3 - relative address: 113
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=112 (Abs=132, Val=1) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=113 (Abs=133, Val=3) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=353 (Abs=373, Val=211) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=115 (Abs=135, Val=211) -> RelDest=376 (Abs=396)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=372 (Abs=392, Val=1) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 1
+set: value: 6 - relative address: 113
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=112 (Abs=132, Val=1) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=113 (Abs=133, Val=6) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=353 (Abs=373, Val=214) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=115 (Abs=135, Val=214) -> RelDest=377 (Abs=397)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=372 (Abs=392, Val=1) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 1
+set: value: 7 - relative address: 113
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=112 (Abs=132, Val=1) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=113 (Abs=133, Val=7) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=353 (Abs=373, Val=215) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=115 (Abs=135, Val=215) -> RelDest=378 (Abs=398)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=373 (Abs=393, Val=3) -> RelDest=379 (Abs=399)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=94 (Abs=114, Val=1) -> RelDest=380 (Abs=400)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=95 (Abs=115, Val=2) -> RelDest=381 (Abs=401)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=96 (Abs=116, Val=3) -> RelDest=382 (Abs=402)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=379 (Abs=399, Val=3) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=380 (Abs=400, Val=1) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=116 (Abs=136, Val=3) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=117 (Abs=137, Val=1) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=901 (Abs=921, Val=1) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=118 (Abs=138, Val=0) -> RelDest=383 (Abs=403)
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1372
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=381 (Abs=401, Val=2) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=116 (Abs=136, Val=3) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=117 (Abs=137, Val=2) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=901 (Abs=921, Val=2) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=118 (Abs=138, Val=0) -> RelDest=383 (Abs=403)
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1393
+OS M[100] (current_thread_id): 1
+set: value: 90 - relative address: 384
+OS M[100] (current_thread_id): 1
+cpyi2
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 385
+OS M[100] (current_thread_id): 1
+cpyi2
+OS M[100] (current_thread_id): 1
+set: value: 1 - relative address: 386
+OS M[100] (current_thread_id): 1
+cpyi2
+OS M[100] (current_thread_id): 1
+set: value: 3 - relative address: 387
+OS M[100] (current_thread_id): 1
+cpyi2
+OS M[100] (current_thread_id): 1
+set: value: 4 - relative address: 388
+OS M[100] (current_thread_id): 1
+cpyi2
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=357 (Abs=377, Val=2) -> RelDest=389 (Abs=409)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=389 (Abs=409, Val=2) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 113
+OS M[100] (current_thread_id): 1
+call
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=112 (Abs=132, Val=2) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=113 (Abs=133, Val=0) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 1
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 1
+subi
+OS M[100] (current_thread_id): 1
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 1
+addi
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=353 (Abs=373, Val=216) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 1
+ret
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=115 (Abs=135, Val=216) -> RelDest=390 (Abs=410)
+OS M[100] (current_thread_id): 1
+A1: 390, A2: 600
+cpyi
+---236
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+A1: 390, A2: 601
+cpyi
+---237
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+A1: 390, A2: 602
+cpyi
+---238
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+A1: 390, A2: 603
+cpyi
+---239
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+A1: 390, A2: 604
+cpyi
+---240
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+A1: 390, A2: 605
+cpyi
+---241
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+A1: 390, A2: 606
+cpyi
+---242
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+A1: 390, A2: 607
+cpyi
+---243
+OS M[100] (current_thread_id): 1
+set: value: 91 - relative address: 391
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=115 (Abs=135, Val=216) -> RelDest=392 (Abs=412)
+OS M[100] (current_thread_id): 1
+add
+OS M[100] (current_thread_id): 1
+A1: 391, A2: 392
+cpyi
+---111
+OS M[100] (current_thread_id): 1
+OS_CPY: RelSrc=389 (Abs=409, Val=2) -> RelDest=100 (Abs=120)
+DEBUG_EXEC_CPY_INSTR_185: M[OS_BASE+100] (M[120]) set to 2 (value copied was 2 from M[OS_BASE+389])
+OS M[100] (current_thread_id): 2
+set: value: -999 - relative address: 17
+OS M[100] (current_thread_id): 2
+CPU: Context Switch Request DETECTED (Signal: -999) by OS (presumably).
+CPU: Switching to Thread ID: 2, State: READY, PC: 5000, SP: 5999, DB: 4000, IB: 5000, IC: 0, WC: 0
+cpy
+OS M[100] (current_thread_id): 2
+
+[386] Context Switch: Thread 0 → Thread 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5027
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5000
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5027
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5090
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5000
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5069
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5090
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5000
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5048
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5069
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5090
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5000
+OS M[100] (current_thread_id): 2
+cpy
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 5096
+OS M[100] (current_thread_id): 2
+sys hlt
+OS M[100] (current_thread_id): 2
+
+[492] Context Switch: Thread 2 → Thread 0
+OS_CPY: RelSrc=2 (Abs=2, Val=2) -> RelDest=394 (Abs=414)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=394 (Abs=414, Val=2) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=94 (Abs=114, Val=1) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=116 (Abs=136, Val=2) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=117 (Abs=137, Val=1) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=901 (Abs=921, Val=1) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=118 (Abs=138, Val=0) -> RelDest=395 (Abs=415)
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1624
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=100 (Abs=120, Val=2) -> RelDest=356 (Abs=376)
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 357
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=358 (Abs=378)
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=359 (Abs=379)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=358 (Abs=378, Val=10) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=364 (Abs=384)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1135
+OS M[100] (current_thread_id): 2
+DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = 3
+OS_CPY: RelSrc=360 (Abs=380, Val=3) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 2
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=112 (Abs=132, Val=3) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=353 (Abs=373, Val=225) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=115 (Abs=135, Val=225) -> RelDest=362 (Abs=382)
+OS M[100] (current_thread_id): 2
+A1: 362, A2: 363
+cpyi
+---245
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=90 (Abs=110, Val=0) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=363 (Abs=383, Val=0) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=116 (Abs=136, Val=0) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=117 (Abs=137, Val=0) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=901 (Abs=921, Val=0) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1663
+OS M[100] (current_thread_id): 2
+set: value: 1 - relative address: 118
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=360 (Abs=380, Val=3) -> RelDest=357 (Abs=377)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=357 (Abs=377, Val=3) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 117
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=116 (Abs=136, Val=3) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=117 (Abs=137, Val=0) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=901 (Abs=921, Val=0) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1183
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=100 (Abs=120, Val=2) -> RelDest=372 (Abs=392)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=2 (Abs=2, Val=2) -> RelDest=373 (Abs=393)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=372 (Abs=392, Val=2) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 2
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=112 (Abs=132, Val=2) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=353 (Abs=373, Val=217) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=115 (Abs=135, Val=217) -> RelDest=374 (Abs=394)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=372 (Abs=392, Val=2) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 2
+set: value: 2 - relative address: 113
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=112 (Abs=132, Val=2) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=113 (Abs=133, Val=2) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=353 (Abs=373, Val=218) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=115 (Abs=135, Val=218) -> RelDest=375 (Abs=395)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=372 (Abs=392, Val=2) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 2
+set: value: 3 - relative address: 113
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=112 (Abs=132, Val=2) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=113 (Abs=133, Val=3) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=353 (Abs=373, Val=219) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=115 (Abs=135, Val=219) -> RelDest=376 (Abs=396)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=372 (Abs=392, Val=2) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 2
+set: value: 6 - relative address: 113
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=112 (Abs=132, Val=2) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=113 (Abs=133, Val=6) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=353 (Abs=373, Val=222) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=115 (Abs=135, Val=222) -> RelDest=377 (Abs=397)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=372 (Abs=392, Val=2) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 2
+set: value: 7 - relative address: 113
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=112 (Abs=132, Val=2) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=113 (Abs=133, Val=7) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=353 (Abs=373, Val=223) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=115 (Abs=135, Val=223) -> RelDest=378 (Abs=398)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=373 (Abs=393, Val=2) -> RelDest=379 (Abs=399)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=94 (Abs=114, Val=1) -> RelDest=380 (Abs=400)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=95 (Abs=115, Val=2) -> RelDest=381 (Abs=401)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=96 (Abs=116, Val=3) -> RelDest=382 (Abs=402)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=379 (Abs=399, Val=2) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=380 (Abs=400, Val=1) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=116 (Abs=136, Val=2) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=117 (Abs=137, Val=1) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=901 (Abs=921, Val=1) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=118 (Abs=138, Val=0) -> RelDest=383 (Abs=403)
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1372
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=381 (Abs=401, Val=2) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=116 (Abs=136, Val=2) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=117 (Abs=137, Val=2) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=901 (Abs=921, Val=2) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1663
+OS M[100] (current_thread_id): 2
+set: value: 1 - relative address: 118
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=118 (Abs=138, Val=1) -> RelDest=383 (Abs=403)
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+set: value: 93 - relative address: 384
+OS M[100] (current_thread_id): 2
+cpyi2
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1399
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 385
+OS M[100] (current_thread_id): 2
+cpyi2
+OS M[100] (current_thread_id): 2
+set: value: 1 - relative address: 386
+OS M[100] (current_thread_id): 2
+cpyi2
+OS M[100] (current_thread_id): 2
+set: value: 3 - relative address: 387
+OS M[100] (current_thread_id): 2
+cpyi2
+OS M[100] (current_thread_id): 2
+set: value: 4 - relative address: 388
+OS M[100] (current_thread_id): 2
+cpyi2
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=357 (Abs=377, Val=3) -> RelDest=389 (Abs=409)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=389 (Abs=409, Val=3) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 113
+OS M[100] (current_thread_id): 2
+call
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=112 (Abs=132, Val=3) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=113 (Abs=133, Val=0) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 2
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 2
+subi
+OS M[100] (current_thread_id): 2
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 2
+addi
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=353 (Abs=373, Val=224) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 2
+ret
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=115 (Abs=135, Val=224) -> RelDest=390 (Abs=410)
+OS M[100] (current_thread_id): 2
+A1: 390, A2: 600
+cpyi
+---244
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+A1: 390, A2: 601
+cpyi
+---245
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+A1: 390, A2: 602
+cpyi
+---246
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+A1: 390, A2: 603
+cpyi
+---247
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+A1: 390, A2: 604
+cpyi
+---248
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+A1: 390, A2: 605
+cpyi
+---249
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+A1: 390, A2: 606
+cpyi
+---250
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+A1: 390, A2: 607
+cpyi
+---251
+OS M[100] (current_thread_id): 2
+set: value: 91 - relative address: 391
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=115 (Abs=135, Val=224) -> RelDest=392 (Abs=412)
+OS M[100] (current_thread_id): 2
+add
+OS M[100] (current_thread_id): 2
+A1: 391, A2: 392
+cpyi
+---111
+OS M[100] (current_thread_id): 2
+OS_CPY: RelSrc=389 (Abs=409, Val=3) -> RelDest=100 (Abs=120)
+DEBUG_EXEC_CPY_INSTR_185: M[OS_BASE+100] (M[120]) set to 3 (value copied was 3 from M[OS_BASE+389])
+OS M[100] (current_thread_id): 3
+set: value: -999 - relative address: 17
+OS M[100] (current_thread_id): 3
+CPU: Context Switch Request DETECTED (Signal: -999) by OS (presumably).
+CPU: Switching to Thread ID: 3, State: READY, PC: 7000, SP: 7999, DB: 6000, IB: 7000, IC: 0, WC: 0
+cpy
+OS M[100] (current_thread_id): 3
+
+[815] Context Switch: Thread 0 → Thread 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6000
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7036
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6000
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7000
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6001
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7036
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6001
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7000
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6002
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7036
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6002
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7000
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6003
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7036
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6003
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7000
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6004
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7036
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6004
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7000
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6005
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7036
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+A1: 13, A2: 17
+cpyi
+---6005
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 7054
+OS M[100] (current_thread_id): 3
+cpy
+OS M[100] (current_thread_id): 3
+sys prn
+SYSCALL PRN output: 5
+SYSCALL PRN output: 5
+OS M[100] (current_thread_id): 3
+
+[910] Context Switch: Thread 3 → Thread 0
+OS_CPY: RelSrc=2 (Abs=2, Val=1) -> RelDest=394 (Abs=414)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=394 (Abs=414, Val=1) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=94 (Abs=114, Val=1) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=116 (Abs=136, Val=1) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=117 (Abs=137, Val=1) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=901 (Abs=921, Val=1) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1663
+OS M[100] (current_thread_id): 3
+set: value: 1 - relative address: 118
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=118 (Abs=138, Val=1) -> RelDest=395 (Abs=415)
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=101 (Abs=121, Val=100) -> RelDest=4 (Abs=4)
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=100 (Abs=120, Val=3) -> RelDest=356 (Abs=376)
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 357
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=358 (Abs=378)
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=359 (Abs=379)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=358 (Abs=378, Val=10) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=364 (Abs=384)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1135
+OS M[100] (current_thread_id): 3
+DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = 4
+OS_CPY: RelSrc=360 (Abs=380, Val=4) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 3
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=112 (Abs=132, Val=4) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=353 (Abs=373, Val=233) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=115 (Abs=135, Val=233) -> RelDest=362 (Abs=382)
+OS M[100] (current_thread_id): 3
+A1: 362, A2: 363
+cpyi
+---253
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=90 (Abs=110, Val=0) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=363 (Abs=383, Val=0) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=116 (Abs=136, Val=0) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=117 (Abs=137, Val=0) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=901 (Abs=921, Val=0) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1663
+OS M[100] (current_thread_id): 3
+set: value: 1 - relative address: 118
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=360 (Abs=380, Val=4) -> RelDest=357 (Abs=377)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=357 (Abs=377, Val=4) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 117
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=116 (Abs=136, Val=4) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=117 (Abs=137, Val=0) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=901 (Abs=921, Val=0) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1183
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=100 (Abs=120, Val=3) -> RelDest=372 (Abs=392)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=2 (Abs=2, Val=1) -> RelDest=373 (Abs=393)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=372 (Abs=392, Val=3) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 3
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=112 (Abs=132, Val=3) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=353 (Abs=373, Val=225) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=115 (Abs=135, Val=225) -> RelDest=374 (Abs=394)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=372 (Abs=392, Val=3) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 3
+set: value: 2 - relative address: 113
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=112 (Abs=132, Val=3) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=113 (Abs=133, Val=2) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=353 (Abs=373, Val=226) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=115 (Abs=135, Val=226) -> RelDest=375 (Abs=395)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=372 (Abs=392, Val=3) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 3
+set: value: 3 - relative address: 113
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=112 (Abs=132, Val=3) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=113 (Abs=133, Val=3) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=353 (Abs=373, Val=227) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=115 (Abs=135, Val=227) -> RelDest=376 (Abs=396)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=372 (Abs=392, Val=3) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 3
+set: value: 6 - relative address: 113
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=112 (Abs=132, Val=3) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=113 (Abs=133, Val=6) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=353 (Abs=373, Val=230) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=115 (Abs=135, Val=230) -> RelDest=377 (Abs=397)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=372 (Abs=392, Val=3) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 3
+set: value: 7 - relative address: 113
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=112 (Abs=132, Val=3) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=113 (Abs=133, Val=7) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=353 (Abs=373, Val=231) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=115 (Abs=135, Val=231) -> RelDest=378 (Abs=398)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=373 (Abs=393, Val=1) -> RelDest=379 (Abs=399)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=94 (Abs=114, Val=1) -> RelDest=380 (Abs=400)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=95 (Abs=115, Val=2) -> RelDest=381 (Abs=401)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=96 (Abs=116, Val=3) -> RelDest=382 (Abs=402)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=379 (Abs=399, Val=1) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=380 (Abs=400, Val=1) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=116 (Abs=136, Val=1) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=117 (Abs=137, Val=1) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=901 (Abs=921, Val=1) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1663
+OS M[100] (current_thread_id): 3
+set: value: 1 - relative address: 118
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=118 (Abs=138, Val=1) -> RelDest=383 (Abs=403)
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+set: value: 92 - relative address: 384
+OS M[100] (current_thread_id): 3
+cpyi2
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1399
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 385
+OS M[100] (current_thread_id): 3
+cpyi2
+OS M[100] (current_thread_id): 3
+set: value: 1 - relative address: 386
+OS M[100] (current_thread_id): 3
+cpyi2
+OS M[100] (current_thread_id): 3
+set: value: 3 - relative address: 387
+OS M[100] (current_thread_id): 3
+cpyi2
+OS M[100] (current_thread_id): 3
+set: value: 4 - relative address: 388
+OS M[100] (current_thread_id): 3
+cpyi2
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=357 (Abs=377, Val=4) -> RelDest=389 (Abs=409)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=389 (Abs=409, Val=4) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 113
+OS M[100] (current_thread_id): 3
+call
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=112 (Abs=132, Val=4) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=113 (Abs=133, Val=0) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 3
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 3
+subi
+OS M[100] (current_thread_id): 3
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 3
+addi
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=353 (Abs=373, Val=232) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 3
+ret
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=115 (Abs=135, Val=232) -> RelDest=390 (Abs=410)
+OS M[100] (current_thread_id): 3
+A1: 390, A2: 600
+cpyi
+---252
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+A1: 390, A2: 601
+cpyi
+---253
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+A1: 390, A2: 602
+cpyi
+---254
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+A1: 390, A2: 603
+cpyi
+---255
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+A1: 390, A2: 604
+cpyi
+---256
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+A1: 390, A2: 605
+cpyi
+---257
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+A1: 390, A2: 606
+cpyi
+---258
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+A1: 390, A2: 607
+cpyi
+---259
+OS M[100] (current_thread_id): 3
+set: value: 91 - relative address: 391
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=115 (Abs=135, Val=232) -> RelDest=392 (Abs=412)
+OS M[100] (current_thread_id): 3
+add
+OS M[100] (current_thread_id): 3
+A1: 391, A2: 392
+cpyi
+---111
+OS M[100] (current_thread_id): 3
+OS_CPY: RelSrc=389 (Abs=409, Val=4) -> RelDest=100 (Abs=120)
+DEBUG_EXEC_CPY_INSTR_185: M[OS_BASE+100] (M[120]) set to 4 (value copied was 4 from M[OS_BASE+389])
+OS M[100] (current_thread_id): 4
+set: value: -999 - relative address: 17
+OS M[100] (current_thread_id): 4
+CPU: Context Switch Request DETECTED (Signal: -999) by OS (presumably).
+CPU: Switching to Thread ID: 4, State: READY, PC: 9000, SP: 9999, DB: 8000, IB: 9000, IC: 0, WC: 0
+cpy
+OS M[100] (current_thread_id): 4
+
+[1267] Context Switch: Thread 0 → Thread 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 9000
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 9000
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 9000
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 9000
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 9000
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+cpy
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 9027
+OS M[100] (current_thread_id): 4
+sys prn
+SYSCALL PRN output: -60
+SYSCALL PRN output: -60
+OS M[100] (current_thread_id): 4
+
+[1318] Context Switch: Thread 4 → Thread 0
+OS_CPY: RelSrc=2 (Abs=2, Val=1) -> RelDest=394 (Abs=414)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=394 (Abs=414, Val=1) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=94 (Abs=114, Val=1) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=116 (Abs=136, Val=1) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=117 (Abs=137, Val=1) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=901 (Abs=921, Val=1) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1663
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 118
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=118 (Abs=138, Val=1) -> RelDest=395 (Abs=415)
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=101 (Abs=121, Val=100) -> RelDest=4 (Abs=4)
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=100 (Abs=120, Val=4) -> RelDest=356 (Abs=376)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 357
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=358 (Abs=378)
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=359 (Abs=379)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=358 (Abs=378, Val=10) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=364 (Abs=384)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1135
+OS M[100] (current_thread_id): 4
+DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = 5
+OS_CPY: RelSrc=360 (Abs=380, Val=5) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=5) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=5) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=241) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=241) -> RelDest=362 (Abs=382)
+OS M[100] (current_thread_id): 4
+A1: 362, A2: 363
+cpyi
+---261
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=90 (Abs=110, Val=0) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=363 (Abs=383, Val=3) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=116 (Abs=136, Val=0) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=117 (Abs=137, Val=3) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=901 (Abs=921, Val=3) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1099
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=359 (Abs=379)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=358 (Abs=378, Val=9) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=364 (Abs=384)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1135
+OS M[100] (current_thread_id): 4
+DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = 6
+OS_CPY: RelSrc=360 (Abs=380, Val=6) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=6) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=5) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=6) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=249) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=249) -> RelDest=362 (Abs=382)
+OS M[100] (current_thread_id): 4
+A1: 362, A2: 363
+cpyi
+---269
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=90 (Abs=110, Val=0) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=363 (Abs=383, Val=3) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=116 (Abs=136, Val=0) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=117 (Abs=137, Val=3) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=901 (Abs=921, Val=3) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1099
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=359 (Abs=379)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=358 (Abs=378, Val=8) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=364 (Abs=384)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1135
+OS M[100] (current_thread_id): 4
+DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = 7
+OS_CPY: RelSrc=360 (Abs=380, Val=7) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=7) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=5) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=6) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=7) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=257) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=257) -> RelDest=362 (Abs=382)
+OS M[100] (current_thread_id): 4
+A1: 362, A2: 363
+cpyi
+---277
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=90 (Abs=110, Val=0) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=363 (Abs=383, Val=3) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=116 (Abs=136, Val=0) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=117 (Abs=137, Val=3) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=901 (Abs=921, Val=3) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1099
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=359 (Abs=379)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=358 (Abs=378, Val=7) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=364 (Abs=384)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1135
+OS M[100] (current_thread_id): 4
+DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = 8
+OS_CPY: RelSrc=360 (Abs=380, Val=8) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=8) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=5) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=6) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=7) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=8) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=265) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=265) -> RelDest=362 (Abs=382)
+OS M[100] (current_thread_id): 4
+A1: 362, A2: 363
+cpyi
+---285
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=90 (Abs=110, Val=0) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=363 (Abs=383, Val=3) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=116 (Abs=136, Val=0) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=117 (Abs=137, Val=3) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=901 (Abs=921, Val=3) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1099
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=359 (Abs=379)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=358 (Abs=378, Val=6) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=364 (Abs=384)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1135
+OS M[100] (current_thread_id): 4
+DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = 9
+OS_CPY: RelSrc=360 (Abs=380, Val=9) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=9) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=5) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=6) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=7) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=8) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=9) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=273) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=273) -> RelDest=362 (Abs=382)
+OS M[100] (current_thread_id): 4
+A1: 362, A2: 363
+cpyi
+---293
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=90 (Abs=110, Val=0) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=363 (Abs=383, Val=3) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=116 (Abs=136, Val=0) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=117 (Abs=137, Val=3) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=901 (Abs=921, Val=3) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1099
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=359 (Abs=379)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=358 (Abs=378, Val=5) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=364 (Abs=384)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1135
+OS M[100] (current_thread_id): 4
+DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = 10
+OS_CPY: RelSrc=360 (Abs=380, Val=10) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=10) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=5) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=6) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=7) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=8) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=9) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=10) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=281) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=281) -> RelDest=362 (Abs=382)
+OS M[100] (current_thread_id): 4
+A1: 362, A2: 363
+cpyi
+---301
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=90 (Abs=110, Val=0) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=363 (Abs=383, Val=3) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=116 (Abs=136, Val=0) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=117 (Abs=137, Val=3) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=901 (Abs=921, Val=3) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1099
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=359 (Abs=379)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=358 (Abs=378, Val=4) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=364 (Abs=384)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=102 (Abs=122, Val=10) -> RelDest=361 (Abs=381)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=361 (Abs=381, Val=1) -> RelDest=360 (Abs=380)
+OS M[100] (current_thread_id): 4
+DEBUG_SCHED: Before CPY 360 112 (OS Instr 45), M[OS_BASE+360] (tid_to_pass) = 1
+OS_CPY: RelSrc=360 (Abs=380, Val=1) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=1) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=209) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=209) -> RelDest=362 (Abs=382)
+OS M[100] (current_thread_id): 4
+A1: 362, A2: 363
+cpyi
+---229
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=90 (Abs=110, Val=0) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=363 (Abs=383, Val=0) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=116 (Abs=136, Val=0) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=117 (Abs=137, Val=0) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=901 (Abs=921, Val=0) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1663
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 118
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=360 (Abs=380, Val=1) -> RelDest=357 (Abs=377)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=357 (Abs=377, Val=1) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 117
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=116 (Abs=136, Val=1) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=117 (Abs=137, Val=0) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=901 (Abs=921, Val=0) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 118
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1183
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=100 (Abs=120, Val=4) -> RelDest=372 (Abs=392)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=2 (Abs=2, Val=1) -> RelDest=373 (Abs=393)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=372 (Abs=392, Val=4) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=4) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=1) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=233) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=233) -> RelDest=374 (Abs=394)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=372 (Abs=392, Val=4) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 2 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=4) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=2) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=234) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=234) -> RelDest=375 (Abs=395)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=372 (Abs=392, Val=4) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 3 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=4) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=3) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=235) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=235) -> RelDest=376 (Abs=396)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=372 (Abs=392, Val=4) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 6 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=4) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=6) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=238) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=238) -> RelDest=377 (Abs=397)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=372 (Abs=392, Val=4) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 7 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=4) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=7) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=2) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=3) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=4) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=239) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=239) -> RelDest=378 (Abs=398)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=373 (Abs=393, Val=1) -> RelDest=379 (Abs=399)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=94 (Abs=114, Val=1) -> RelDest=380 (Abs=400)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=95 (Abs=115, Val=2) -> RelDest=381 (Abs=401)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=96 (Abs=116, Val=3) -> RelDest=382 (Abs=402)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=379 (Abs=399, Val=1) -> RelDest=116 (Abs=136)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=380 (Abs=400, Val=1) -> RelDest=117 (Abs=137)
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=116 (Abs=136, Val=1) -> RelDest=900 (Abs=920)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=117 (Abs=137, Val=1) -> RelDest=901 (Abs=921)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=901 (Abs=921, Val=1) -> RelDest=902 (Abs=922)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1651
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1663
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 118
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=118 (Abs=138, Val=1) -> RelDest=383 (Abs=403)
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+set: value: 92 - relative address: 384
+OS M[100] (current_thread_id): 4
+cpyi2
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1399
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 385
+OS M[100] (current_thread_id): 4
+cpyi2
+OS M[100] (current_thread_id): 4
+set: value: 1 - relative address: 386
+OS M[100] (current_thread_id): 4
+cpyi2
+OS M[100] (current_thread_id): 4
+set: value: 3 - relative address: 387
+OS M[100] (current_thread_id): 4
+cpyi2
+OS M[100] (current_thread_id): 4
+set: value: 4 - relative address: 388
+OS M[100] (current_thread_id): 4
+cpyi2
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=357 (Abs=377, Val=1) -> RelDest=389 (Abs=409)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=389 (Abs=409, Val=1) -> RelDest=112 (Abs=132)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 113
+OS M[100] (current_thread_id): 4
+call
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=112 (Abs=132, Val=1) -> RelDest=350 (Abs=370)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=113 (Abs=133, Val=0) -> RelDest=351 (Abs=371)
+OS M[100] (current_thread_id): 4
+set: value: 0 - relative address: 352
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=89 (Abs=109, Val=8) -> RelDest=355 (Abs=375)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=114 (Abs=134, Val=200) -> RelDest=353 (Abs=373)
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=0) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1030
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=352 (Abs=372, Val=1) -> RelDest=354 (Abs=374)
+OS M[100] (current_thread_id): 4
+subi
+OS M[100] (current_thread_id): 4
+jif
+gidilecek yer: 1048
+OS M[100] (current_thread_id): 4
+addi
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=353 (Abs=373, Val=208) -> RelDest=115 (Abs=135)
+OS M[100] (current_thread_id): 4
+ret
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=208) -> RelDest=390 (Abs=410)
+OS M[100] (current_thread_id): 4
+A1: 390, A2: 600
+cpyi
+---228
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+A1: 390, A2: 601
+cpyi
+---229
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+A1: 390, A2: 602
+cpyi
+---230
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+A1: 390, A2: 603
+cpyi
+---231
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+A1: 390, A2: 604
+cpyi
+---232
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+A1: 390, A2: 605
+cpyi
+---233
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+A1: 390, A2: 606
+cpyi
+---234
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+A1: 390, A2: 607
+cpyi
+---235
+OS M[100] (current_thread_id): 4
+set: value: 91 - relative address: 391
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=115 (Abs=135, Val=208) -> RelDest=392 (Abs=412)
+OS M[100] (current_thread_id): 4
+add
+OS M[100] (current_thread_id): 4
+A1: 391, A2: 392
+cpyi
+---111
+OS M[100] (current_thread_id): 4
+OS_CPY: RelSrc=389 (Abs=409, Val=1) -> RelDest=100 (Abs=120)
+DEBUG_EXEC_CPY_INSTR_185: M[OS_BASE+100] (M[120]) set to 1 (value copied was 1 from M[OS_BASE+389])
+OS M[100] (current_thread_id): 1
+set: value: -999 - relative address: 17
+OS M[100] (current_thread_id): 1
+CPU: Context Switch Request DETECTED (Signal: -999) by OS (presumably).
+CPU: Switching to Thread ID: 1, State: READY, PC: 1200, SP: 100, DB: 2000, IB: 0, IC: 1402, WC: 1997
