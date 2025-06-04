@@ -217,7 +217,7 @@ Begin Instruction Section
 14  ADD   352 1    # 352'de orijinal i tutuluyor, yani: i++
 15  JIF   80  10   # döngü başına koşulsuz atla
 16  ADDI  353 351  # son olarak field değerini ekle
-17  SET   115 353  # sonucun alınacağı yere son değeri yaz
+17  CPY   353 115  # sonucun alınacağı yere son değeri yaz
 18  RET            # çağıran rutine geri dön
 19  SET   0   73   # dummy instruction
 20  SET   0   73   # dummy instruction
@@ -232,13 +232,11 @@ Begin Instruction Section
 29  SET   0   73   # dummy instruction
 ## end of get_table_adress routine ##
 
+
 #
 # scheduler (subroutine)
 #
-# kullanılan değişkenler: 356-371
-#
-30  CPY   100 356  # current_thread_id al
-31  SET   0   357  # selected_thread = 0: no selected yet
+# kullanılan değişkenler: 356-363
 #
 # SYNOPSIS: Round-robin ile READY thread bul, MAX_THREADS kere dön:
 #
@@ -261,93 +259,74 @@ Begin Instruction Section
 #
 # round robin döngüsü: MAX_THREADS kere dön
 #
-32  CPY   102 358  # count = max_threads (10), döngü geriden dönecek (count)
+30  CPY   100 356  # current_thread_id
+31  SET   0   357  # selected_thread = 0
+
+32  CPY   102 358  # MAX_THREADS -> 358 (count)
 
 # döngü başı
-33  JIF   358 63   # count <= 0 ise döngü sonu
-
-# offset heapla: offset = MAX_THREADS - count + 1
+33  JIF   358 53   # count <= 0 ise döngüden çık
+# offset = MAX_THREADS - count + 1
 34  CPY   102 359  # MAX_THREADS -> 359
-35  CPY   358 360  # count -> 360
+35  CPY   358 360  # count (temp)
 36  SUBI  359 360  # MAX_THREADS - count -> 360
-37  ADD   360 1    # MAX_THREADS - count + 1 -> 360
-38  CPY   360 361  # offset -> 361
-
+37  ADD   360 1    # offset
 # tid = current_thread_id + offset
-39  CPY   356 362  # current_thread_id -> 362
-40  ADDI  362 361  # current_thread_id + offset -> 362 (tid)
+38  ADDI  360 356  # current_thread_id + offset -> 360
+# tid'yi 360 tutuyor
+39  JIF   360 43   # <= 0 ise state_addr = get_thread_table_addr(tid, 1), satırından devam et
+# > 0 ise
+40  CPY   102 361  # MAX_THREADS -> 361
+41  SUBI  369 361  # tid - MAX_THREADS -> 361
+42  CPY   361 360  # tid - MAX_THREADS -> 360 (tid)
 
-# tid > MAX_THREADS kontrolü
-41  CPY   362 363  # tid (copy)
-42  CPY   102 364  # MAX_THREADS -> 364
-43  SUBI  363 364  # tid - MAX_THREADS -> 364
-44  JIF   364 46   # tid <= MAX_THREADS ise atla
+43  CPY   356 112  # tid: 356
+44  SET   1   113  # field: 1, for state
+45  CALL  5        # table adresini hesapla
+46  CPY   115 362  # state_address -> 362
+47  CPYI  362 363  # M[state_address] -> 363 (state)
 
-# tid > MAX_THREADS, düzeltme gerekli: tid = tid - MAX_THREADS;
-45  CPY   364 362  # tid - MAX_THREADS -> 362 (tid)'ye çıkarılmış değer atanır
+# (state == THREAD_STATE_READY) kontrolü, is_equal çağrısı
+48  CPY   90  116  # M[90] = THREAD_STATE_READY, first param
+49  CPY   363 117  # state -> 117, second param
+50  CALL  210      # is_equal
+51  JIF   118 33   # eşit değiller, döngü başına (yani state READY değil)
+52  CPY   360 357  # selected_thread = tid, buradan döngü başına dönmeyeceğiz, dolayısıyla break olacak
 
-# Thread state kontrolü
-# state adresi hesapla
-46  CPY   362 112  # 112: tid
-47  SET   1   113  # 113: field
-48  CALL  5        # table adresi hesapla
-49  CPY   115 365  # state_address
-50  CPYI  365 366  # 365->X->state : 366->state, burada 365 ikinci düzey gösterici, 366 da birinci düzey o yüzden CPYI kullanıyourz
+# (selected_thread == 0) kontrolü is_equal ile
+53  CPY   357 116  # selected_thread -> 116 : first param
+54  SET   0   117  # eşitlik kontrolü yapılacak sayı (0) : second param
+55  CALL  210      # is_equal
+56  JIF   118 58   # <= 0 ise eşit değiller, (current_thread_id > 0) kontrolüne git
+# eşitler selected_thread = 1 atamasını yap
+57  SET   1   357  # eşitlerse (selected bir thread yok demek idle threadi seç): selected_thread = 1
+# (current_thread_id > 0) kontrolü
+58  JIF   356 60   # <= 0 ise, update yapmaya gerek yok sadece prepare çağır
+# > 0 ise
+59  CALL  90       # update_current_thread_in_table subroutine çağrısı
+60  CALL  160      # prepare_context_switch subroutine çağrısı
+61  RET            # return to callee
 
-# state == THREAD_STATE_READY kontrolü
-51  CPY   366 367  # state copy
-52  CPY   90  368  # THREAD_STATE_READY değeri 90. adreste tutulur
-53  SUBI  367 368  # state - THREAD_STATE_READY
-54  JIF   368 57   # sonuç <= 0 ise eşit olma potansiyelleri var ikinci çıkarmaya git
-55  ADD   358 -1   # count--
-56  JIF   80  33   # sonuç <= 0 değil count'u azalttık döngü başına dön
-
-57  CPY   90  368  # 368 dirty olmuştu tekrar kopyala
-58  SUBI  368 367  # THREAD_STATE_READY - state
-59  JIF   367 62   # sonuç sıfırdan küçük yani iki sayı eşit
-60  ADD   358 -1   # count--
-61  JIF   80  33   # sonuç <= 0 değil count'u azalttık döngü başına dön
-
-# selected_thread = tid
-62  CPY   362 357  # 362 -> 357, yani selected_thread = tid ataması, döngüden çık, break olmuş oluyor
-# burada zaten tekrar 33'e zıplatan bir satır olmadığı için döngü bitmiş oluyor, birnevi break
-
-#
-# döngü sonu:
-# context;
-# - 357: selected_thread,
-# - 356: current_thread_id
-#
-# selected_thread == 0
-63  CPY   357 369  # selected_thread -> 369
-64  SET   0   370  # sabit sıfır, karşılaştırma için
-65  SUBI  369 370  # selected_thread - 0
-66  JIF   370 68   # selected_thread - 0, değeri 0'dan küçük ise seçilen thread 0 olabilir, ters çıakrma yap (68'de)
-# şart sağlanmıyorsa sonraki if bloğuna gir
-# çıkarma sonucu <= 0 değilse ilk if bloğu atlanır sonrakine geçilir
-67  JIF   80  71   # şart sağlanmadıysa sonraki if bloğuna koşulsuz git
-
-68  SET   0   370  # sabit sıfırla yine (önceki dirty oldu)
-69  SUBI  370 369  # 0 - selected_thread
-70  JIF   369 76   # sonuç <= 0 yani seçilen thread == 0 olur, önce idle ata sonra diğer blokları işle
-
-# current_thread_id > 0 kontrolü
-71  CPY   100 371  # cuurent_thread_id -> 371
-72  JIF   371 74   # <= 0 ise
-73  CALL  90       # CALL update_current_thread_in_table
-
-74  CALL  160      # CALL prepare_context_switch
-75  RET
-
-# selected_thread = 1;  // idle thread
-76  SET   1   357
-# current_thread_id > 0 kontrolü
-77  CPY   100 371  # cuurent_thread_id -> 371
-78  JIF   371 74   # <= 0 ise
-79  CALL  90       # CALL update_current_thread_in_table
-
-80  CALL  160      # CALL prepare_context_switch
-81  RET
+62  SET   0   73   # dummy instruction
+63  SET   0   73   # dummy instruction
+64  SET   0   73   # dummy instruction
+65  SET   0   73   # dummy instruction
+66  SET   0   73   # dummy instruction
+67  SET   0   73   # dummy instruction
+68  SET   0   73   # dummy instruction
+69  SET   0   73   # dummy instruction
+70  SET   0   73   # dummy instruction
+71  SET   0   73   # dummy instruction
+72  SET   0   73   # dummy instruction
+73  SET   0   73   # dummy instruction
+74  SET   0   73   # dummy instruction
+75  SET   0   73   # dummy instruction
+76  SET   0   73   # dummy instruction
+77  SET   0   73   # dummy instruction
+78  SET   0   73   # dummy instruction
+79  SET   0   73   # dummy instruction
+80  SET   0   73   # dummy instruction
+81  SET   0   73   # dummy instruction
 82  SET   0   73   # dummy instruction
 83  SET   0   73   # dummy instruction
 84  SET   0   73   # dummy instruction

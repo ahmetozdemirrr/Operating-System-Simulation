@@ -27,14 +27,14 @@
 #define CTX_SWITCH_DONE 999
 
 /* OS Mailbox for Context Switch Data (Offsets from OS_DATA_START_ADDR) */
-#define MAILBOX_OFFSET_NEXT_THREAD_ID  		   580
-#define MAILBOX_OFFSET_NEXT_STATE      		   581
-#define MAILBOX_OFFSET_NEXT_PC                 582
-#define MAILBOX_OFFSET_NEXT_SP         		   583
-#define MAILBOX_OFFSET_NEXT_DATA_BASE          584
-#define MAILBOX_OFFSET_NEXT_INSTR_BASE         585
-#define MAILBOX_OFFSET_NEXT_INSTR_COUNT        586
-#define MAILBOX_OFFSET_NEXT_WAKEUP_INSTR_COUNT 587
+#define MAILBOX_OFFSET_NEXT_THREAD_ID  		   600
+#define MAILBOX_OFFSET_NEXT_STATE      		   601
+#define MAILBOX_OFFSET_NEXT_PC                 602
+#define MAILBOX_OFFSET_NEXT_SP         		   603
+#define MAILBOX_OFFSET_NEXT_DATA_BASE          604
+#define MAILBOX_OFFSET_NEXT_INSTR_BASE         605
+#define MAILBOX_OFFSET_NEXT_INSTR_COUNT        606
+#define MAILBOX_OFFSET_NEXT_WAKEUP_INSTR_COUNT 607
 
 /*
 	606, 607 currently unused, can be for future flags or ensuring alignment
