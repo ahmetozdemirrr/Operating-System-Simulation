@@ -555,7 +555,7 @@ Begin Instruction Section
 # ctx_signal
 184 CPY   389  100 # current_running_thread ayarla (389 bu değeri tutuyordu)
 185 SET   -999 17  # 17. registera -999 sinyalini koy
-# return to calle
+# return to callee
 186 RET
 ## end of prepare_context_switch routine ##
 

@@ -79,7 +79,7 @@ check_instruction_address(const CPU * cpu, const long int relative_address, cons
 static void
 exec_set(CPU * cpu, long int value, long int relative_address)
 {
-	////printf("set: value: %ld - relative address: %ld\n", value, relative_address);
+	printf("set: value: %ld - relative address: %ld\n", value, relative_address);
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_address, "SET");
 
@@ -119,8 +119,8 @@ if (cpu->mode == KERNEL && cpu->curr_thread_id == OS_ID) {
 static void
 exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_address)
 {
-	//printf("A1: %ld, A2: %ld\n", relative_address_of_ptr, relative_dest_address);
-	//printf("cpyi\n");
+	printf("A1: %ld, A2: %ld\n", relative_address_of_ptr, relative_dest_address);
+	printf("cpyi\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_address_of_ptr, "CPYI");
@@ -149,7 +149,7 @@ exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_ad
 static void
 exec_cpyi2(CPU * cpu, long int relative_src_ptr_address, long int relative_dest_ptr_address)
 {
-	//printf("cpyi2\n");
+	printf("cpyi2\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_src_ptr_address, "CPYI");
@@ -191,7 +191,7 @@ exec_cpyi2(CPU * cpu, long int relative_src_ptr_address, long int relative_dest_
 static void
 exec_add(CPU * cpu, long int relative_dest_address, long int value_to_add)
 {
-	//printf("add\n");
+	printf("add\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_dest_address, "ADD");
@@ -214,7 +214,7 @@ exec_add(CPU * cpu, long int relative_dest_address, long int value_to_add)
 static void
 exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_address)
 {
-	//printf("addi\n");
+	printf("addi\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_dest_address, "ADDI");
@@ -241,7 +241,7 @@ exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_addre
 static void
 exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_address)
 {
-	//printf("subi\n");
+	printf("subi\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_dest_address, "SUBI");
@@ -276,7 +276,7 @@ bunu bir şekilde ekle.
 static void
 exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_pc_address, long int * next_pc_address)
 {
-	//printf("jif\n");
+	printf("jif\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_condition_address, "JIF");
@@ -289,7 +289,7 @@ exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_p
 		/* Each instruction takes INSTR_SIZE (3) bytes, so multiply relative_new_pc_address by INSTR_SIZE */
 		long int absolute_instruction_address = cpu->curr_instruction_base_for_active_entity + (relative_new_pc_address * INSTR_SIZE);
 		*next_pc_address = absolute_instruction_address;
-		//printf("gidilecek yer: %ld\n", absolute_instruction_address);
+		printf("gidilecek yer: %ld\n", absolute_instruction_address);
 	}
 
 }
@@ -297,7 +297,7 @@ exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_p
 static void
 exec_push(CPU * cpu, long int relative_element_address)
 {
-	//printf("push\n");
+	printf("push\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_element_address, "PUSH");
@@ -333,7 +333,7 @@ exec_push(CPU * cpu, long int relative_element_address)
 static void
 exec_pop(CPU * cpu, long int relative_dest_address) /* POP bir üstü okumalı o anki SP değerini değil */
 {
-	//printf("pop\n");
+	printf("pop\n");
 
 	check_cpu(cpu, __func__);
     check_data_address(cpu, relative_dest_address, "POP");
@@ -359,7 +359,7 @@ exec_pop(CPU * cpu, long int relative_dest_address) /* POP bir üstü okumalı o
 static void
 exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
 {
-	//printf("call\n");
+	printf("call\n");
 
 	check_cpu(cpu, __func__);
     check_instruction_address(cpu, relative_jump_address, "CALL");
@@ -397,7 +397,7 @@ exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
 static void
 exec_ret(CPU * cpu, long int * next_pc_address)
 {
-	//printf("ret\n");
+	printf("ret\n");
 
 	check_cpu(cpu, __func__);
 
@@ -429,7 +429,7 @@ exec_ret(CPU * cpu, long int * next_pc_address)
 static void
 exec_hlt(CPU * cpu)
 {
-	//printf("hlt\n");
+	printf("hlt\n");
 
 	check_cpu(cpu, __func__);
 	cpu->is_halted = true;
@@ -438,7 +438,7 @@ exec_hlt(CPU * cpu)
 static void
 exec_user(CPU * cpu, long int pt_jump_address_offset, long int * next_pc_address)
 {
-	//printf("user\n");
+	printf("user\n");
 
 	check_cpu(cpu, __func__);
 
@@ -519,7 +519,7 @@ static void
 exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
 {
     check_cpu(cpu, __func__);
-
+    printf("syscall prn\n");
     // Thread'in mevcut context değerlerini sakla
     long int thread_pc = mem_read(cpu->mem, REG_PC, cpu->mode) + INSTR_SIZE;
     long int thread_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
@@ -558,6 +558,7 @@ static void
 exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
 {
     check_cpu(cpu, __func__);
+    printf("syscall hlt\n");
 
     // Thread'in mevcut context değerlerini sakla
     long int thread_pc = mem_read(cpu->mem, REG_PC, cpu->mode) + INSTR_SIZE;
@@ -587,6 +588,7 @@ static void
 exec_syscall_yield(CPU * cpu, long int * next_pc_address)
 {
     check_cpu(cpu, __func__);
+    printf("syscall yield\n");
 
     // Thread'in mevcut context değerlerini sakla
     long int thread_pc = mem_read(cpu->mem, REG_PC, cpu->mode) + INSTR_SIZE;
@@ -741,6 +743,7 @@ cpu_execute_instruction(CPU * cpu)
         mem_write(cpu->mem, REG_CONTEXT_SWITCH_SIGNAL, CTX_SWITCH_DONE, KERNEL);
 
         // cpu_dump_registers(cpu); // İsteğe bağlı: Yeni durumu görmek için
+		mem_dump(cpu->mem, 0, 8000);
     }
 
 	if (cpu->is_halted) {
