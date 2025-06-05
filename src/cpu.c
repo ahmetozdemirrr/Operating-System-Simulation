@@ -79,7 +79,7 @@ check_instruction_address(const CPU * cpu, const long int relative_address, cons
 static void
 exec_set(CPU * cpu, long int value, long int relative_address)
 {
-	printf("set: value: %ld - relative address: %ld\n", value, relative_address);
+	////printf("set: value: %ld - relative address: %ld\n", value, relative_address);
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_address, "SET");
 
@@ -90,20 +90,7 @@ exec_set(CPU * cpu, long int value, long int relative_address)
 static void
 exec_cpy(CPU * cpu, long int relative_src_address, long int relative_dest_address)
 {
-	// Mevcut printf("cpy\n"); satırını koruyun veya genişletin.
-    long int abs_src, abs_dest, val_read;
-
-    if (cpu->mode == KERNEL && cpu->curr_thread_id == OS_ID) { // Sadece OS çalışırken detaylı log
-        abs_src = (relative_src_address < 20) ? relative_src_address : cpu->curr_data_base_for_active_entity + relative_src_address;
-        abs_dest = (relative_dest_address < 20) ? relative_dest_address : cpu->curr_data_base_for_active_entity + relative_dest_address;
-        val_read = mem_read(cpu->mem, abs_src, cpu->mode);
-
-        printf("OS_CPY: RelSrc=%ld (Abs=%ld, Val=%ld) -> RelDest=%ld (Abs=%ld)\n",
-               relative_src_address, abs_src, val_read,
-               relative_dest_address, abs_dest);
-    } else {
-        printf("cpy\n"); // Diğer durumlar için basit log
-    }
+	printf("cpy\n"); // Diğer durumlar için basit log
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_src_address,  "CPY");
@@ -132,8 +119,8 @@ if (cpu->mode == KERNEL && cpu->curr_thread_id == OS_ID) {
 static void
 exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_address)
 {
-	printf("A1: %ld, A2: %ld\n", relative_address_of_ptr, relative_dest_address);
-	printf("cpyi\n");
+	//printf("A1: %ld, A2: %ld\n", relative_address_of_ptr, relative_dest_address);
+	//printf("cpyi\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_address_of_ptr, "CPYI");
@@ -146,7 +133,7 @@ exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_ad
 	check_data_address(cpu, src_offset_value, "CPYI (indirect_src_offset_as_data_addr)");
 
 	long int indirect_src_absolute_address = (cpu->curr_thread_id == OS_ID && src_offset_value < 20) ? src_offset_value : cpu->curr_data_base_for_active_entity + src_offset_value;
-	printf("---%ld\n", indirect_src_absolute_address);
+	//printf("---%ld\n", indirect_src_absolute_address);
 	if (indirect_src_absolute_address < 0 || indirect_src_absolute_address >= MEM_SIZE) {
 		fprintf(stderr,
 				"ERROR: Entity %d CPYI: Indirect source address %ld (read from %ld) is out of MEMORY bounds (0-%d)\n",
@@ -162,7 +149,7 @@ exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_ad
 static void
 exec_cpyi2(CPU * cpu, long int relative_src_ptr_address, long int relative_dest_ptr_address)
 {
-	printf("cpyi2\n");
+	//printf("cpyi2\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_src_ptr_address, "CPYI");
@@ -204,7 +191,7 @@ exec_cpyi2(CPU * cpu, long int relative_src_ptr_address, long int relative_dest_
 static void
 exec_add(CPU * cpu, long int relative_dest_address, long int value_to_add)
 {
-	printf("add\n");
+	//printf("add\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_dest_address, "ADD");
@@ -227,7 +214,7 @@ exec_add(CPU * cpu, long int relative_dest_address, long int value_to_add)
 static void
 exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_address)
 {
-	printf("addi\n");
+	//printf("addi\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_dest_address, "ADDI");
@@ -254,7 +241,7 @@ exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_addre
 static void
 exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_address)
 {
-	printf("subi\n");
+	//printf("subi\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_dest_address, "SUBI");
@@ -289,7 +276,7 @@ bunu bir şekilde ekle.
 static void
 exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_pc_address, long int * next_pc_address)
 {
-	printf("jif\n");
+	//printf("jif\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_condition_address, "JIF");
@@ -302,7 +289,7 @@ exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_p
 		/* Each instruction takes INSTR_SIZE (3) bytes, so multiply relative_new_pc_address by INSTR_SIZE */
 		long int absolute_instruction_address = cpu->curr_instruction_base_for_active_entity + (relative_new_pc_address * INSTR_SIZE);
 		*next_pc_address = absolute_instruction_address;
-		printf("gidilecek yer: %ld\n", absolute_instruction_address);
+		//printf("gidilecek yer: %ld\n", absolute_instruction_address);
 	}
 
 }
@@ -310,7 +297,7 @@ exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_p
 static void
 exec_push(CPU * cpu, long int relative_element_address)
 {
-	printf("push\n");
+	//printf("push\n");
 
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_element_address, "PUSH");
@@ -346,7 +333,7 @@ exec_push(CPU * cpu, long int relative_element_address)
 static void
 exec_pop(CPU * cpu, long int relative_dest_address) /* POP bir üstü okumalı o anki SP değerini değil */
 {
-	printf("pop\n");
+	//printf("pop\n");
 
 	check_cpu(cpu, __func__);
     check_data_address(cpu, relative_dest_address, "POP");
@@ -372,7 +359,7 @@ exec_pop(CPU * cpu, long int relative_dest_address) /* POP bir üstü okumalı o
 static void
 exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
 {
-	printf("call\n");
+	//printf("call\n");
 
 	check_cpu(cpu, __func__);
     check_instruction_address(cpu, relative_jump_address, "CALL");
@@ -410,7 +397,7 @@ exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
 static void
 exec_ret(CPU * cpu, long int * next_pc_address)
 {
-	printf("ret\n");
+	//printf("ret\n");
 
 	check_cpu(cpu, __func__);
 
@@ -442,7 +429,7 @@ exec_ret(CPU * cpu, long int * next_pc_address)
 static void
 exec_hlt(CPU * cpu)
 {
-	printf("hlt\n");
+	//printf("hlt\n");
 
 	check_cpu(cpu, __func__);
 	cpu->is_halted = true;
@@ -451,7 +438,7 @@ exec_hlt(CPU * cpu)
 static void
 exec_user(CPU * cpu, long int pt_jump_address_offset, long int * next_pc_address)
 {
-	printf("user\n");
+	//printf("user\n");
 
 	check_cpu(cpu, __func__);
 
@@ -531,103 +518,66 @@ exec_user(CPU * cpu, long int pt_jump_address_offset, long int * next_pc_address
 static void
 exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
 {
-	printf("sys prn\n");
+    check_cpu(cpu, __func__);
 
-	check_cpu(cpu, __func__);
+    // Thread'in mevcut context değerlerini sakla
+    long int thread_pc = mem_read(cpu->mem, REG_PC, cpu->mode) + INSTR_SIZE;
+    long int thread_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
 
+    // Thread'in kendi instruction count'unu thread table'dan al
+    long int thread_ic_addr = 200 + (cpu->curr_thread_id * 8) + 6; // field 6 = instruction count
+    long int thread_ic = mem_read(cpu->mem, thread_ic_addr, KERNEL);
+
+    // Print değeri
     long int absolute_source_address = cpu->curr_data_base_for_active_entity + source_address;
     if (absolute_source_address < 0 || absolute_source_address >= MEM_SIZE) {
-        fprintf(stderr,
-                "FATAL ERROR: Memory address %ld is out of bounds in SYSCALL PRN for entity %d\n",
-                absolute_source_address,
-                cpu->curr_thread_id);
+        fprintf(stderr, "FATAL ERROR: Memory address %ld is out of bounds in SYSCALL PRN for entity %d\n",
+                absolute_source_address, cpu->curr_thread_id);
         exit(EXIT_FAILURE);
     }
     long int value = mem_read(cpu->mem, absolute_source_address, cpu->mode);
+    printf("SYSCALL PRN output: %ld\n", value);
 
-    /* syscall olunca context switch olmalı, şimdilik test için pritn syscall ı açık bırakıldı */
-	long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
-	long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
-    long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
-    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+    // Syscall bilgisini kaydet
+    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, KERNEL);
 
-    if (current_sp == 0 || current_sp > stack_upper_bound) {
-        current_sp = stack_upper_bound;
-        mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
-    }
+    // Thread context'ini geçici register'lara yaz (OS bunları okuyacak)
+    mem_write(cpu->mem, 5, thread_pc, KERNEL);  // Register 5: Thread PC
+    mem_write(cpu->mem, 6, thread_sp, KERNEL);  // Register 6: Thread SP
+    mem_write(cpu->mem, 7, thread_ic, KERNEL);  // Register 7: Thread IC (thread table'dan alınan)
 
-    long int new_sp = current_sp - 1;
-    if (mem_read(cpu->mem, new_sp, cpu->mode) == -1) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL PRN for entity %d. SP %ld encountered -1.\n",
-                cpu->curr_thread_id,
-                new_sp);
-        exit(EXIT_FAILURE);
-    }
-    mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
-
-    new_sp--;
-    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -2 )) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
-                cpu->curr_thread_id,
-                new_sp);
-        exit(EXIT_FAILURE);
-    }
-    mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
-    mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
-
+    // OS'e geçiş
     cpu->mode = KERNEL;
-    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, cpu->mode);
     *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
-
-    // İşletim sistemine geçildiği için CPU context'ini OS'ye ayarla:
     cpu->curr_thread_id = OS_ID;
     cpu->curr_data_base_for_active_entity = OS_DATA_START_ADDR;
     cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;
-
-    printf("SYSCALL PRN output: %ld\n", value);
 }
 
 static void
 exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
 {
-	printf("sys hlt\n");
+    check_cpu(cpu, __func__);
 
-	check_cpu(cpu, __func__);
+    // Thread'in mevcut context değerlerini sakla
+    long int thread_pc = mem_read(cpu->mem, REG_PC, cpu->mode) + INSTR_SIZE;
+    long int thread_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
 
-    long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
-    long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
-    long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
-    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+    // Thread'in kendi instruction count'unu thread table'dan al
+    long int thread_ic_addr = 200 + (cpu->curr_thread_id * 8) + 6;
+    long int thread_ic = mem_read(cpu->mem, thread_ic_addr, KERNEL);
 
-    if (current_sp == 0 || current_sp > stack_upper_bound) {
-        current_sp = stack_upper_bound;
-        mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
-    }
+    // Syscall bilgisini kaydet
+    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_HLT_ID, KERNEL);
 
-    long int new_sp = current_sp - 1;
-    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -1 )) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
-                cpu->curr_thread_id,
-                new_sp);
-        exit(EXIT_FAILURE);
-    }
-    mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
+    // Thread context'ini geçici register'lara yaz
+    mem_write(cpu->mem, 5, thread_pc, KERNEL);
+    mem_write(cpu->mem, 6, thread_sp, KERNEL);
+    mem_write(cpu->mem, 7, thread_ic, KERNEL);
 
-    new_sp--;
-    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -2 )) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL HLT for entity %d. SP %ld encountered -1 or invalid.\n",
-                cpu->curr_thread_id,
-                new_sp);
-        exit(EXIT_FAILURE);
-    }
-    mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
-    mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
-
+    // OS'e geçiş
     cpu->mode = KERNEL;
-    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_HLT_ID, cpu->mode);
     *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
-
-    // İşletim sistemine geçildiği için CPU context'ini OS'ye ayarla:
     cpu->curr_thread_id = OS_ID;
     cpu->curr_data_base_for_active_entity = OS_DATA_START_ADDR;
     cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;
@@ -636,44 +586,27 @@ exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
 static void
 exec_syscall_yield(CPU * cpu, long int * next_pc_address)
 {
-	printf("sys yield\n");
+    check_cpu(cpu, __func__);
 
-	check_cpu(cpu, __func__);
+    // Thread'in mevcut context değerlerini sakla
+    long int thread_pc = mem_read(cpu->mem, REG_PC, cpu->mode) + INSTR_SIZE;
+    long int thread_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
 
-    long int pc_of_syscall_instruction = mem_read(cpu->mem, REG_PC, cpu->mode);
-    long int pc_to_save_on_stack = pc_of_syscall_instruction + INSTR_SIZE;
-    long int current_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
-    long int stack_upper_bound = (cpu->curr_thread_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(cpu->curr_thread_id);
+    // Thread'in kendi instruction count'unu thread table'dan al
+    long int thread_ic_addr = 200 + (cpu->curr_thread_id * 8) + 6;
+    long int thread_ic = mem_read(cpu->mem, thread_ic_addr, KERNEL);
 
-    if (current_sp == 0 || current_sp > stack_upper_bound) {
-        current_sp = stack_upper_bound;
-        mem_write(cpu->mem, REG_SP, current_sp, cpu->mode);
-    }
+    // Syscall bilgisini kaydet
+    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_YIELD_ID, KERNEL);
 
-    long int new_sp = current_sp - 1;
-    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -1 )) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL YIELD for entity %d. SP %ld encountered -1 or invalid.\n",
-                cpu->curr_thread_id,
-                new_sp);
-        exit(EXIT_FAILURE);
-    }
-    mem_write(cpu->mem, new_sp, pc_to_save_on_stack, cpu->mode);
+    // Thread context'ini geçici register'lara yaz
+    mem_write(cpu->mem, 5, thread_pc, KERNEL);
+    mem_write(cpu->mem, 6, thread_sp, KERNEL);
+    mem_write(cpu->mem, 7, thread_ic, KERNEL);
 
-    new_sp--;
-    if (new_sp < 0 || (mem_read(cpu->mem, new_sp, cpu->mode) == -1 && new_sp != stack_upper_bound -2 )) {
-        fprintf(stderr, "FATAL ERROR: Stack overflow in SYSCALL YIELD for entity %d. SP %ld encountered -1 or invalid.\n",
-                cpu->curr_thread_id,
-                new_sp);
-        exit(EXIT_FAILURE);
-    }
-    mem_write(cpu->mem, new_sp, current_sp, cpu->mode);
-    mem_write(cpu->mem, REG_SP, new_sp, cpu->mode);
-
+    // OS'e geçiş
     cpu->mode = KERNEL;
-    mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_YIELD_ID, cpu->mode);
     *next_pc_address = OS_SYSCALL_HANDLER_ADDR;
-
-    // İşletim sistemine geçildiği için CPU context'ini OS'ye ayarla:
     cpu->curr_thread_id = OS_ID;
     cpu->curr_data_base_for_active_entity = OS_DATA_START_ADDR;
     cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;

@@ -40,7 +40,7 @@ Begin Data Section
 101 100 # PRINT_BLOCK_DURATION (PRN syscall 100 instruction block eder)
 
 # Round-robin scheduler variables
-102 10  # max_thread_count
+102 4   # max_thread_count
 
 # thread table hesaplama rutini
 112 0    # first parameter: thread_id
@@ -442,26 +442,29 @@ Begin Instruction Section
 132 CPYI2 384 374  # M[M[384]] -> M[M[374]], (M[384]:90, M[374]:state_address (M[90]:0, M[state_address]:target))
 
 
-# pc_address ataması:
-133 SET   0   385  # 0. register adresini dolayla
-134 CPYI2 385 375  # M[M[385]] PC'dir, onu 375'e (pc_address'e ata)
-# sp_address ataması:
-135 SET   1   386  # 1. register adresini dolayla
-136 CPYI2 386 376  # M[M[386]] SP'dir, onu 376'a (sp_address'a ata)
-# instr_count_address ataması:
-137 SET   3   387  # 3. register adresini dolayla
-138 CPYI2 387 377  # M[M[387]] IC'dir, onu 376'a (instr_count_address'e ata)
-# wakeup_address ataması:
-139 SET   4   388  # 4. register adresini dolayla
-140 CPYI2 388 378  # M[M[388]] WC'dir, onu 376'a (wakeup_address'e ata)
+# pc_address ataması - Register 5'ten oku (syscall'da saklanmış thread PC)
+133 SET   5   385  # 5. register adresini al
+134 CPY   385 900  # adres değerini geçici yere koy
+135 CPYI  900 375  # M[5] değerini (thread PC) pc_address'e yaz
 
-141 RET            # çağırana geri dön
+# sp_address ataması - Register 6'dan oku (syscall'da saklanmış thread SP)
+136 SET   6   386  # 6. register adresini al
+137 CPY   386 900  # adres değerini geçici yere koy
+138 CPYI  900 376  # M[6] değerini (thread SP) sp_address'e yaz
+
+# instr_count_address ataması - Register 7'den oku (syscall'da saklanmış thread IC)
+139 SET   7   387  # 7. register adresini al
+140 CPY   387 900  # adres değerini geçici yere koy
+141 CPYI  900 377  # M[7] değerini (thread IC) instr_count_address'e yaz
+
+# wakeup_address ataması - Register 4'ten oku (REG_WAKEUP_COUNT)
+142 SET   4   388  # 4. register adresini al
+143 CPY   388 900  # adres değerini geçici yere koy
+144 CPYI  900 378  # M[4] değerini (wakeup count) wakeup_address'e yaz
+
+145 RET            # çağırana geri dön
 ## end of update_current_thread_in_table routine ##
 
-142 SET   0   73   # dummy instruction
-143 SET   0   73   # dummy instruction
-144 SET   0   73   # dummy instruction
-145 SET   0   73   # dummy instruction
 146 SET   0   73   # dummy instruction
 147 SET   0   73   # dummy instruction
 148 SET   0   73   # dummy instruction
