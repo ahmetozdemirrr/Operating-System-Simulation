@@ -1,3 +1,5 @@
+# programs/os.asm #
+
 ######################## OS THREAD ########################
 #
 # subroutines:
@@ -352,14 +354,14 @@ Begin Instruction Section
 # {
 # 	long current_thread_id = memory[CURRENT_RUNNING_THREAD_ID];  // M[100]
 # 	long syscall_id = memory[REG_SYSCALL_RESULT];  // Register 2
-
+#
 # 	// Thread table adreslerini hesapla
 # 	long state_addr = get_thread_table_addr(current_thread_id, 1);
 # 	long pc_addr = get_thread_table_addr(current_thread_id, 2);
 # 	long sp_addr = get_thread_table_addr(current_thread_id, 3);
 # 	long instr_count_addr = get_thread_table_addr(current_thread_id, 6);
 # 	long wakeup_addr = get_thread_table_addr(current_thread_id, 7);
-
+#
 # 	// Thread state'ini syscall türüne göre güncelle
 # 	if (syscall_id == SYSCALL_PRN_ID) {
 # 		memory[state_addr] = THREAD_STATE_BLOCKED;
@@ -370,12 +372,12 @@ Begin Instruction Section
 # 	} else if (syscall_id == SYSCALL_YIELD_ID) {
 # 		memory[state_addr] = THREAD_STATE_READY;
 # 	}
-
+#
 # 	// Thread context'ini syscall sırasında register'lara kaydedilen değerlerden oku
 # 	memory[pc_addr] = memory[5];           // Thread PC (Register 5)
 # 	memory[sp_addr] = memory[6];           // Thread SP (Register 6)
 # 	memory[instr_count_addr] = memory[7];  // Thread IC (Register 7)
-
+#
 # 	// Wakeup count Register 4'ten oku (PRN dışında)
 # 	if (syscall_id != SYSCALL_PRN_ID) {
 # 		memory[wakeup_addr] = memory[4];   // Register 4
@@ -414,6 +416,7 @@ Begin Instruction Section
 
 #
 # context:
+#
 # - 372: cuurent_thread_id
 # - 373: syscall_id
 # - 374: state_address
@@ -555,8 +558,10 @@ Begin Instruction Section
 177 CPYI  390 606  # 390->base_addr + 6->ic_value => 606->ic_value
 178 ADD   390 1    # sonraki sütuna geç
 179 CPYI  390 607  # 390->base_addr + 7->wc_value => 607->wc_value
+#
 # Update thread state to RUNNING in table
 # memory[base_addr + 1] = THREAD_STATE_RUNNING;
+#
 180 SET   91  391  # (91) address of THREAD_STATE_RUNNING -> 391
 181 CPY   115 392  # base_address kopyala (dirty olduğu için)
 182 ADD   392 1    # base_addr + 1
@@ -609,6 +614,7 @@ Begin Instruction Section
 
 #
 # equality checker subroutine:
+#
 # - 116: first param
 # - 117: second param
 # - 118: result (0-1)
@@ -635,13 +641,14 @@ Begin Instruction Section
 ## end of is_equal routine ##
 
 End Instruction Section
+###############################################################
 
 
 
 
 
 
-######################## USER THREAD 1 ########################
+################# USER THREAD 1 (idle thread) #################
 # idle thread, for efficient CPU:
 Begin Data Section
 # symbolic values for debugging

@@ -74,7 +74,7 @@ parse_data_line(const char * line, Memory * mem, long int base_addr, long int cu
 	/* find the # character and cut the comment */
 	char * comment_start = strchr(copy_line, '#');
 	if (comment_start != NULL) {
-		*comment_start = '\0'; /* prtotect the before # part, remain is comment */
+		*comment_start = '\0'; /* protect the before # part, remain is comment */
 		trim_whitespace(copy_line);
 	}
 
@@ -148,21 +148,23 @@ parse_data_line(const char * line, Memory * mem, long int base_addr, long int cu
  * @param curr_insr_index The logical index of the current instruction (0, 1, 2, ...),
  *                        used to calculate the memory offset.
  * @param instr_base_addr The base address of the current entity's instruction section.
+ * @param used_indices Pointer to an array tracking used instruction indices.
+ * @param used_indices_size Size of the used_indices array.
  *
  * @return 0 on success, -1 on failure (e.g., NULL pointers, invalid index/mnemonic/operands,
- *         memory allocation failure, or mismatched index).
+ *         memory allocation failure, duplicate index, or non-sequential index).
  *
  * @note The function allocates memory for a copy of the input line using strdup,
- *       which must be freed before returning. The index is validated against
- *       curr_insr_index (warning if mismatched). SYSCALL instructions require a
+ *       which must be freed before returning. The index is validated to ensure it
+ *       matches curr_insr_index and is not a duplicate. SYSCALL instructions require a
  *       sub-instruction (e.g., PRN, HLT). Operand count is validated based on the
  *       mnemonic using the Opcode enum.
  */
 static int
-parse_insr_line(const char * line, Memory * mem, int curr_insr_index, long int instr_base_addr)
+parse_insr_line(const char * line, Memory * mem, int curr_insr_index, long int instr_base_addr, bool * used_indices, int used_indices_size)
 {
-	if (line == NULL || mem == NULL) {
-		fprintf(stderr, "ERROR: NULL line or memory pointer\n");
+	if (line == NULL || mem == NULL || used_indices == NULL) {
+		fprintf(stderr, "ERROR: NULL line, memory pointer, or used_indices array\n");
 		return -1;
 	}
 	char * copy_line = strdup(line);
@@ -175,7 +177,7 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index, long int i
 	/* find the # character and cut the comment */
 	char * comment_start = strchr(copy_line, '#');
 	if (comment_start != NULL) {
-		*comment_start = '\0'; /* prtotect the before # part, remain is comment */
+		*comment_start = '\0'; /* protect the before # part, remain is comment */
 		trim_whitespace(copy_line);
 	}
 
@@ -193,13 +195,30 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index, long int i
 		free(copy_line);
 		return -1;
 	}
-	/*
-		if (instruction_label_val != curr_insr_index) {
-			fprintf(stderr, "WARNING: Instruction index %ld does not match expected %d\n",
-					instruction_label_val, curr_insr_index);
-		}
 
-	*/
+	/* Check if index is already used */
+	if (instruction_label_val >= 0 && instruction_label_val < used_indices_size) {
+		if (used_indices[instruction_label_val]) {
+			fprintf(stderr, "ERROR: Duplicate instruction index %ld detected\n", instruction_label_val);
+			free(copy_line);
+			return -1;
+		}
+		used_indices[instruction_label_val] = true;
+	} else {
+		fprintf(stderr, "ERROR: Instruction index %ld out of valid range (0 to %d)\n",
+				instruction_label_val, used_indices_size - 1);
+		free(copy_line);
+		return -1;
+	}
+
+	/* Check if index is equal to curr_insr_index (ensures sequential order) */
+	if (instruction_label_val != curr_insr_index) {
+		fprintf(stderr, "ERROR: Instruction index %ld is not in sequential order (expected %d)\n",
+				instruction_label_val, curr_insr_index);
+		free(copy_line);
+		return -1;
+	}
+
 	/* 2 - mnemonic */
 	token = strtok(NULL, " \t");
 
@@ -376,6 +395,15 @@ load_program_from_file(const char * filename, Memory * mem)
 		return -1;
 	}
 
+	/* Initialize array to track used instruction indices */
+	bool * used_indices = (bool *)calloc(ENTITY_INSTRUCTION_SIZE, sizeof(bool));
+	if (used_indices == NULL) {
+		fprintf(stderr, "ERROR: Memory allocation failed for used_indices array\n");
+		free(line_buffer);
+		fclose(file);
+		return -1;
+	}
+
 	Parser_State state = INITIAL_CONTEXT;
 	int current_entity_id = OS_ID; /* Start with OS (0), then threads 1 to 10 */
 	int curr_insr_index = 0; /* Reset for each entity's instruction section */
@@ -403,6 +431,7 @@ load_program_from_file(const char * filename, Memory * mem)
 				else if (strcmp(clean_line, "Begin Instruction Section") == 0) {
 					state = INSTRUCTION_CONTEXT;
 					curr_insr_index = 0; /* Reset instruction index for new entity */
+					memset(used_indices, 0, ENTITY_INSTRUCTION_SIZE * sizeof(bool)); /* Reset used indices */
 				}
 				else {
 					fprintf(stderr, "ERROR at line %d: Invalid initial line: %s\n", line_number, clean_line);
@@ -415,7 +444,7 @@ load_program_from_file(const char * filename, Memory * mem)
 					long int end_addr = current_instr_base_addr + curr_insr_index * INSTR_SIZE;
                     long int max_end_addr = (current_entity_id == OS_ID) ? OS_BLOCK_END_ADDR : THREAD_BLOCK_END(current_entity_id);
                     if (end_addr <= max_end_addr) {
-                        mem_write(mem, end_addr, -1, KERNEL); /* as a seperator -1 */
+                        mem_write(mem, end_addr, -1, KERNEL); /* as a separator -1 */
                     }
 
 					state = INITIAL_CONTEXT;
@@ -425,6 +454,7 @@ load_program_from_file(const char * filename, Memory * mem)
 						fprintf(stderr, "ERROR at line %d: Maximum number of entities (%d) exceeded\n",
 								line_number, MAX_PROGRAM_ENTITIES);
 						free(line_buffer);
+						free(used_indices);
 						fclose(file);
 						return -1;
 					}
@@ -443,9 +473,10 @@ load_program_from_file(const char * filename, Memory * mem)
 					fprintf(stderr, "ERROR at line %d: Unexpected section marker %s before End Instruction Section\n", line_number, clean_line);
 					state = ERROR_CONTEXT;
 				}
-				else if (parse_insr_line(clean_line, mem, curr_insr_index, current_instr_base_addr) != 0) {
+				else if (parse_insr_line(clean_line, mem, curr_insr_index, current_instr_base_addr, used_indices, ENTITY_INSTRUCTION_SIZE) != 0) {
 					fprintf(stderr, "ERROR at line %d: Failed to parse instruction line: %s\n", line_number, clean_line);
 					free(line_buffer);
+					free(used_indices);
 					fclose(file);
 					return -1;
 				}
@@ -457,6 +488,7 @@ load_program_from_file(const char * filename, Memory * mem)
 						fprintf(stderr, "ERROR at line %d: Instruction at index %d exceeds entity's instruction block (ends at %ld)\n",
 								line_number, curr_insr_index, max_instr_end_addr);
 						free(line_buffer);
+						free(used_indices);
 						fclose(file);
 						return -1;
 					}
@@ -476,6 +508,7 @@ load_program_from_file(const char * filename, Memory * mem)
 				else if (parse_data_line(clean_line, mem, current_base_addr, current_entity_id) != 0) {
 					fprintf(stderr, "ERROR at line %d: Failed to parse data line: %s\n", line_number, clean_line);
 					free(line_buffer);
+					free(used_indices);
 					fclose(file);
 					return -1;
 				}
@@ -486,6 +519,7 @@ load_program_from_file(const char * filename, Memory * mem)
 					if (data_count > max_data_count) {
 						fprintf(stderr, "ERROR at line %d: Maximum data lines (%ld) exceeded\n", line_number, max_data_count);
 						free(line_buffer);
+						free(used_indices);
 						fclose(file);
 						return -1;
 					}
@@ -495,6 +529,7 @@ load_program_from_file(const char * filename, Memory * mem)
 			case ERROR_CONTEXT:
 				fprintf(stderr, "ERROR: Parsing stopped due to previous errors at line %d\n", line_number);
 				free(line_buffer);
+				free(used_indices);
 				fclose(file);
 				return -1;
 		}
@@ -504,6 +539,7 @@ load_program_from_file(const char * filename, Memory * mem)
 	if (state != INITIAL_CONTEXT) {
 		fprintf(stderr, "ERROR at line %d: File ended without closing the current section\n", line_number);
 		free(line_buffer);
+		free(used_indices);
 		fclose(file);
 		return -1;
 	}
@@ -511,10 +547,12 @@ load_program_from_file(const char * filename, Memory * mem)
 	if (current_entity_id < 1) {
 		fprintf(stderr, "ERROR: At least one entity (OS) is required, but none were processed\n");
 		free(line_buffer);
+		free(used_indices);
 		fclose(file);
 		return -1;
 	}
 	free(line_buffer);
+	free(used_indices);
 	fclose(file);
 	return 0;
 }

@@ -1,3 +1,5 @@
+# tests/test_source/test_parser_error.asm #
+
 # comment
 Begin Data Section
 0 0 # comment
