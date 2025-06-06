@@ -36,20 +36,6 @@
 #define MAILBOX_OFFSET_NEXT_INSTR_COUNT        606
 #define MAILBOX_OFFSET_NEXT_WAKEUP_INSTR_COUNT 607
 
-/*
-	606, 607 currently unused, can be for future flags or ensuring alignment
-
-	typedef struct
-	{
-		Memory * mem;
-		CPU_mode mode;
-		bool is_halted;
-		int curr_thread_id;
-		long int curr_data_base_for_active_entity;
-		long int curr_instruction_base_for_active_entity;
-	}
-	CPU;
-*/
 /* Absolute addresses for OS Mailbox (calculated from OS_DATA_START_ADDR) */
 #define ADDR_MAILBOX_NEXT_THREAD_ID    (OS_DATA_START_ADDR + MAILBOX_OFFSET_NEXT_THREAD_ID)
 #define ADDR_MAILBOX_NEXT_STATE  	   (OS_DATA_START_ADDR + MAILBOX_OFFSET_NEXT_STATE)

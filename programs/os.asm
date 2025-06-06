@@ -1,4 +1,5 @@
 ######################## OS THREAD ########################
+#
 # subroutines:
 # 0   -> entry point of OS (booting)
 # 5   -> thread table address calculator
@@ -6,7 +7,7 @@
 # 90  -> update_current_thread_in_table
 # 160 -> prepare_context_switch
 # 200 -> syscall_handler
-# 210 -> equality checker (bunu daha aşağıya taşı, stack için yer kalmıyor)
+# 210 -> equality checker
 #
 ###########################################################
 
@@ -240,6 +241,9 @@ Begin Instruction Section
 #
 # SYNOPSIS: Round-robin ile READY thread bul, MAX_THREADS kere dön:
 #
+# long current_thread_id = memory[CURRENT_RUNNING_THREAD_ID];  // M[100]
+# long selected_thread = 0;
+#
 # for (int count = MAX_THREADS; count > 0; count--) {
 #     // Hangi thread'e bakacağız?
 #     int offset = MAX_THREADS - count + 1;
@@ -344,34 +348,42 @@ Begin Instruction Section
 #
 # C impelemebtasyonu:
 #
-# void update_current_thread_in_table() {
-# 	// Update current thread's state based on syscall type
-# 	long current_thread_id = memory[20 + CURRENT_RUNNING_THREAD_ID];
-# 	long syscall_id = memory[REG_SYSCALL_RESULT];
-#
-# 	// Get thread table entry addresses
+# void update_current_thread_in_table()
+# {
+# 	long current_thread_id = memory[CURRENT_RUNNING_THREAD_ID];  // M[100]
+# 	long syscall_id = memory[REG_SYSCALL_RESULT];  // Register 2
+
+# 	// Thread table adreslerini hesapla
 # 	long state_addr = get_thread_table_addr(current_thread_id, 1);
 # 	long pc_addr = get_thread_table_addr(current_thread_id, 2);
 # 	long sp_addr = get_thread_table_addr(current_thread_id, 3);
 # 	long instr_count_addr = get_thread_table_addr(current_thread_id, 6);
 # 	long wakeup_addr = get_thread_table_addr(current_thread_id, 7);
-#
-# 	// Update state based on syscall
+
+# 	// Thread state'ini syscall türüne göre güncelle
 # 	if (syscall_id == SYSCALL_PRN_ID) {
 # 		memory[state_addr] = THREAD_STATE_BLOCKED;
+# 		// ÖNEMLİ: PRN syscall için thread'i PRINT_BLOCK_DURATION kadar blokla
+# 		memory[wakeup_addr] = memory[PRINT_BLOCK_DURATION];  // M[101] = 100
 # 	} else if (syscall_id == SYSCALL_HLT_ID) {
 # 		memory[state_addr] = THREAD_STATE_TERMINATED;
 # 	} else if (syscall_id == SYSCALL_YIELD_ID) {
 # 		memory[state_addr] = THREAD_STATE_READY;
 # 	}
-#
-# 	// Update other fields
-# 	memory[pc_addr] = memory[REG_PC];
-# 	memory[sp_addr] = memory[REG_SP];
-# 	memory[instr_count_addr] = memory[REG_INSTR_COUNT];
-# 	memory[wakeup_addr] = memory[REG_WAKEUP_COUNT];
+
+# 	// Thread context'ini syscall sırasında register'lara kaydedilen değerlerden oku
+# 	memory[pc_addr] = memory[5];           // Thread PC (Register 5)
+# 	memory[sp_addr] = memory[6];           // Thread SP (Register 6)
+# 	memory[instr_count_addr] = memory[7];  // Thread IC (Register 7)
+
+# 	// Wakeup count Register 4'ten oku (PRN dışında)
+# 	if (syscall_id != SYSCALL_PRN_ID) {
+# 		memory[wakeup_addr] = memory[4];   // Register 4
+# 	}
+# 	// PRN için wakeup count yukarıda zaten ayarlandı
 # }
 #
+
 90  CPY   100 372  # cuurent_thread_id -> 372
 91  CPY   2   373  # syscall_id -> 373
 # thread table address calculator çağrıları:
@@ -402,77 +414,74 @@ Begin Instruction Section
 
 #
 # context:
+# - 372: cuurent_thread_id
+# - 373: syscall_id
 # - 374: state_address
 # - 375: pc_address
 # - 376: sp_address
 # - 377: instr_count_address
 # - 378: wakeup_address
 #
-# syscall id tespiti:
-#
-112 CPY   373 379  # temp for syscall_id
-113 CPY   94  380  # syscall_prn_id = 1
-114 CPY   95  381  # syscall_hlt_id = 2
-115 CPY   96  382  # syscall_yield_id = 3
 
-# eşitlik kontrolleri:
-# 1 - syscall_id == SYSCALL_PRN_ID
-116 CPY   379 116  # first_param
-117 CPY   380 117  # second_param
-118 CALL  210      # is_equal call
-119 CPY   118 383  # result of is_equal
-120 JIF   383 124  # eşit değiller sonraki eşitlik kontrolüne git
-# eşitlerse
-121 SET   92  384  # 92, blocked_state değerini tutar (2), dolaylama yapıyruz burada
-122 CPYI2 384 374  # M[M[384]] -> M[M[374]], (M[384]:92, M[374]:state_address (M[92]:2, M[state_address]:target))
-123 JIF   80  133  # koşulsuz atla diğer atamalara gerek yok
+# 1 - syscall_id == syscall prn
+112 CPY   373 379  # temp syscall_id
+113 SET   1   116  # first parameter: 1 (syscall prn)
+114 CPY   379 117  # second parameter: syscall_id
+115 CALL  210      # is_equal(syscall prn, syscall_id)
+116 JIF   118 124  # if result <= 0, sonraki checke git
+117 SET   2   380  # M[380] = 2 (blocked = 2)
+118 SET   380 381  # 380'i dolayla
+119 CPYI2 381 374  # state_addressin tutulduğu yere 2 yaz (blocked)
+120 SET   100 382  # M[382] = 100
+121 SET   382 383  # 382'yi dolayla
+122 CPYI2 383 378  # wakeup_address'e 100 yaz
+123 JIF   80  139  # eğer buna eşitse, diğer eşitlikleri kontrol etme
 
-# 2 - syscall_id == SYSCALL_HLT_ID
-124 CPY   381 117  # second_param
-125 CALL  210      # is_equal call
-126 CPY   118 383  # result of is_equal
-127 JIF   383 131  # eşit değiller sonraki eşitlik kontrolüne git
-# eşitlerse
-128 SET   93  384  # 93, terminated_state değerini tutar (3), dolaylama yapıyruz burada
-129 CPYI2 384 374  # M[M[384]] -> M[M[374]], (M[384]:93, M[374]:state_address (M[93]:3, M[state_address]:target))
-130 JIF   80  133  # koşulsuz atla diğer atamalara gerek yok
+# 2 - syscall_id == syscall hlt
+124 SET   2   116  # first parameter: 2 (syscall hlt)
+125 CPY   379 117  # second parameter: syscall_id
+126 CALL  210      # is_equal(syscall hlt, syscall_id)
+127 JIF   118 132  # if result <= 0, sonraki checke git
+128 SET   3   384  # M[384] = 3 (terminated = 3)
+129 SET   384 385  # 384'ü dolayla
+130 CPYI2 385 374  # state_addressin tutulduğu yere 3 yaz (terminated)
+131 JIF   80  139  # eğer buna eşitse, diğer eşitlikleri kontrol etme
 
-# 3 - syscall_id == SYSCALL_YIELD_ID, burada kesinlikle eşit olmalı çünkü başka syscall yok
-131 SET   90  384  # 90, ready_state değerini tutar (0), dolaylama yapıyruz burada
-132 CPYI2 384 374  # M[M[384]] -> M[M[374]], (M[384]:90, M[374]:state_address (M[90]:0, M[state_address]:target))
+# 3 - syscall_id == syscall yield
+132 SET   3   116  # first parameter: 3 (syscall yield)
+133 CPY   379 117  # seconde parameter: syscall_id
+134 CALL  210      # is_equal(syscall yield, syscall_id)
+135 JIF   118 153  # if result <= 0, eşit değilse çok kritik bir hata var çünkü syscall sadece bu üçü olabilir (HLT yap)
+136 SET   0   386  # M[386] = 0 (ready = 0)
+137 SET   386 387  # 386'yı dolayla
+138 CPYI2 387 374  # state_addressin tutulduğu yere 0 yaz (ready)
 
+# memory[pc_addr] = memory[5]
+139 SET   5   388  # register 5'yi dolayla
+140 CPYI2 388 375  # 375 pc_addr tutar, pc_addr da pc değerini: ikisi de 2 kere dolaylanmıştır
 
-# pc_address ataması - Register 5'ten oku (syscall'da saklanmış thread PC)
-133 SET   5   385  # 5. register adresini al
-134 CPY   385 900  # adres değerini geçici yere koy
-135 CPYI  900 375  # M[5] değerini (thread PC) pc_address'e yaz
+# memory[sp_addr] = memory[6]
+141 SET   6   389  # register 6'yı dolayla
+142 CPYI2 389 376  # 376 sp_addr tutar, sp_addr da sp değerini: ikisi de 2 kere dolaylanmıştır
 
-# sp_address ataması - Register 6'dan oku (syscall'da saklanmış thread SP)
-136 SET   6   386  # 6. register adresini al
-137 CPY   386 900  # adres değerini geçici yere koy
-138 CPYI  900 376  # M[6] değerini (thread SP) sp_address'e yaz
+# memory[instr_count_addr] = memory[7]
+143 SET   7   390  # register 7'yi dolayla
+144 CPYI2 390 377  # 377 instr_count_address tutar, instr_count_address da ic değerini: ikisi de 2 kere dolaylanmıştır
 
-# instr_count_address ataması - Register 7'den oku (syscall'da saklanmış thread IC)
-139 SET   7   387  # 7. register adresini al
-140 CPY   387 900  # adres değerini geçici yere koy
-141 CPYI  900 377  # M[7] değerini (thread IC) instr_count_address'e yaz
+145 SET   1   116  # first parameter: syscall prn
+146 CPY   379 117  # second parameter: syscall_id
+147 CALL  210      # is_equal(syscall prn, syscall_id)
+148 JIF   118 150  # eşit değiller memory[wakeup_addr] = memory[4] işlemini yapmaya git
+149 RET            # eşitler return ile dön
 
-# wakeup_address ataması - Register 4'ten oku (REG_WAKEUP_COUNT)
-142 SET   4   388  # 4. register adresini al
-143 CPY   388 900  # adres değerini geçici yere koy
-144 CPYI  900 378  # M[4] değerini (wakeup count) wakeup_address'e yaz
+# memory[wakeup_addr] = memory[4]
+150 SET   4   391  # register 4'ü dolayla
+151 CPYI2 391 378  # 378 wakeup_address tutar, wakeup_address de wc değerini: ikisi de 2 kere dolaylanmıştır
 
-145 RET            # çağırana geri dön
+152 RET            # return to callee
+153 HLT
 ## end of update_current_thread_in_table routine ##
 
-146 SET   0   73   # dummy instruction
-147 SET   0   73   # dummy instruction
-148 SET   0   73   # dummy instruction
-149 SET   0   73   # dummy instruction
-150 SET   0   73   # dummy instruction
-151 SET   0   73   # dummy instruction
-152 SET   0   73   # dummy instruction
-153 SET   0   73   # dummy instruction
 154 SET   0   73   # dummy instruction
 155 SET   0   73   # dummy instruction
 156 SET   0   73   # dummy instruction
@@ -581,42 +590,22 @@ Begin Instruction Section
 # C impelementation:
 #
 # void syscall_handler() {
-# 	// Read syscall ID from register 2
-# 	long syscall_id = memory[REG_SYSCALL_RESULT];
-#
-# 	switch (syscall_id) {
-# 		case SYSCALL_PRN_ID:
-# 			// Set wakeup count for blocking
-# 			memory[REG_WAKEUP_COUNT] = memory[20 + PRINT_BLOCK_DURATION];
-# 			scheduler();
-# 			break;
-#
-# 		case SYSCALL_HLT_ID:
-# 			// Thread will be terminated
-# 			scheduler();
-# 			break;
-#
-# 		case SYSCALL_YIELD_ID:
-# 			// Thread yields CPU
-# 			scheduler();
-# 			break;
-# 	}
+# 	scheduler();
+#	exit()
 # }
 #
-200 CPY   2   394  # getting syscall_id from register 2
-# using is_equal:
-201 CPY   394 116  # first param: syscall_id
-202 CPY   94  117  # second param: syscall_prn_id
-203 CALL  210      # is_equal
-204 CPY   118 395  # result -> 395
-205 JIF   395 208    # <= 0 ise sonraki eşitliğe bak
-# eşitse
-206 CPY   101 4    # 101:REG_WAKEUP_COUNT, memory[101] = 100
-207 CALL  30       # scheduler çağır
-# eşit değilse zaten ya hlt ya da yield'dır. Onlar için özel bir işlem yapılmaz sadece scheduler çağrısı:
-208 CALL  30       # scheduler çağrısı
-209 RET            # return to calle
+200 CALL  30       # scheduler çağrısı
+201 HLT
 ## end of syscall_handler routine ##
+
+202 SET   0   73   # dummy instruction
+203 SET   0   73   # dummy instruction
+204 SET   0   73   # dummy instruction
+205 SET   0   73   # dummy instruction
+206 SET   0   73   # dummy instruction
+207 SET   0   73   # dummy instruction
+208 SET   0   73   # dummy instruction
+209 SET   0   73   # dummy instruction
 
 #
 # equality checker subroutine:
@@ -646,6 +635,11 @@ Begin Instruction Section
 ## end of is_equal routine ##
 
 End Instruction Section
+
+
+
+
+
 
 ######################## USER THREAD 1 ########################
 # idle thread, for efficient CPU:
@@ -853,3 +847,4 @@ Begin Instruction Section
 
 End Instruction Section
 ###############################################################
+

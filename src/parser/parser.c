@@ -514,16 +514,6 @@ load_program_from_file(const char * filename, Memory * mem)
 		fclose(file);
 		return -1;
 	}
-	/* Check if all entities were processed */
-/*
-	if (current_entity_id != MAX_PROGRAM_ENTITIES) {
-		fprintf(stderr, "ERROR: Expected %d entities (OS + %d threads), but only %d were processed\n",
-				MAX_PROGRAM_ENTITIES, MAX_THREADS, current_entity_id);
-		free(line_buffer);
-		fclose(file);
-		return -1;
-	}
- */
 	free(line_buffer);
 	fclose(file);
 	return 0;

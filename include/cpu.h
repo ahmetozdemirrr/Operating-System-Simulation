@@ -22,9 +22,5 @@ void cpu_init(CPU * cpu, Memory * mem);
 void cpu_execute_instruction(CPU * cpu);
 bool cpu_is_halted(const CPU * cpu);
 void cpu_dump_registers(const CPU * cpu);
-void cpu_set_context(CPU * cpu, int thread_id, 
-					long int data_base, 
-					long int instruction_base, 
-					CPU_mode initial_mode);
 
 #endif /* CPU_H */

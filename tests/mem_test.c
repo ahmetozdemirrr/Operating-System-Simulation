@@ -21,7 +21,7 @@ int main(void)
 	Memory test_memory;
 	bool test_status;
 
-	// 1. mem_init tests
+	/* 1. mem_init tests */
 	printf("\n--- mem_init Tests ---\n");
 	mem_init(&test_memory);
 	test_status = (test_memory.is_initialized == true &&
@@ -35,7 +35,7 @@ int main(void)
 	mem_dump(&test_memory, 0, 5);
 	mem_dump(&test_memory, MEM_SIZE - 5, 5);
 
-	// 2. mem_write and mem_read tests (in KERNEL mode)
+	/* 2. mem_write and mem_read tests (in KERNEL mode) */
 	printf("\n--- mem_write/mem_read Basic Tests (KERNEL Mode) ---\n");
 	long int test_address1 = 100;
 	long int test_value1 = 12345;
@@ -59,11 +59,11 @@ int main(void)
 	mem_dump(&test_memory, 0, 5);
 
 	printf("\n--- User Mode Access Tests ---\n");
-	long int protected_addr = 50;       // A protected address (0-999)
-	long int unprotected_addr = 2100;   // An unprotected address (1000 and above)
+	long int protected_addr = 50;       /* A protected address (0-999) */
+	long int unprotected_addr = 2100;   /* An unprotected address (1000 and above) */
 	long int user_value = 555;
 
-	// Test writing to an UNPROTECTED area in USER mode (should succeed)
+	/*Test writing to an UNPROTECTED area in USER mode (should succeed) */
 	printf("Attempting to WRITE to UNPROTECTED area (address %ld) in USER mode...\n", unprotected_addr); // Corrected printf message
 	mem_write(&test_memory, unprotected_addr, user_value, USER);
 	long int read_unprotected_value = mem_read(&test_memory, unprotected_addr, USER);

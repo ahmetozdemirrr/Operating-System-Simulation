@@ -124,7 +124,7 @@ int main(void) {
 	}
 
 	// Execution parameters
-	int max_instructions = 200000;  // Enough for all threads to complete
+	int max_instructions = 14000;  // Enough for all threads to complete
 	int instruction_count = 0;
 	int context_switches = 0;
 	int last_thread_id = cpu.curr_thread_id;
