@@ -5,12 +5,32 @@
 
 #define CX_DEBUG_FLAG
 
+/**
+ * @brief Calculates the memory address for a specific thread table field.
+ *
+ * This function computes the absolute memory address for a given thread ID and field offset
+ * in the thread table, which starts at address 220. Each thread entry occupies 8 long integers.
+ *
+ * @param thread_id The ID of the thread.
+ * @param field The field offset within the thread table entry (0 to 7).
+ * @return The absolute memory address for the specified thread table field.
+ */
 static long int
 get_thread_table_addr(int thread_id, int field)
 {
-    return 220 + (thread_id * 8) + field;  /* Thread table 220'den başlıyor (absolute) */
+    return 220 + (thread_id * 8) + field;  /* Thread table starts from 220 (absolute) */
 }
 
+/**
+ * @brief Dumps the thread table contents to stderr for debugging.
+ *
+ * This function prints the thread table starting at address 220, showing each thread's
+ * ID, state, program counter (PC), stack pointer (SP), data base, instruction base,
+ * instruction count (IC), and wakeup count. It is only executed if the CPU debug level
+ * is 3 or higher.
+ *
+ * @param cpu Pointer to the CPU structure containing the thread table.
+ */
 static void
 dump_thread_table(const CPU * cpu)
 {
@@ -49,6 +69,16 @@ dump_thread_table(const CPU * cpu)
     fprintf(stderr, "=== END THREAD TABLE ===\n\n");
 }
 
+/**
+ * @brief Validates the CPU structure and its associated memory.
+ *
+ * This function performs sanity checks on the CPU structure, ensuring that the CPU pointer,
+ * memory pointer, memory initialization, CPU mode, and current thread ID are valid.
+ * If any check fails, it prints an error and exits the program.
+ *
+ * @param cpu Pointer to the CPU structure to validate.
+ * @param caller Name of the calling function for error reporting.
+ */
 static void
 check_cpu(const CPU * cpu, const char * caller)
 {
@@ -81,6 +111,17 @@ check_cpu(const CPU * cpu, const char * caller)
 	}
 }
 
+/**
+ * @brief Validates a relative data address for the current thread.
+ *
+ * This function checks if the provided relative data address is within the valid range
+ * for the current thread or OS. For the OS, it allows access to registers 0-19 or a larger
+ * data range. If the address is invalid, it prints an error and exits.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_address The relative data address to validate.
+ * @param context Description of the operation for error reporting.
+ */
 static void
 check_data_address(const CPU * cpu, const long int relative_address, const char * context)
 {
@@ -102,6 +143,17 @@ check_data_address(const CPU * cpu, const long int relative_address, const char 
 	}
 }
 
+/**
+ * @brief Validates a relative instruction address for the current thread.
+ *
+ * This function ensures that the provided relative instruction address is within the valid
+ * range for the current thread or OS. If the address is out of bounds, it prints an error
+ * and exits the program.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_address The relative instruction address to validate.
+ * @param context Description of the operation for error reporting.
+ */
 static void
 check_instruction_address(const CPU * cpu, const long int relative_address, const char * context)
 {
@@ -122,6 +174,17 @@ check_instruction_address(const CPU * cpu, const long int relative_address, cons
     }
 }
 
+/**
+ * @brief Executes the SET instruction to store a value in memory.
+ *
+ * This function writes a specified value to a relative data address, performing validation
+ * checks for the CPU state and address bounds. For the OS, it allows direct access to
+ * registers 0-19. Debug information is printed if enabled.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param value The value to write.
+ * @param relative_address The relative memory address to write to.
+ */
 static void
 exec_set(CPU * cpu, long int value, long int relative_address)
 {
@@ -151,6 +214,17 @@ exec_set(CPU * cpu, long int value, long int relative_address)
 	mem_write(cpu->mem, absolute_addr, value, cpu->mode);
 }
 
+/**
+ * @brief Executes the CPY instruction to copy a value between memory locations.
+ *
+ * This function copies a value from a source relative address to a destination relative
+ * address, performing validation checks for CPU state and address bounds. For the OS,
+ * it allows direct access to registers 0-19.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_src_address The relative source address to read from.
+ * @param relative_dest_address The relative destination address to write to.
+ */
 static void
 exec_cpy(CPU * cpu, long int relative_src_address, long int relative_dest_address)
 {
@@ -168,6 +242,17 @@ exec_cpy(CPU * cpu, long int relative_src_address, long int relative_dest_addres
 	mem_write(cpu->mem, absolute_dest_address, mem_read(cpu->mem, absolute_src_address, cpu->mode), cpu->mode);
 }
 
+/**
+ * @brief Executes the CPYI instruction for indirect memory copy.
+ *
+ * This function reads a source address from a relative pointer address, then copies the
+ * value at that source address to a destination relative address. It performs validation
+ * checks for CPU state and address bounds, with special handling for OS register access.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_address_of_ptr The relative address containing the source pointer.
+ * @param relative_dest_address The relative destination address to write to.
+ */
 static void
 exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_address)
 {
@@ -199,6 +284,17 @@ exec_cpyi(CPU * cpu, long int relative_address_of_ptr, long int relative_dest_ad
 	mem_write(cpu->mem, absolute_dest_address, mem_read(cpu->mem, indirect_src_absolute_address, cpu->mode), cpu->mode);
 }
 
+/**
+ * @brief Executes the CPYI2 instruction for double-indirect memory copy.
+ *
+ * This function performs a double-indirect copy, reading pointers from both source and
+ * destination relative addresses, then copying the value from the source's pointed address
+ * to the destination's pointed address. It includes validation checks and debug output.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_src_ptr_address The relative address containing the source pointer.
+ * @param relative_dest_ptr_address The relative address containing the destination pointer.
+ */
 static void
 exec_cpyi2(CPU * cpu, long int relative_src_ptr_address, long int relative_dest_ptr_address)
 {
@@ -215,7 +311,6 @@ exec_cpyi2(CPU * cpu, long int relative_src_ptr_address, long int relative_dest_
         relative_src_ptr_address : cpu->curr_data_base_for_active_entity + relative_src_ptr_address;
     long int src_value = mem_read(cpu->mem, absolute_src_ptr_address, cpu->mode);
 
-    /* src_value da relative bir adres olabilir, onu da dönüştür */
     long int actual_src_data_address = (cpu->curr_thread_id == OS_ID && src_value < 21) ?
         src_value : cpu->curr_data_base_for_active_entity + src_value;
 
@@ -224,13 +319,12 @@ exec_cpyi2(CPU * cpu, long int relative_src_ptr_address, long int relative_dest_
         relative_dest_ptr_address : cpu->curr_data_base_for_active_entity + relative_dest_ptr_address;
     long int dest_value = mem_read(cpu->mem, absolute_dest_ptr_address, cpu->mode);
 
-    /* dest_value da relative bir adres olabilir, onu da dönüştür */
     long int actual_dest_data_address = (cpu->curr_thread_id == OS_ID && dest_value < 21) ?
         dest_value : cpu->curr_data_base_for_active_entity + dest_value;
 
     #ifdef DEBUG_FLAG
 	    if (cpu->curr_thread_id == OS_ID && cpu->mode == KERNEL) {
-	        /* Thread table aralığını kontrol et (200-287 arası) */
+
 	        if (actual_dest_data_address >= 200 && actual_dest_data_address <= 287) {
 	            long int value_to_copy = mem_read(cpu->mem, actual_src_data_address, cpu->mode);
 	            int thread_id = (actual_dest_data_address - 200) / 8;
@@ -277,6 +371,16 @@ exec_cpyi2(CPU * cpu, long int relative_src_ptr_address, long int relative_dest_
 	mem_write(cpu->mem, actual_dest_data_address, value_to_copy, cpu->mode);
 }
 
+/**
+ * @brief Executes the ADD instruction to add a value to a memory location.
+ *
+ * This function adds a specified value to the contents of a relative memory address,
+ * performing validation checks for CPU state, address bounds, and overflow conditions.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_dest_address The relative address to modify.
+ * @param value_to_add The value to add to the memory location.
+ */
 static void
 exec_add(CPU * cpu, long int relative_dest_address, long int value_to_add)
 {
@@ -302,6 +406,17 @@ exec_add(CPU * cpu, long int relative_dest_address, long int value_to_add)
 	mem_write(cpu->mem, absolute_dest_address, value_to_add + dest_value, cpu->mode);
 }
 
+/**
+ * @brief Executes the ADDI instruction to add two memory values.
+ *
+ * This function adds the value at a source relative address to the value at a destination
+ * relative address, storing the result in the destination. It includes validation and
+ * overflow checks.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_dest_address The relative destination address.
+ * @param relative_src_address The relative source address.
+ */
 static void
 exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_address)
 {
@@ -331,6 +446,17 @@ exec_addi(CPU * cpu, long int relative_dest_address, long int relative_src_addre
 	mem_write(cpu->mem, absolute_dest_address, src_value + dest_value, cpu->mode);
 }
 
+/**
+ * @brief Executes the SUBI instruction to subtract memory values.
+ *
+ * This function subtracts the value at a destination relative address from the value at
+ * a source relative address, storing the result in the destination. It includes validation
+ * and overflow checks.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_src_address The relative source address.
+ * @param relative_dest_address The relative destination address.
+ */
 static void
 exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_address)
 {
@@ -360,6 +486,18 @@ exec_subi(CPU * cpu, long int relative_src_address, long int relative_dest_addre
 	mem_write(cpu->mem, absolute_dest_address, src_value - dest_value, cpu->mode);
 }
 
+/**
+ * @brief Executes the JIF instruction for conditional jumps.
+ *
+ * This function checks a condition value at a relative address and, if the value is less
+ * than or equal to zero, updates the program counter to a new instruction address.
+ * Validation checks are performed for CPU state and address bounds.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_condition_address The relative address containing the condition value.
+ * @param relative_new_pc_address The relative instruction address to jump to.
+ * @param next_pc_address Pointer to the next program counter address to update.
+ */
 static void
 exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_pc_address, long int * next_pc_address)
 {
@@ -386,6 +524,15 @@ exec_jif(CPU * cpu, long int relative_condition_address, long int relative_new_p
 
 }
 
+/**
+ * @brief Executes the PUSH instruction to push a value onto the stack.
+ *
+ * This function pushes a value from a relative address onto the stack, updating the stack
+ * pointer. It includes validation checks for CPU state, address bounds, and stack overflow.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_element_address The relative address of the value to push.
+ */
 static void
 exec_push(CPU * cpu, long int relative_element_address)
 {
@@ -424,6 +571,16 @@ exec_push(CPU * cpu, long int relative_element_address)
     mem_write(cpu->mem, REG_SP, new_sp_value, cpu->mode);
 }
 
+/**
+ * @brief Executes the POP instruction to pop a value from the stack.
+ *
+ * This function pops a value from the stack (at SP + 1) and stores it at a relative
+ * destination address, updating the stack pointer. It includes validation checks for CPU
+ * state, address bounds, and stack underflow.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_dest_address The relative address to store the popped value.
+ */
 static void
 exec_pop(CPU * cpu, long int relative_dest_address) /* POP bir üstü okumalı o anki SP değerini değil */
 {
@@ -452,6 +609,17 @@ exec_pop(CPU * cpu, long int relative_dest_address) /* POP bir üstü okumalı o
     mem_write(cpu->mem, REG_SP, current_sp_value + 1, cpu->mode);
 }
 
+/**
+ * @brief Executes the CALL instruction for subroutine calls.
+ *
+ * This function saves the next program counter address on the stack, updates the stack
+ * pointer, and jumps to a relative instruction address. It includes validation checks for
+ * CPU state, address bounds, and stack overflow.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param relative_jump_address The relative instruction address to jump to.
+ * @param next_pc_address Pointer to the next program counter address to update.
+ */
 static void
 exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
 {
@@ -502,6 +670,16 @@ exec_call(CPU * cpu, long int relative_jump_address, long int * next_pc_address)
     *next_pc_address = absolute_jump_address;
 }
 
+/**
+ * @brief Executes the RET instruction to return from a subroutine.
+ *
+ * This function pops the return address from the stack (at SP + 1), updates the stack
+ * pointer, and sets the program counter to the return address. It includes validation
+ * checks for CPU state, address bounds, and stack underflow.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param next_pc_address Pointer to the next program counter address to update.
+ */
 static void
 exec_ret(CPU * cpu, long int * next_pc_address)
 {
@@ -536,6 +714,14 @@ exec_ret(CPU * cpu, long int * next_pc_address)
     mem_write(cpu->mem, REG_SP, new_sp_value, cpu->mode);
 }
 
+/**
+ * @brief Executes the HLT instruction to halt the CPU.
+ *
+ * This function sets the CPU's halted state to true, stopping further instruction execution.
+ * It includes validation checks for the CPU state.
+ *
+ * @param cpu Pointer to the CPU structure.
+ */
 static void
 exec_hlt(CPU * cpu)
 {
@@ -547,6 +733,17 @@ exec_hlt(CPU * cpu)
 	cpu->is_halted = true;
 }
 
+/**
+ * @brief Executes the USER instruction to switch to user mode.
+ *
+ * This function switches the CPU to user mode, updating the thread ID, data base,
+ * instruction base, and stack pointer based on values in a mailbox. It supports context
+ * switching for OS programs and handles pending print operations.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param pt_jump_address_offset The relative offset for the mailbox containing context data.
+ * @param next_pc_address Pointer to the next program counter address to update.
+ */
 static void
 exec_user(CPU * cpu, long int pt_jump_address_offset, long int * next_pc_address)
 {
@@ -599,13 +796,13 @@ exec_user(CPU * cpu, long int pt_jump_address_offset, long int * next_pc_address
         cpu->curr_data_base_for_active_entity = target_db;
         cpu->curr_instruction_base_for_active_entity = target_ib;
 
-        /* Bu pek olası değil USER komutuyla ama kontrol edilebilir */
+        /*  pek olsaı değil */
 	    if (target_thread_id == OS_ID) {
 	        cpu->mode = KERNEL;
 	    } else {
 	        cpu->mode = USER;
 	    }
-        /* stack Pointer'ı ayarla (KERNEL ayrıcalığıyla, çünkü REG_SP özel bir register) */
+        /* stack Pointer'ı ayarla */
         mem_write(cpu->mem, REG_SP, target_sp, KERNEL);
 
         /* Check if this thread has a pending print from SYSCALL PRN */
@@ -629,6 +826,17 @@ exec_user(CPU * cpu, long int pt_jump_address_offset, long int * next_pc_address
     *next_pc_address = target_user_pc;
 }
 
+/**
+ * @brief Executes the SYSCALL PRN instruction to schedule a print operation.
+ *
+ * This function schedules a print operation for a value at a relative address, storing
+ * the value in the CPU structure for deferred printing. It saves the thread's context,
+ * switches to the OS, and updates the program counter to the syscall handler.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param source_address The relative address of the value to print.
+ * @param next_pc_address Pointer to the next program counter address to update.
+ */
 static void
 exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
 {
@@ -698,6 +906,15 @@ exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
     }
 }
 
+/**
+ * @brief Executes the SYSCALL HLT instruction to halt a thread.
+ *
+ * This function saves the thread's context, records the syscall, and switches to the OS
+ * for handling. It updates the program counter to the syscall handler address.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param next_pc_address Pointer to the next program counter address to update.
+ */
 static void
 exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
 {
@@ -749,6 +966,15 @@ exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
     }
 }
 
+/**
+ * @brief Executes the SYSCALL YIELD instruction to yield control to the OS.
+ *
+ * This function saves the thread's context, records the syscall, and switches to the OS
+ * for scheduling. It updates the program counter to the syscall handler address.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @param next_pc_address Pointer to the next program counter address to update.
+ */
 static void
 exec_syscall_yield(CPU * cpu, long int * next_pc_address)
 {
@@ -799,6 +1025,17 @@ exec_syscall_yield(CPU * cpu, long int * next_pc_address)
     }
 }
 
+/**
+ * @brief Initializes the CPU structure and sets up execution context.
+ *
+ * This function initializes the CPU with a given memory structure and debug level,
+ * setting initial values for mode, thread ID, data base, instruction base, and registers.
+ * It supports both single-threaded and OS program modes, with appropriate context setup.
+ *
+ * @param cpu Pointer to the CPU structure to initialize.
+ * @param mem Pointer to the initialized Memory structure.
+ * @param debug_level The debug level for logging (0-3).
+ */
 void
 cpu_init(CPU * cpu, Memory * mem, int debug_level)
 {
@@ -878,6 +1115,15 @@ cpu_init(CPU * cpu, Memory * mem, int debug_level)
 	mem_write(mem, REG_INSTR_COUNT, 0, KERNEL);
 }
 
+/**
+ * @brief Executes a single CPU instruction.
+ *
+ * This function handles the fetch-decode-execute cycle for one instruction, including
+ * context switching for OS programs, instruction fetching, decoding, and execution.
+ * It updates the program counter and instruction count, and manages thread wakeups.
+ *
+ * @param cpu Pointer to the CPU structure.
+ */
 void
 cpu_execute_instruction(CPU * cpu)
 {
@@ -1147,6 +1393,15 @@ cpu_execute_instruction(CPU * cpu)
 	}
 }
 
+/**
+ * @brief Checks if the CPU is halted.
+ *
+ * This function returns the CPU's halted state after performing validation checks on the
+ * CPU structure.
+ *
+ * @param cpu Pointer to the CPU structure.
+ * @return True if the CPU is halted, false otherwise.
+ */
 bool
 cpu_is_halted(const CPU * cpu)
 {
@@ -1154,6 +1409,14 @@ cpu_is_halted(const CPU * cpu)
 	return cpu->is_halted;
 }
 
+/**
+ * @brief Dumps the CPU register contents for debugging.
+ *
+ * This function prints the values of the program counter (PC), stack pointer (SP), and
+ * instruction count registers for the current thread and mode.
+ *
+ * @param cpu Pointer to the CPU structure.
+ */
 void
 cpu_dump_registers(const CPU * cpu)
 {
