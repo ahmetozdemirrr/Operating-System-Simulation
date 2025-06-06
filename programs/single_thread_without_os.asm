@@ -2,7 +2,7 @@
 
 # Multiplication Implementation
 Begin Data Section
-0   80000   # mult operand 1
+0   5       # mult operand 1
 1   -12     # mult operand 2
 2   0       # counter i for loop
 3   0       # summ_buffer: for, M[3] += M[1]
@@ -25,7 +25,6 @@ Begin Instruction Section
 6   ADDI 3 1       # M[3] += M[1] : sum_buffer += operand_2
 7   ADD  2 1       # i++, next iteration
 8   JIF  99 0      # unconditionl jump
-9   SYSCALL PRN 3  # printing result
-10  HLT
+9   HLT
 
 End Instruction Section

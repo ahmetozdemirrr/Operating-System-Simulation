@@ -113,7 +113,7 @@ int main(void) {
 
 	// Initialize CPU
 	CPU cpu;
-	cpu_init(&cpu, &mem);
+	cpu_init(&cpu, &mem, 3);
 
 	// Display initial system state
 	printf("=== Initial System State ===\n");

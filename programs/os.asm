@@ -43,7 +43,7 @@ Begin Data Section
 101 100 # PRINT_BLOCK_DURATION (PRN syscall 100 instruction block eder)
 
 # Round-robin scheduler variables
-102 4   # max_thread_count
+102 10   # max_thread_count
 
 # thread table hesaplama rutini
 112 0    # first parameter: thread_id
@@ -435,7 +435,7 @@ Begin Instruction Section
 117 SET   2   380  # M[380] = 2 (blocked = 2)
 118 SET   380 381  # 380'i dolayla
 119 CPYI2 381 374  # state_addressin tutulduğu yere 2 yaz (blocked)
-120 SET   1000 382  # M[382] = 100
+120 SET   100 382  # M[382] = 100
 121 SET   382 383  # 382'yi dolayla
 122 CPYI2 383 378  # wakeup_address'e 100 yaz
 123 JIF   80  139  # eğer buna eşitse, diğer eşitlikleri kontrol etme
@@ -562,25 +562,25 @@ Begin Instruction Section
 # Update thread state to RUNNING in table
 # memory[base_addr + 1] = THREAD_STATE_RUNNING;
 #
-180 SET   91  391  # (91) address of THREAD_STATE_RUNNING -> 391
-181 CPY   115 392  # base_address kopyala (dirty olduğu için)
-182 ADD   392 1    # base_addr + 1
-183 CPYI  391 392  # 391->91->running_state_value : 1, 392->base_address+1->state, sonuç olarak state = 1
+180 SET   1   391  # (91) address of THREAD_STATE_RUNNING -> 391
+181 SET   391 393  # 391'i dolayla
+182 CPY   115 392  # base_address kopyala (dirty olduğu için)
+183 ADD   392 1    # base_addr + 1
+184 CPYI2 393 392  # 391->91->running_state_value : 1, 392->base_address+1->state, sonuç olarak state = 1
+185 SET   0   112  # thread_id
+186 SET   1   113  # field: 0 (state address)
+187 CALL  5        # base_address hesapla OS state için onu şimdi ready yapacağız...
+188 CPY   115 908  # kopyala
+189 SET   0   909  # READY state
+190 SET   909 910  # dolayla
+191 CPYI2 910 908  # OS state2i ready yap
 # ctx_signal
-184 CPY   389  100 # current_running_thread ayarla (389 bu değeri tutuyordu)
-185 SET   -999 17  # 17. registera -999 sinyalini koy
+192 CPY   389  100 # current_running_thread ayarla (389 bu değeri tutuyordu)
+193 SET   -999 17  # 17. registera -999 sinyalini koy
 # return to callee
-186 RET
+194 RET
 ## end of prepare_context_switch routine ##
 
-187 SET   0   73   # dummy instruction
-188 SET   0   73   # dummy instruction
-189 SET   0   73   # dummy instruction
-190 SET   0   73   # dummy instruction
-191 SET   0   73   # dummy instruction
-192 SET   0   73   # dummy instruction
-193 SET   0   73   # dummy instruction
-194 SET   0   73   # dummy instruction
 195 SET   0   73   # dummy instruction
 196 SET   0   73   # dummy instruction
 197 SET   0   73   # dummy instruction
@@ -599,17 +599,17 @@ Begin Instruction Section
 #	exit()
 # }
 #
-200 CALL  30       # scheduler çağrısı
-201 HLT
+200 SET   0   112  # thread_id
+201 SET   1   113  # field: 0 (state address)
+202 CALL  5        # base_address hesapla
+203 CPY   115 907  # kopyala
+204 SET   1   905  # RUNNING STATE
+205 SET   905 906  # dolayla
+206 CPYI2 906 907  # OS state'ini 1 yap
+207 CALL  30       # scheduler çağrısı
+208 HLT
 ## end of syscall_handler routine ##
 
-202 SET   0   73   # dummy instruction
-203 SET   0   73   # dummy instruction
-204 SET   0   73   # dummy instruction
-205 SET   0   73   # dummy instruction
-206 SET   0   73   # dummy instruction
-207 SET   0   73   # dummy instruction
-208 SET   0   73   # dummy instruction
 209 SET   0   73   # dummy instruction
 
 #
@@ -660,7 +660,7 @@ End Data Section
 
 Begin Instruction Section
 0 SYSCALL YIELD # scheduler'a kontrolü geri ver
-1 JIF 99 0      # unconditional jump
+1 JIF 80 0      # unconditional jump
 End Instruction Section
 ###############################################################
 
@@ -854,4 +854,3 @@ Begin Instruction Section
 
 End Instruction Section
 ###############################################################
-

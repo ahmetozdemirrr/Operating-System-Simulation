@@ -3,6 +3,52 @@
 #include <cpu.h>
 #include <memory.h>
 
+#define CX_DEBUG_FLAG
+
+static long int
+get_thread_table_addr(int thread_id, int field)
+{
+    return 220 + (thread_id * 8) + field;  /* Thread table 220'den başlıyor (absolute) */
+}
+
+static void
+dump_thread_table(const CPU * cpu)
+{
+    if (cpu->debug_level < 3) return; /* Only dump if debug level 3+ */
+
+    fprintf(stderr, "\n=== THREAD TABLE DUMP ===\n");
+    fprintf(stderr, "Thread Table Base Address: 220\n");
+    fprintf(stderr, "Format: [ID] [State] [PC] [SP] [DataBase] [InstrBase] [IC] [WakeupCount]\n");
+    fprintf(stderr, "States: 0=READY, 1=RUNNING, 2=BLOCKED, 3=TERMINATED\n\n");
+
+    for (int tid = 0; tid <= MAX_THREADS; tid++) {
+        long int id_addr = get_thread_table_addr(tid, 0);
+        long int state_addr = get_thread_table_addr(tid, 1);
+        long int pc_addr = get_thread_table_addr(tid, 2);
+        long int sp_addr = get_thread_table_addr(tid, 3);
+        long int db_addr = get_thread_table_addr(tid, 4);
+        long int ib_addr = get_thread_table_addr(tid, 5);
+        long int ic_addr = get_thread_table_addr(tid, 6);
+        long int wc_addr = get_thread_table_addr(tid, 7);
+
+        long int id = mem_read(cpu->mem, id_addr, KERNEL);
+        long int state = mem_read(cpu->mem, state_addr, KERNEL);
+        long int pc = mem_read(cpu->mem, pc_addr, KERNEL);
+        long int sp = mem_read(cpu->mem, sp_addr, KERNEL);
+        long int db = mem_read(cpu->mem, db_addr, KERNEL);
+        long int ib = mem_read(cpu->mem, ib_addr, KERNEL);
+        long int ic = mem_read(cpu->mem, ic_addr, KERNEL);
+        long int wc = mem_read(cpu->mem, wc_addr, KERNEL);
+
+        const char * state_names[] = {"READY", "RUNNING", "BLOCKED", "TERMINATED"};
+        const char * state_name = (state >= 0 && state <= 3) ? state_names[state] : "UNKNOWN";
+
+        fprintf(stderr, "Thread %d: [%ld] [%ld:%s] [%ld] [%ld] [%ld] [%ld] [%ld] [%ld]\n",
+               tid, id, state, state_name, pc, sp, db, ib, ic, wc);
+    }
+    fprintf(stderr, "=== END THREAD TABLE ===\n\n");
+}
+
 static void
 check_cpu(const CPU * cpu, const char * caller)
 {
@@ -562,6 +608,13 @@ exec_user(CPU * cpu, long int pt_jump_address_offset, long int * next_pc_address
         /* stack Pointer'ı ayarla (KERNEL ayrıcalığıyla, çünkü REG_SP özel bir register) */
         mem_write(cpu->mem, REG_SP, target_sp, KERNEL);
 
+        /* Check if this thread has a pending print from SYSCALL PRN */
+        if (cpu->has_pending_print[target_thread_id]) {
+            printf("\nRequested SYSCALL PRN output (Thread %d): %ld\n", target_thread_id, cpu->pending_print_values[target_thread_id]);
+            cpu->has_pending_print[target_thread_id] = false;
+            cpu->pending_print_values[target_thread_id] = 0;
+        }
+
         #ifdef DEBUG_FLAG
 	        printf("Context switched to Thread %d: Mode=USER, DataBase=%ld, InstrBase=%ld, SP=%ld\n",
 	               cpu->curr_thread_id, cpu->curr_data_base_for_active_entity,
@@ -585,6 +638,14 @@ exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
 
     check_cpu(cpu, __func__);
 
+    /* SYSCALL tespit edildiğinde thread table dump et */
+    if (cpu->debug_level >= 3) {
+        long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL);
+        long int current_pc = mem_read(cpu->mem, REG_PC, cpu->mode);
+        fprintf(stderr, "\n[INSTRUCTION %ld] SYSCALL DETECTED at PC=%ld, Thread=%d\n",
+               current_instr_count, current_pc, cpu->curr_thread_id);
+        dump_thread_table(cpu);
+    }
     /* thread'in mevcut context değerlerini sakla */
     long int thread_pc = mem_read(cpu->mem, REG_PC, cpu->mode) + INSTR_SIZE;
     long int thread_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
@@ -601,7 +662,15 @@ exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
         exit(EXIT_FAILURE);
     }
     long int value = mem_read(cpu->mem, absolute_source_address, cpu->mode);
-    printf("\nSYSCALL PRN output: %ld\n", value);
+
+    /* Print değerini CPU struct'ında sakla - thread tekrar çalıştığında basılacak */
+    cpu->pending_print_values[cpu->curr_thread_id] = value;
+    cpu->has_pending_print[cpu->curr_thread_id] = true;
+
+    /* Debug message - actual print will happen after 100 cycles when thread resumes */
+    #ifdef DEBUG_FLAG
+        printf("SYSCALL PRN: Thread %d scheduled to print %ld after 100 cycles\n", cpu->curr_thread_id, value);
+    #endif
 
     /* syscall bilgisini kaydet */
     mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, KERNEL);
@@ -620,6 +689,13 @@ exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
     cpu->curr_thread_id = OS_ID;
     cpu->curr_data_base_for_active_entity = OS_DATA_START_ADDR;
     cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;
+
+    /* SYSCALL sonrası thread table dump et */
+    if (cpu->debug_level >= 3) {
+        long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL) + 1;
+        fprintf(stderr, "\n[INSTRUCTION %ld] THREAD TABLE AFTER SYSCALL:\n", current_instr_count);
+        dump_thread_table(cpu);
+    }
 }
 
 static void
@@ -631,6 +707,14 @@ exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
 
     check_cpu(cpu, __func__);
 
+    /* SYSCALL tespit edildiğinde thread table dump et */
+    if (cpu->debug_level >= 3) {
+        long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL);
+        long int current_pc = mem_read(cpu->mem, REG_PC, cpu->mode);
+        fprintf(stderr, "\n[INSTRUCTION %ld] SYSCALL DETECTED at PC=%ld, Thread=%d\n",
+               current_instr_count, current_pc, cpu->curr_thread_id);
+        dump_thread_table(cpu);
+    }
     /* thread'in mevcut context değerlerini sakla */
     long int thread_pc = mem_read(cpu->mem, REG_PC, cpu->mode) + INSTR_SIZE;
     long int thread_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
@@ -656,6 +740,13 @@ exec_syscall_hlt(CPU * cpu, long int * next_pc_address)
     cpu->curr_thread_id = OS_ID;
     cpu->curr_data_base_for_active_entity = OS_DATA_START_ADDR;
     cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;
+
+    /* SYSCALL sonrası thread table dump et */
+    if (cpu->debug_level >= 3) {
+        long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL) + 1;
+        fprintf(stderr, "\n[INSTRUCTION %ld] THREAD TABLE AFTER SYSCALL:\n", current_instr_count);
+        dump_thread_table(cpu);
+    }
 }
 
 static void
@@ -667,6 +758,14 @@ exec_syscall_yield(CPU * cpu, long int * next_pc_address)
 
     check_cpu(cpu, __func__);
 
+    /* SYSCALL tespit edildiğinde thread table dump et */
+    if (cpu->debug_level >= 3) {
+        long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL);
+        long int current_pc = mem_read(cpu->mem, REG_PC, cpu->mode);
+        fprintf(stderr, "\n[INSTRUCTION %ld] SYSCALL DETECTED at PC=%ld, Thread=%d\n",
+               current_instr_count, current_pc, cpu->curr_thread_id);
+        dump_thread_table(cpu);
+    }
     /* thread'in mevcut context değerlerini sakla */
     long int thread_pc = mem_read(cpu->mem, REG_PC, cpu->mode) + INSTR_SIZE;
     long int thread_sp = mem_read(cpu->mem, REG_SP, cpu->mode);
@@ -691,15 +790,17 @@ exec_syscall_yield(CPU * cpu, long int * next_pc_address)
     cpu->curr_thread_id = OS_ID;
     cpu->curr_data_base_for_active_entity = OS_DATA_START_ADDR;
     cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;
-}
 
-static long int get_thread_table_addr(int thread_id, int field)
-{
-    return 220 + (thread_id * 8) + field;  /* Thread table 220'den başlıyor (absolute) */
+    /* SYSCALL sonrası thread table dump et */
+    if (cpu->debug_level >= 3) {
+        long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL) + 1;
+        fprintf(stderr, "\n[INSTRUCTION %ld] THREAD TABLE AFTER SYSCALL:\n", current_instr_count);
+        dump_thread_table(cpu);
+    }
 }
 
 void
-cpu_init(CPU * cpu, Memory * mem)
+cpu_init(CPU * cpu, Memory * mem, int debug_level)
 {
 	if (cpu == NULL) {
 		fprintf(stderr, "FATAL ERROR: CPU is not initialized!\n");
@@ -715,90 +816,160 @@ cpu_init(CPU * cpu, Memory * mem)
 	cpu->curr_thread_id = OS_ID;
 	cpu->curr_data_base_for_active_entity = OS_DATA_START_ADDR;
 	cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;
+	cpu->debug_level = debug_level;
 
-	mem_write(mem, REG_PC, cpu->curr_instruction_base_for_active_entity, cpu->mode); /* sistem ilk başladığında OS entry pointten çalışsın */
-	mem_write(mem, REG_SP, OS_BLOCK_END_ADDR, cpu->mode); /* 1999: from up to bottom */
-	mem_write(mem, REG_INSTR_COUNT, 0, cpu->mode);
-	/*
-		Context switch sinyalini başlangıçta "işlem tamamlandı" olarak ayarla.
-    	Bu yazma işlemi KERNEL modunda yapılmalı, çünkü bu OS'nin kontrol edeceği bir register.
-    */
-    mem_write(mem, REG_CONTEXT_SWITCH_SIGNAL, CTX_SWITCH_DONE, KERNEL);
+	/* Initialize pending print arrays */
+	for (int i = 0; i < MAX_PROGRAM_ENTITIES; i++) {
+		cpu->pending_print_values[i] = 0;
+		cpu->has_pending_print[i] = false;
+	}
+
+	/* Check if this is a single thread program */
+	if (is_single_thread_program) {
+		/* Single Thread Program Mode - Start as Thread 2 in USER mode */
+		printf("CPU initialized for single thread program (USER mode)\n");
+		cpu->mode = USER;
+		cpu->curr_thread_id = 2;  /* Use Thread 2 to avoid register/OS conflicts */
+		cpu->curr_data_base_for_active_entity = THREAD_DATA_START(2);
+		cpu->curr_instruction_base_for_active_entity = THREAD_INSTR_START(2);
+
+		/* Single thread için PC ve SP'yi thread 2'nin adreslerine set et */
+		mem_write(mem, REG_PC, cpu->curr_instruction_base_for_active_entity, KERNEL);
+		mem_write(mem, REG_SP, THREAD_BLOCK_END(2), KERNEL);
+
+		printf("Single Thread Debug Info:\n");
+		printf("  - Thread ID: %d\n", cpu->curr_thread_id);
+		printf("  - Data Base: %ld\n", cpu->curr_data_base_for_active_entity);
+		printf("  - Instruction Base: %ld\n", cpu->curr_instruction_base_for_active_entity);
+		printf("  - Initial PC: %ld\n", cpu->curr_instruction_base_for_active_entity);
+		printf("  - Initial SP: %d\n", THREAD_BLOCK_END(2));
+	}
+	else if (is_os_program) {
+		/* OS Program Mode - Start as Thread 0 (OS) in KERNEL mode */
+		printf("CPU initialized for OS program (KERNEL mode) - Detected %s sections\n",
+               is_os_program ? "multiple" : "single");
+		cpu->mode = KERNEL;
+		cpu->curr_thread_id = OS_ID;
+		cpu->curr_data_base_for_active_entity = OS_DATA_START_ADDR;
+		cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;
+
+		mem_write(mem, REG_PC, cpu->curr_instruction_base_for_active_entity, cpu->mode);
+		mem_write(mem, REG_SP, OS_BLOCK_END_ADDR, cpu->mode);
+
+		/* Context switch sinyalini başlat */
+		mem_write(mem, REG_CONTEXT_SWITCH_SIGNAL, CTX_SWITCH_DONE, KERNEL);
+
+		/* Thread table dump et */
+		if (cpu->debug_level >= 3) {
+			dump_thread_table(cpu);
+		}
+	} else {
+		/* Fallback - should not normally happen */
+		fprintf(stderr, "WARNING: Unknown program type detected, using default initialization\n");
+		cpu->mode = KERNEL;
+		cpu->curr_thread_id = OS_ID;
+		cpu->curr_data_base_for_active_entity = OS_DATA_START_ADDR;
+		cpu->curr_instruction_base_for_active_entity = OS_INSTRUCTION_START_ADDR;
+
+		mem_write(mem, REG_PC, cpu->curr_instruction_base_for_active_entity, cpu->mode);
+		mem_write(mem, REG_SP, OS_BLOCK_END_ADDR, cpu->mode);
+	}
+
+	mem_write(mem, REG_INSTR_COUNT, 0, KERNEL);
 }
 
 void
 cpu_execute_instruction(CPU * cpu)
 {
-	/*
-		Context Switch Sinyalini Kontrol Et (Her komut döngüsünün başında): Bu register OS tarafından KERNEL modunda
-		set edildiği için KERNEL modunda okunmalı. Eğer o an USER modda bir thread çalışıyorsa bile, bu kontrol CPU
-		simülatörünün kendi iç mantığıdır ve OS'nin bıraktığı bir sinyali okur. Güvenlik açısından, bu okuma ve sonraki
-		işlemlerin KERNEL ayrıcalığıyla yapıldığını varsayabiliriz.
-    */
-    volatile long int ctx_signal = mem_read(cpu->mem, REG_CONTEXT_SWITCH_SIGNAL, KERNEL);
+	/* Only execute OS context switch logic for multi-threaded programs */
+	if (is_os_program && !is_single_thread_program)
+	{
+		/*
+			Context Switch Sinyalini Kontrol Et (Her komut döngüsünün başında): Bu register OS tarafından KERNEL modunda
+			set edildiği için KERNEL modunda okunmalı. Eğer o an USER modda bir thread çalışıyorsa bile, bu kontrol CPU
+			simülatörünün kendi iç mantığıdır ve OS'nin bıraktığı bir sinyali okur. Güvenlik açısından, bu okuma ve sonraki
+			işlemlerin KERNEL ayrıcalığıyla yapıldığını varsayabiliriz.
+	    */
+	    volatile long int ctx_signal = mem_read(cpu->mem, REG_CONTEXT_SWITCH_SIGNAL, KERNEL);
 
-    if (ctx_signal == CTX_SWITCH_REQUEST) {
-        /*
-	        OS'nin context switch isteğinde bulunduğunu logla.
-	        Bu loglama, cpu->curr_thread_id OS iken daha anlamlı olur,
-	        çünkü scheduler OS'nin bir parçasıdır. Ancak sinyal herhangi bir anda tespit edilebilir.
-        */
-        #ifdef DEBUG_FLAG
-        	printf("CPU: Context Switch Request DETECTED (Signal: %ld) by OS (presumably).\n", ctx_signal);
-        #endif
-        /* posta kutusundan yeni context bilgilerini KERNEL modunda oku, çünkü OS bunları KERNEL modunda yazdı. */
-        int next_tid =    (int)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_THREAD_ID,   KERNEL);
-        long int next_state  = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_STATE,       KERNEL);
-        long int next_pc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_PC,          KERNEL);
-        long int next_sp_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_SP,          KERNEL);
-        long int next_db_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_DATA_BASE,   KERNEL);
-        long int next_ib_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_BASE,  KERNEL);
-        long int next_ic_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_COUNT, KERNEL);
-        long int next_wc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_WAKEUP_CNT,  KERNEL);
+	    if (ctx_signal == CTX_SWITCH_REQUEST) {
+	    	dump_thread_table(cpu);
+	        /*
+		        OS'nin context switch isteğinde bulunduğunu logla.
+		        Bu loglama, cpu->curr_thread_id OS iken daha anlamlı olur,
+		        çünkü scheduler OS'nin bir parçasıdır. Ancak sinyal herhangi bir anda tespit edilebilir.
+	        */
+	        #ifdef CX_DEBUG_FLAG
+	        	printf("CPU: Context Switch Request DETECTED (Signal: %ld) by OS (presumably).\n", ctx_signal);
+	        #endif
+	        /* posta kutusundan yeni context bilgilerini KERNEL modunda oku, çünkü OS bunları KERNEL modunda yazdı. */
+	        int next_tid =    (int)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_THREAD_ID,   KERNEL);
+	        long int next_state  = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_STATE,       KERNEL);
+	        long int next_pc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_PC,          KERNEL);
+	        long int next_sp_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_SP,          KERNEL);
+	        long int next_db_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_DATA_BASE,   KERNEL);
+	        long int next_ib_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_BASE,  KERNEL);
+	        long int next_ic_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_INSTR_COUNT, KERNEL);
+	        long int next_wc_val = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_WAKEUP_CNT,  KERNEL);
 
-        char state[15];
+	        /* Thread table'ı context switch öncesi dump et */
+	        if (cpu->debug_level >= 3) {
+	            long int current_instr_count = mem_read(cpu->mem, REG_INSTR_COUNT, KERNEL);
+	            fprintf(stderr, "\n[INSTRUCTION %ld] CONTEXT SWITCH DETECTED: Thread %d -> Thread %d\n",
+	                   current_instr_count, cpu->curr_thread_id, next_tid);
+	        }
 
-        switch (next_state) {
-        	case 0:
-        		strcpy(state, "READY");
-        		break;
-        	case 1:
-        		strcpy(state, "RUNNING");
-        		break;
-        	case 2:
-        		strcpy(state, "BLOCKED");
-        		break;
-        	case 3:
-        		strcpy(state, "TERMINATED");
-        		break;
-        }
-        #ifdef DEBUG_FLAG
-	        printf("CPU: Switching to Thread ID: %d, State: %s, PC: %ld, SP: %ld, DB: %ld, IB: %ld, IC: %ld, WC: %ld\n",
-	               next_tid,
-	               state,
-	               next_pc_val,
-	               next_sp_val,
-	               next_db_val,
-	               next_ib_val,
-	               next_ic_val,
-	               next_wc_val);
-        #endif
-        /* CPU context'ini doğrudan güncelle */
-        cpu->curr_thread_id = next_tid;
-        cpu->curr_data_base_for_active_entity = next_db_val;
-        cpu->curr_instruction_base_for_active_entity = next_ib_val;
+	        char state[15];
 
-        if (next_tid == OS_ID) {
-		    cpu->mode = KERNEL;
-		} else {
-		    cpu->mode = USER;
-		}
-        mem_write(cpu->mem, REG_PC, next_pc_val, KERNEL);
-        mem_write(cpu->mem, REG_SP, next_sp_val, KERNEL);
+	        switch (next_state) {
+	        	case 0:
+	        		strcpy(state, "READY");
+	        		break;
+	        	case 1:
+	        		strcpy(state, "RUNNING");
+	        		break;
+	        	case 2:
+	        		strcpy(state, "BLOCKED");
+	        		break;
+	        	case 3:
+	        		strcpy(state, "TERMINATED");
+	        		break;
+	        }
+	        #ifdef CX_DEBUG_FLAG
+		        printf("CPU: Switching to Thread ID: %d, State: %s, PC: %ld, SP: %ld, DB: %ld, IB: %ld, IC: %ld, WC: %ld\n",
+		               next_tid,
+		               state,
+		               next_pc_val,
+		               next_sp_val,
+		               next_db_val,
+		               next_ib_val,
+		               next_ic_val,
+		               next_wc_val);
+	        #endif
+	        /* CPU context'ini doğrudan güncelle */
+	        cpu->curr_thread_id = next_tid;
+	        cpu->curr_data_base_for_active_entity = next_db_val;
+	        cpu->curr_instruction_base_for_active_entity = next_ib_val;
 
-        /* sinyali "işlendi" olarak işaretle */
-        mem_write(cpu->mem, REG_CONTEXT_SWITCH_SIGNAL, CTX_SWITCH_DONE, KERNEL);
-    }
+	        if (next_tid == OS_ID) {
+			    cpu->mode = KERNEL;
+			} else {
+			    cpu->mode = USER;
+
+			    /* Check if this thread has a pending print from SYSCALL PRN */
+			    if (cpu->has_pending_print[next_tid]) {
+			        printf("\nRequested SYSCALL PRN output (Thread %d): %ld\n", next_tid, cpu->pending_print_values[next_tid]);
+			        cpu->has_pending_print[next_tid] = false;
+			        cpu->pending_print_values[next_tid] = 0;
+			    }
+			}
+	        mem_write(cpu->mem, REG_PC, next_pc_val, KERNEL);
+	        mem_write(cpu->mem, REG_SP, next_sp_val, KERNEL);
+
+	        /* sinyali "işlendi" olarak işaretle */
+	        mem_write(cpu->mem, REG_CONTEXT_SWITCH_SIGNAL, CTX_SWITCH_DONE, KERNEL);
+	    }
+	}
 
 	if (cpu->is_halted) {
 		return;
@@ -945,8 +1116,8 @@ cpu_execute_instruction(CPU * cpu)
 	mem_write(cpu->mem, REG_INSTR_COUNT, current_instr_count + 1, KERNEL);
 
 	/* WAKEUP COUNTDOWN - Her instruction sonrası BLOCKED thread'lerin wakeup değerlerini azalt */
-	/* bu kod KERNEL modunda çalışmalı çünkü thread table'a erişiyor */
-	if (cpu->mode == KERNEL || cpu->mode == USER) {
+	/* bu kod KERNEL modunda çalışmalı çünkü thread table'a erişiyor - ONLY for OS programs */
+	if (is_os_program && !is_single_thread_program && (cpu->mode == KERNEL || cpu->mode == USER)) {
 	    /* tüm thread'leri kontrol et */
 	    for (int tid = 1; tid <= MAX_THREADS; tid++) {
 

@@ -1,98 +1,109 @@
 # GTU-C312 CPU Simulator Usage Guide
 
-Bu simülatör, GTU-C312 CPU mimarisi için yazılmış operating system ve thread'leri çalıştırmak için tasarlanmıştır.
+This simulator is designed to run operating systems and threads written for the GTU-C312 CPU architecture.
 
-## Derleme
+## Compilation
 
 ```bash
 make simulator
 ```
 
-Bu komut `bin/simulator` executable dosyasını oluşturacaktır.
+This command will generate the `bin/simulator` executable file.
 
-## Kullanım
+## Usage
 
 ```bash
 ./bin/simulator <filename> [-D debug_mode] [-max max_instructions]
 ```
 
-### Parametreler
+### Parameters
 
-- `<filename>`: Çalıştırılacak assembly program dosyası (örn: `programs/os.asm`)
-- `-D debug_mode`: Debug modu (0-3 arası, varsayılan: 0)
-- `-max max_instructions`: Maksimum instruction sayısı (varsayılan: 50000)
+- `<filename>`: The assembly program file to execute (e.g., `programs/os.asm`)
+- `-D debug_mode`: Debug mode (0-3, default: 0)
+- `-max max_instructions`: Maximum number of instructions (default: 50000)
 
-### Debug Modları
+### Debug Modes
 
-#### Debug Mode 0 (Varsayılan)
-CPU durduğunda bellek içeriğinin tamamını stderr'e yazdırır.
+#### Debug Mode 0 (Default)
+
+Prints the entire memory contents to stderr when the CPU halts.
 
 ```bash
 ./bin/simulator programs/os.asm -D 0
 ```
 
 #### Debug Mode 1
-Her instruction execution'dan sonra tüm bellek içeriğini stderr'e yazdırır.
+
+Prints the entire memory contents to stderr after each instruction execution.
 
 ```bash
 ./bin/simulator programs/os.asm -D 1
 ```
 
-**Uyarı:** Bu mod çok fazla çıktı üretir. Küçük programlar için uygundur.
+**Warning:** This mode generates a large amount of output. Suitable for small programs.
 
 #### Debug Mode 2
-Her instruction execution'dan sonra tüm bellek içeriğini stderr'e yazdırır ve devam etmek için klavyeden bir tuşa basılmasını bekler.
+
+Prints the entire memory contents to stderr after each instruction execution and waits for a keypress to continue.
 
 ```bash
 ./bin/simulator programs/os.asm -D 2
 ```
 
-**Kullanım:** Step-by-step debugging için idealdir. Her instruction'dan sonra ENTER tuşuna basarak ilerleyebilirsiniz.
+**Usage:** Ideal for step-by-step debugging. Press ENTER after each instruction to proceed.
 
 #### Debug Mode 3
-Her context switch ve system call'dan sonra thread table'ının içeriğini stderr'e yazdırır.
+
+Prints the thread table contents to stderr after each context switch and system call.
 
 ```bash
 ./bin/simulator programs/os.asm -D 3
 ```
 
-Bu mod thread management ve scheduling'i debug etmek için en uygunudur.
+This mode is most suitable for debugging thread management and scheduling.
 
-## Örnek Kullanımlar
+## Example Usages
 
-### 1. Normal Çalıştırma
+### 1. Normal Execution
+
 ```bash
 ./bin/simulator programs/os.asm
 ```
 
 ### 2. Thread Table Monitoring
+
 ```bash
 ./bin/simulator programs/os.asm -D 3
 ```
 
-### 3. Step-by-step Debugging
+### 3. Step-by-Step Debugging
+
 ```bash
 ./bin/simulator programs/os.asm -D 2 -max 100
 ```
 
-### 4. Bellek İçeriği Monitoring
+### 4. Memory Content Monitoring
+
 ```bash
 ./bin/simulator programs/os.asm -D 1 -max 50 2> memory_trace.txt
 ```
 
-## Çıktı Formatları
+## Output Formats
 
-### Normal Çıktı (stdout)
-- Genel bilgiler ve execution summary
-- Thread'lerin SYSCALL PRN çıktıları
-- CPU durumu ve istatistikler
+### Normal Output (stdout)
 
-### Debug Çıktısı (stderr)
-- Bellek dump'ları (Debug Mode 0, 1, 2)
-- Thread table içerikleri (Debug Mode 3)
-- Context switch bildirimleri
+- General information and execution summary
+- Thread SYSCALL PRN outputs
+- CPU status and statistics
+
+### Debug Output (stderr)
+
+- Memory dumps (Debug Mode 0, 1, 2)
+- Thread table contents (Debug Mode 3)
+- Context switch notifications
 
 ### Thread Table Format (Debug Mode 3)
+
 ```
 Thread Table Base Address: 220
 Format: [ID] [State] [PC] [SP] [DataBase] [InstrBase] [IC] [WakeupCount]
@@ -105,37 +116,42 @@ Thread 3: [3] [0:READY] [7000] [7999] [6000] [7000] [0] [0]
 Thread 4: [4] [0:READY] [9000] [9999] [8000] [9000] [0] [0]
 ```
 
-## Test Programları
+## Test Programs
 
-Proje ile birlikte gelen test programları:
+Test programs included with the project:
 
-1. **programs/os.asm**: Ana OS ve 4 user thread (sorting, searching, multiplication, idle)
-2. **tests/test_source/sort_test.asm**: Sadece bubble sort thread'i
-3. **tests/test_source/linear_search.asm**: Sadece linear search thread'i
-4. **tests/test_source/mult_by_addition.asm**: Sadece multiplication thread'i
+1. **programs/os.asm**: Main OS and 4 user threads (sorting, searching, multiplication, idle)
+2. **tests/test_source/sort_test.asm**: Only bubble sort thread
+3. **tests/test_source/linear_search.asm**: Only linear search thread
+4. **tests/test_source/mult_by_addition.asm**: Only multiplication thread
 
-## Performans Notları
+## Performance Notes
 
-- **Debug Mode 0**: En hızlı, sadece sonunda dump
-- **Debug Mode 1**: Çok yavaş, her instruction için full memory dump
-- **Debug Mode 2**: En yavaş, kullanıcı etkileşimi gerekli
-- **Debug Mode 3**: Orta hızlı, sadece gerekli anlarda thread table
+- **Debug Mode 0**: Fastest, only dumps at the end
+- **Debug Mode 1**: Very slow, full memory dump for each instruction
+- **Debug Mode 2**: Slowest, requires user interaction
+- **Debug Mode 3**: Moderately fast, only thread table at necessary points
 
-## Sorun Giderme
+## Troubleshooting
 
-### Program çok uzun sürüyor
+### Program Takes Too Long
+
 ```bash
 ./bin/simulator programs/os.asm -max 10000
 ```
 
-### Bellek hatası
-Debug mode 1 veya 2 ile bellek durumunu kontrol edin.
+### Memory Error
 
-### Thread problemi
-Debug mode 3 ile thread state'lerini takip edin.
+Check memory status with Debug Mode 1 or 2.
 
-### Infinite loop şüphesi
-Düşük max instruction limit ile test edin:
+### Thread Issues
+
+Track thread states with Debug Mode 3.
+
+### Suspected Infinite Loop
+
+Test with a low max instruction limit:
+
 ```bash
 ./bin/simulator programs/os.asm -max 1000
 ```

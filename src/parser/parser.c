@@ -2,6 +2,27 @@
 
 #include <parser.h>
 
+bool is_multi_section_program = false; /* Global variable to track program type */
+bool is_os_program = false;            /* Global variable for OS program detection */
+bool is_single_thread_program = false; /* Global variable for single thread program detection */
+
+static int total_sections_count = 0; /* Section counter */
+
+/**
+ * @brief Resets program type detection variables.
+ *
+ * This function should be called before parsing a new program file to reset
+ * the global state for program type detection.
+ */
+void
+parser_reset(void)
+{
+    is_multi_section_program = false;
+    is_os_program = false;
+    is_single_thread_program = false;
+    total_sections_count = 0;
+}
+
 /**
  * @brief Trims leading and trailing whitespace from a string in-place.
  *
@@ -12,10 +33,10 @@
  * translation unit. If the input is NULL, NULL is returned.
  *
  * @param str Pointer to the null-terminated string to trim.
- * @return Pointer to the trimmed string (adjusted for leading whitespace), or NULL if 
+ * @return Pointer to the trimmed string (adjusted for leading whitespace), or NULL if
  * input is NULL.
  */
-static char * 
+static char *
 trim_whitespace(char * str)
 {
 	if (str == NULL) {
@@ -96,8 +117,8 @@ parse_data_line(const char * line, Memory * mem, long int base_addr, long int cu
 
 	/* Check if the offset is within bounds */
 	if (address_offset < 0 || address_offset >= max_data_size) {
-		fprintf(stderr, "ERROR: Data address offset %ld out of bounds (0 to %d)\n",
-				address_offset, ENTITY_DATA_SIZE - 1);
+		fprintf(stderr, "ERROR: Data address offset %ld out of bounds (0 to %ld)\n",
+				address_offset, max_data_size - 1);
 		free(copy_line);
 		return -1;
 	}
@@ -356,6 +377,74 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index, long int i
 }
 
 /**
+ * @brief First pass: Detects program type by counting sections
+ *
+ * This function performs a first pass through the file to detect whether it's
+ * a single-thread program or a multi-section OS program. Single-thread programs
+ * have exactly 2 sections (one data, one instruction), while OS programs have
+ * multiple sections for different entities.
+ *
+ * @param filename Path to the assembly file.
+ * @return 0 on success, -1 on failure.
+ */
+static int
+detect_program_type(const char * filename)
+{
+	FILE * file = fopen(filename, "r");
+	if (file == NULL) {
+		fprintf(stderr, "ERROR: Could not open file for type detection: %s\n", filename);
+		return -1;
+	}
+
+	char * line_buffer = (char *)malloc(sizeof(char) * ASM_LINE_BUFFER_SIZE);
+	if (line_buffer == NULL) {
+		fprintf(stderr, "ERROR: Memory allocation failed in detect_program_type\n");
+		fclose(file);
+		return -1;
+	}
+
+	int section_count = 0;
+
+	while (fgets(line_buffer, ASM_LINE_BUFFER_SIZE, file) != NULL) {
+		char * clean_line = trim_whitespace(line_buffer);
+		if (strlen(clean_line) == 0 || clean_line[0] == '#') {
+			continue;
+		}
+
+		if (strcmp(clean_line, "Begin Data Section") == 0 ||
+		    strcmp(clean_line, "Begin Instruction Section") == 0) {
+			section_count++;
+		}
+	}
+
+	/* Program type detection based on section count */
+	if (section_count == 2) {
+		/* Single thread program: exactly 2 sections (1 data + 1 instruction) */
+		is_single_thread_program = true;
+		is_os_program = false;
+		is_multi_section_program = false;
+		printf("PARSER: Detected SINGLE THREAD program (2 sections)\n");
+	} else if (section_count > 2) {
+		/* Multi-section OS program */
+		is_single_thread_program = false;
+		is_os_program = true;
+		is_multi_section_program = true;
+		printf("PARSER: Detected OS program (%d sections)\n", section_count);
+	} else {
+		fprintf(stderr, "ERROR: Invalid program structure (%d sections). Expected at least 2.\n", section_count);
+		free(line_buffer);
+		fclose(file);
+		return -1;
+	}
+
+	total_sections_count = section_count;
+
+	free(line_buffer);
+	fclose(file);
+	return 0;
+}
+
+/**
  * @brief Loads an assembly program from a file into memory using a DFA-based parser.
  *
  * This function reads an assembly file containing OS and thread definitions in a single file.
@@ -369,6 +458,9 @@ parse_insr_line(const char * line, Memory * mem, int curr_insr_index, long int i
  * - Thread 2: base=2000, Data: 2000-2255, Instructions: 2256-2999
  * - ... up to Thread 10.
  *
+ * For single thread programs, the program is loaded into Thread 2's space to avoid
+ * conflicts with registers (0-19) and OS space.
+ *
  * @param filename Path to the assembly file.
  * @param mem Pointer to the Memory structure where the program will be loaded.
  *
@@ -379,6 +471,15 @@ load_program_from_file(const char * filename, Memory * mem)
 {
 	if (filename == NULL || mem == NULL) {
 		fprintf(stderr, "ERROR: NULL filename or memory pointer\n");
+		return -1;
+	}
+
+	/* Reset parser state */
+	parser_reset();
+
+	/* First pass: detect program type */
+	if (detect_program_type(filename) != 0) {
+		fprintf(stderr, "ERROR: Failed to detect program type\n");
 		return -1;
 	}
 
@@ -405,12 +506,28 @@ load_program_from_file(const char * filename, Memory * mem)
 	}
 
 	Parser_State state = INITIAL_CONTEXT;
-	int current_entity_id = OS_ID; /* Start with OS (0), then threads 1 to 10 */
 	int curr_insr_index = 0; /* Reset for each entity's instruction section */
 	int data_count = 0; /* Reset for each entity's data section */
 	int line_number = 0;
-	long int current_base_addr = OS_DATA_START_ADDR; /* Base address for data */
-	long int current_instr_base_addr = OS_INSTRUCTION_START_ADDR; /* Base address for instructions */
+
+	/* Determine starting entity and addresses based on program type */
+	int current_entity_id;
+	long int current_base_addr;
+	long int current_instr_base_addr;
+
+	if (is_single_thread_program) {
+		/* Single thread: use Thread 2's space to avoid register conflicts */
+		current_entity_id = 2;
+		current_base_addr = THREAD_DATA_START(2);
+		current_instr_base_addr = THREAD_INSTR_START(2);
+		printf("PARSER: Loading single thread program into Thread 2 space (base: %ld)\n", current_base_addr);
+	} else {
+		/* Multi-section OS program: start with OS */
+		current_entity_id = OS_ID;
+		current_base_addr = OS_DATA_START_ADDR;
+		current_instr_base_addr = OS_INSTRUCTION_START_ADDR;
+		printf("PARSER: Loading OS program starting with OS entity\n");
+	}
 
 	while (fgets(line_buffer, ASM_LINE_BUFFER_SIZE, file) != NULL)
 	{
@@ -448,24 +565,24 @@ load_program_from_file(const char * filename, Memory * mem)
                     }
 
 					state = INITIAL_CONTEXT;
-					current_entity_id++; /* Move to the next entity */
 
-					if (current_entity_id > MAX_PROGRAM_ENTITIES) {
-						fprintf(stderr, "ERROR at line %d: Maximum number of entities (%d) exceeded\n",
-								line_number, MAX_PROGRAM_ENTITIES);
-						free(line_buffer);
-						free(used_indices);
-						fclose(file);
-						return -1;
-					}
-					/* Update base addresses for the next entity */
-					if (current_entity_id == OS_ID + 1) {
-						current_base_addr = THREAD_DATA_START(current_entity_id);
-						current_instr_base_addr = THREAD_INSTR_START(current_entity_id);
-					}
-					else if (current_entity_id <= MAX_THREADS) {
-						current_base_addr = THREAD_BASE_ADDR(current_entity_id);
-						current_instr_base_addr = THREAD_INSTR_START(current_entity_id);
+					/* For single thread programs, don't increment entity */
+					if (!is_single_thread_program) {
+						current_entity_id++; /* Move to the next entity */
+
+						if (current_entity_id > MAX_PROGRAM_ENTITIES) {
+							fprintf(stderr, "ERROR at line %d: Maximum number of entities (%d) exceeded\n",
+									line_number, MAX_PROGRAM_ENTITIES);
+							free(line_buffer);
+							free(used_indices);
+							fclose(file);
+							return -1;
+						}
+						/* Update base addresses for the next entity */
+						if (current_entity_id <= MAX_THREADS) {
+							current_base_addr = THREAD_BASE_ADDR(current_entity_id);
+							current_instr_base_addr = THREAD_INSTR_START(current_entity_id);
+						}
 					}
 				}
 				else if (strcmp(clean_line, "Begin Data Section") == 0 ||
@@ -544,13 +661,29 @@ load_program_from_file(const char * filename, Memory * mem)
 		return -1;
 	}
 
-	if (current_entity_id < 1) {
-		fprintf(stderr, "ERROR: At least one entity (OS) is required, but none were processed\n");
-		free(line_buffer);
-		free(used_indices);
-		fclose(file);
-		return -1;
+	/* Validation checks based on program type */
+	if (is_single_thread_program) {
+		printf("PARSER: Single thread program loaded successfully into Thread 2 space\n");
+	} else {
+		if (current_entity_id < 1) {
+			fprintf(stderr, "ERROR: At least one entity (OS) is required for multi-section program, but none were processed\n");
+			free(line_buffer);
+			free(used_indices);
+			fclose(file);
+			return -1;
+		}
+		printf("PARSER: OS program loaded successfully with %d entities\n", current_entity_id);
 	}
+
+	/* Debug: Program type detection result */
+	#ifdef DEBUG_FLAG
+		printf("PARSER: Program type detection complete:\n");
+		printf("  - Single thread: %s\n", is_single_thread_program ? "YES" : "NO");
+		printf("  - OS program: %s\n", is_os_program ? "YES" : "NO");
+		printf("  - Multi-section: %s\n", is_multi_section_program ? "YES" : "NO");
+		printf("  - Total sections: %d\n", total_sections_count);
+	#endif
+
 	free(line_buffer);
 	free(used_indices);
 	fclose(file);
