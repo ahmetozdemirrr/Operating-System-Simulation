@@ -159,6 +159,7 @@ exec_cpyi2(CPU * cpu, long int relative_src_ptr_address, long int relative_dest_
 	#ifdef INSTRUCTION_FLOW_DFLAG
 		printf("CPYI2: %ld - %ld\n", relative_src_ptr_address, relative_dest_ptr_address);
 	#endif
+
 	check_cpu(cpu, __func__);
 	check_data_address(cpu, relative_src_ptr_address, "CPYI");
 	check_data_address(cpu, relative_dest_ptr_address,   "CPYI");
@@ -600,7 +601,7 @@ exec_syscall_prn(CPU * cpu, long int source_address, long int * next_pc_address)
         exit(EXIT_FAILURE);
     }
     long int value = mem_read(cpu->mem, absolute_source_address, cpu->mode);
-    printf("\n\n\n\n\n\nSYSCALL PRN output: %ld\n\n\n\n\n\n", value);
+    printf("\nSYSCALL PRN output: %ld\n", value);
 
     /* syscall bilgisini kaydet */
     mem_write(cpu->mem, REG_SYSCALL_RESULT, SYSCALL_PRN_ID, KERNEL);
@@ -742,8 +743,9 @@ cpu_execute_instruction(CPU * cpu)
 	        Bu loglama, cpu->curr_thread_id OS iken daha anlamlı olur,
 	        çünkü scheduler OS'nin bir parçasıdır. Ancak sinyal herhangi bir anda tespit edilebilir.
         */
-        printf("CPU: Context Switch Request DETECTED (Signal: %ld) by OS (presumably).\n", ctx_signal);
-
+        #ifdef DEBUG_FLAG
+        	printf("CPU: Context Switch Request DETECTED (Signal: %ld) by OS (presumably).\n", ctx_signal);
+        #endif
         /* posta kutusundan yeni context bilgilerini KERNEL modunda oku, çünkü OS bunları KERNEL modunda yazdı. */
         int next_tid =    (int)mem_read(cpu->mem, ADDR_MAILBOX_NEXT_THREAD_ID,   KERNEL);
         long int next_state  = mem_read(cpu->mem, ADDR_MAILBOX_NEXT_STATE,       KERNEL);
@@ -770,16 +772,17 @@ cpu_execute_instruction(CPU * cpu)
         		strcpy(state, "TERMINATED");
         		break;
         }
-        printf("CPU: Switching to Thread ID: %d, State: %s, PC: %ld, SP: %ld, DB: %ld, IB: %ld, IC: %ld, WC: %ld\n",
-               next_tid,
-               state,
-               next_pc_val,
-               next_sp_val,
-               next_db_val,
-               next_ib_val,
-               next_ic_val,
-               next_wc_val);
-
+        #ifdef DEBUG_FLAG
+	        printf("CPU: Switching to Thread ID: %d, State: %s, PC: %ld, SP: %ld, DB: %ld, IB: %ld, IC: %ld, WC: %ld\n",
+	               next_tid,
+	               state,
+	               next_pc_val,
+	               next_sp_val,
+	               next_db_val,
+	               next_ib_val,
+	               next_ic_val,
+	               next_wc_val);
+        #endif
         /* CPU context'ini doğrudan güncelle */
         cpu->curr_thread_id = next_tid;
         cpu->curr_data_base_for_active_entity = next_db_val;

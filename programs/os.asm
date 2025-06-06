@@ -435,7 +435,7 @@ Begin Instruction Section
 117 SET   2   380  # M[380] = 2 (blocked = 2)
 118 SET   380 381  # 380'i dolayla
 119 CPYI2 381 374  # state_addressin tutulduğu yere 2 yaz (blocked)
-120 SET   100 382  # M[382] = 100
+120 SET   1000 382  # M[382] = 100
 121 SET   382 383  # 382'yi dolayla
 122 CPYI2 383 378  # wakeup_address'e 100 yaz
 123 JIF   80  139  # eğer buna eşitse, diğer eşitlikleri kontrol etme

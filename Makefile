@@ -1,3 +1,5 @@
+# Makefile
+
 CC = gcc # compiler
 CFLAGS = -g -Wall -Wextra -std=c11 -Iinclude
 
@@ -20,9 +22,9 @@ PARSER_OBJS = $(OBJ_DIR)/parser_test.o $(OBJ_DIR)/parser.o $(OBJ_DIR)/memory.o
 PARSER_TEST_TARGET = $(BIN_DIR)/parser_test_runner
 
 # --- cpu test files ---
-CPU_C_FILES = $(TEST_DIR)/sort_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
-CPU_OBJS = $(OBJ_DIR)/sort_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
-CPU_TEST_TARGET = $(BIN_DIR)/cpu_test_runner
+SORT_FILES = $(TEST_DIR)/sort_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
+SORT_OBJS = $(OBJ_DIR)/sort_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
+SORT_TEST_TARGET = $(BIN_DIR)/cpu_test_runner
 
 # --- linear search test files ---
 SEARCH_C_FILES = $(TEST_DIR)/linear_search_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
@@ -35,29 +37,22 @@ MULT_C_DEPS = $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
 MULT_OBJS = $(OBJ_DIR)/multiplication_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
 MULT_TEST_TARGET = $(BIN_DIR)/mult_test_runner
 
-# Scheduler test files
-SCHEDULER_C_FILES = $(TEST_DIR)/scheduler_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c
-SCHEDULER_OBJS = $(OBJ_DIR)/scheduler_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o
-SCHEDULER_TEST_TARGET = $(BIN_DIR)/scheduler_test_runner
-
-# Multi-thread test files
-MULTITHREAD_C_FILES = $(TEST_DIR)/multi_thread_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
-MULTITHREAD_OBJS = $(OBJ_DIR)/multi_thread_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
-MULTITHREAD_TEST_TARGET = $(BIN_DIR)/multithread_test_runner
-
 # OS System Test files
 OS_SYSTEM_C_FILES = $(TEST_DIR)/os_system_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
 OS_SYSTEM_OBJS = $(OBJ_DIR)/os_system_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
 OS_SYSTEM_TEST_TARGET = $(BIN_DIR)/os_system_test_runner
 
-# OS Debug Test files
-OS_DEBUG_C_FILES = $(TEST_DIR)/os_debug_test.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
-OS_DEBUG_OBJS = $(OBJ_DIR)/os_debug_test.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
-OS_DEBUG_TEST_TARGET = $(BIN_DIR)/os_debug_test_runner
-
+# Simulator files
+SIMULATOR_C_FILES = simulation/simulator.c $(SRC_DIR)/cpu.c $(SRC_DIR)/memory.c $(SRC_DIR)/parser/parser.c
+SIMULATOR_OBJS = $(OBJ_DIR)/simulator.o $(OBJ_DIR)/cpu.o $(OBJ_DIR)/memory.o $(OBJ_DIR)/parser.o
+SIMULATOR_TARGET = $(BIN_DIR)/simulator
 
 # === TARGETS ===
-default: memtest parsetest searchtest multtest schedulertest multithreadtest ossystemtest osdebugtest
+default: memtest parsetest sorttest searchtest multtest ossystemtest simulator
+
+# Simulator target
+simulator: $(SIMULATOR_TARGET)
+	@echo "Simulator built successfully!"
 
 # Add searchtest to existing targets
 searchtest: $(SEARCH_TEST_TARGET)
@@ -75,9 +70,9 @@ parsetest: $(PARSER_TEST_TARGET)
 	./$(PARSER_TEST_TARGET)
 	@echo "Parser Test is Complete."
 
-cputest: $(CPU_TEST_TARGET)
+sorttest: $(SORT_TEST_TARGET)
 	@echo "Running CPU Test..."
-	./$(CPU_TEST_TARGET)
+	./$(SORT_TEST_TARGET)
 	@echo "CPU Test is Complete."
 
 multtest: $(MULT_TEST_TARGET)
@@ -85,28 +80,15 @@ multtest: $(MULT_TEST_TARGET)
 	./$(MULT_TEST_TARGET)
 	@echo "Multiplication by Addition Test is Complete."
 
-schedulertest: $(SCHEDULER_TEST_TARGET)
-	@echo "Running Scheduler Test..."
-	./$(SCHEDULER_TEST_TARGET)
-	@echo "Scheduler Test is Complete."
-
-# Multi-thread test target
-multithreadtest: $(MULTITHREAD_TEST_TARGET)
-	@echo "Running Multi-Thread OS Test..."
-	./$(MULTITHREAD_TEST_TARGET)
-	@echo "Multi-Thread OS Test is Complete."
-
 # OS System test target
 ossystemtest: $(OS_SYSTEM_TEST_TARGET)
 	@echo "Running OS System Test..."
 	./$(OS_SYSTEM_TEST_TARGET)
 	@echo "OS System Test is Complete."
 
-# OS Debug test target
-osdebugtest: $(OS_DEBUG_TEST_TARGET)
-	@echo "Running OS Debug Test..."
-	./$(OS_DEBUG_TEST_TARGET)
-	@echo "OS Debug Test is Complete."
+$(SIMULATOR_TARGET): $(SIMULATOR_OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(MEM_TEST_TARGET): $(MEM_OBJS)
 	@mkdir -p $(BIN_DIR)
@@ -116,7 +98,7 @@ $(PARSER_TEST_TARGET): $(PARSER_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-$(CPU_TEST_TARGET): $(CPU_OBJS)
+$(SORT_TEST_TARGET): $(SORT_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
@@ -128,21 +110,10 @@ $(MULT_TEST_TARGET): $(MULT_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-$(SCHEDULER_TEST_TARGET): $(SCHEDULER_OBJS)
-	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
-
-$(MULTITHREAD_TEST_TARGET): $(MULTITHREAD_OBJS)
-	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
-
 $(OS_SYSTEM_TEST_TARGET): $(OS_SYSTEM_OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-$(OS_DEBUG_TEST_TARGET): $(OS_DEBUG_OBJS)
-	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 # === GENERAL COMPILE RULES ===
 # rule for creating .o files in obj from .c files in src directory
@@ -160,6 +131,11 @@ $(OBJ_DIR)/%.o: $(TEST_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiled: $< -> $@"
 
+# rule for creating .o files in obj from .c files in simulation directory
+$(OBJ_DIR)/%.o: simulation/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+	@echo "Compiled: $< -> $@"
+
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
 
@@ -168,6 +144,7 @@ clean:
 	@echo "Cleaning..."
 	rm -rf $(OBJ_DIR)
 	rm -rf $(BIN_DIR)
+	rm -rf *.txt
 	@echo "Cleaning is complete."
 
-.PHONY: all default memtest parsetest cputest searchtest multtest schedulertest multithreadtest ossystemtest osdebugtest clean
+.PHONY: all default memtest parsetest cputest searchtest multtest schedulertest multithreadtest ossystemtest osdebugtest simulator clean
